@@ -7,9 +7,9 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
     {
         protected readonly DbContext context;
 
-        public Repository(DbContext context)
+        public Repository()
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.context = new MedicalAppointmentsContext();
         }
 
         public TModel Add(TModel model)
@@ -19,7 +19,11 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
                 throw new ArgumentNullException(nameof(model));
             }
 
-            return context.Set<TModel>().Add(model).Entity;
+            TModel addedModel = context.Set<TModel>().Add(model).Entity;
+
+            context.SaveChanges();
+
+            return addedModel;
         }
 
         public bool Delete(TModel model)
@@ -56,7 +60,11 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
                 throw new ArgumentNullException(nameof(model));
             }
 
-            return context.Set<TModel>().Update(model).Entity;
+            TModel updatedModel = context.Set<TModel>().Update(model).Entity;
+
+            context.SaveChanges();
+
+            return updatedModel;
         }
     }
 }
