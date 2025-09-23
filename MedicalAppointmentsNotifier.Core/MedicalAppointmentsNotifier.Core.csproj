@@ -15,8 +15,4 @@
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Domain\MedicalAppointmentsNotifier.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
 </Project>
