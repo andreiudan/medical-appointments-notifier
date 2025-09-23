@@ -4,6 +4,7 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="MedicalAppointmentsNotifier.Core/MedicalAppointmentsNotifier.Core.csproj" Id="09e72688-5c50-46ba-9a1f-58f38ab903a8" />
   <Project Path="MedicalAppointmentsNotifier.Data/MedicalAppointmentsNotifier.Data.csproj" />
   <Project Path="MedicalAppointmentsNotifier.Domain/MedicalAppointmentsNotifier.Domain.csproj" />
   <Project Path="MedicalAppointmentsNotifier/MedicalAppointmentsNotifier.WinUI.csproj">
