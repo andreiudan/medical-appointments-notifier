@@ -13,6 +13,12 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         public string Description { get; set; }
 
         [Required]
+        public DateTime From { get; set; }
+
+        [Required]
+        public DateTime Until { get; set; }
+
+        [Required]
         public User? User { get; set; }
 
         public override bool Equals(object? obj)
@@ -34,12 +40,14 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.Description == obj.Description &&
+                this.From == obj.From &&
+                this.Until == obj.Until &&
                 this.User.Equals(obj.User);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Description, User);
+            return HashCode.Combine(Id, Description, From, Until, User);
         }
     }
 }
