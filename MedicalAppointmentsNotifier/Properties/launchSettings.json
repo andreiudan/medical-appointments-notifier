@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MedicalAppointmentsNotifier (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MedicalAppointmentsNotifier (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
