@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using MedicalAppointmentsNotifier.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -27,6 +28,7 @@ namespace MedicalAppointmentsNotifier
     public partial class App : Application
     {
         private Window? _window;
+        public Frame RootFrame { get; private set; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -44,6 +46,11 @@ namespace MedicalAppointmentsNotifier
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             _window = new MainWindow();
+
+            RootFrame = new Frame();
+            RootFrame.Navigate(typeof(UsersView), args.Arguments);
+
+            _window.Content = RootFrame;
             _window.Activate();
         }
     }
