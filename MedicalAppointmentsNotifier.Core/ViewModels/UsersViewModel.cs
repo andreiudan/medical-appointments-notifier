@@ -16,17 +16,21 @@ public partial class UsersViewModel : ObservableObject
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
 
+    public IAsyncRelayCommand AddUserCommand { get; }
+
     public IRepository<User> UsersRepository { get; set; } = Ioc.Default.GetRequiredService<IRepository<User>>();
 
     public UsersViewModel()
     {
         LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
         LoadUsersCommand.Execute(null);
+
+        AddUserCommand = new AsyncRelayCommand(AddAsync);
     }
 
     private async Task LoadUsersAsync()
     {
-        var _users = await UsersRepository.GetAll();
+        var _users = await UsersRepository.GetAllAsync();
 
         Users.Clear();
 
@@ -36,8 +40,7 @@ public partial class UsersViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void Add()
+    private async Task AddAsync()
     {
         User user = new User
         {
@@ -47,6 +50,6 @@ public partial class UsersViewModel : ObservableObject
             Notes = new List<Note>()
         };
 
-        UsersRepository.Add(user);
+        await UsersRepository.AddAsync(user);
     }
 }

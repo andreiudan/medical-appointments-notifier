@@ -1,5 +1,6 @@
 ﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace MedicalAppointmentsNotifier.Data.Repositories
 {
@@ -12,59 +13,74 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
             this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public TModel Add(TModel model)
+        public async Task<TModel> AddAsync(TModel model)
         {
             if (model == null)
             {
                 throw new ArgumentNullException(nameof(model));
             }
 
-            TModel addedModel = context.Set<TModel>().Add(model).Entity;
+            var entry = await context.Set<TModel>().AddAsync(model);
+            TModel addedModel =entry.Entity;
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             return addedModel;
         }
 
-        public bool Delete(TModel model)
+        public async Task<bool> DeleteAsync(TModel model)
         {
             if (model == null)
             {
                 throw new ArgumentNullException(nameof(model));
             }
 
-            context.Set<TModel>().Remove(model);
+            await Task.Run(() => context.Set<TModel>().Remove(model));
+
+            await context.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task<List<TModel>> GetAll()
+        public async Task<List<TModel>> GetAllAsync()
         {
             return await Task.Run(() => context.Set<TModel>().ToList());
         }
 
-        public TModel GetById(Guid id)
+        public async Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate)
         {
-            if(id == Guid.Empty)
+            if(predicate == null)
             {
-                throw new ArgumentException("The id cannot be empty.", nameof(id));
+                throw new ArgumentException("The id cannot be empty.", nameof(predicate));
             }
 
-            return context.Set<TModel>().Find(id);
+            return await context.Set<TModel>().FirstOrDefaultAsync(predicate);
         }
 
-        public TModel Update(TModel model)
+        public async Task<bool> UpdateAsync(TModel model)
         {
             if(model == null)
             {
                 throw new ArgumentNullException(nameof(model));
             }
 
-            TModel updatedModel = context.Set<TModel>().Update(model).Entity;
+            try
+            {
+                if(context.Entry(model).State == EntityState.Detached)
+                {
+                    context.Set<TModel>().Attach(model);
+                }
 
-            context.SaveChanges();
+                context.Entry(model).State = EntityState.Modified;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
 
-            return updatedModel;
+            await context.SaveChangesAsync();
+
+            return true;
         }
     }
 }
