@@ -6,8 +6,9 @@
     xmlns:local="using:MedicalAppointmentsNotifier.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels"
     mc:Ignorable="d">
-    
+
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="10*"/>
@@ -23,8 +24,8 @@
 
             <TextBlock Grid.Column="0" Text="Beneficiari" HorizontalAlignment="Left" FontSize="32" FontWeight="Bold" Margin="10"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Add User" Margin="5"/>
-                <Button Content="Delete User" Margin="5"/>
+                <Button Content="Add User" Margin="5" Command="{x:Bind ViewModel.AddCommand}"/>
+                <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.LoadUsersCommand}"/>
             </StackPanel>
         </Grid>
 
@@ -33,7 +34,9 @@
             BorderBrush="DarkRed" 
             Margin="10" 
             Grid.Row="1" 
-            x:Name="UsersListView">
+            x:Name="UsersListView"
+            ItemsSource="{x:Bind ViewModel.Users}">
+            
             <ListView.HeaderTemplate>
                 <DataTemplate>
                     <Grid Padding="12">
@@ -49,15 +52,22 @@
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
-            <!--<ListView.ItemTemplate>
+            
+            <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Spacing="20">
-                        <TextBlock Text="{Binding Name}" Width="200"/>
-                        <TextBlock Text="{Binding NextAppointment, StringFormat='{}{0:dd/MM/yyyy}'}" Width="200"/>
-                        <TextBlock Text="{Binding Status}" Width="150"/>
-                    </StackPanel>
+                    <Grid Padding="16" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40*"/>
+                            <ColumnDefinition Width="35*"/>
+                            <ColumnDefinition Width="25*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{Binding Name}" Width="200" Grid.Column="0" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="A" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="B" Width="150" Grid.Column="2" HorizontalTextAlignment="Center"/>
+                    </Grid>
                 </DataTemplate>
-            </ListView.ItemTemplate>-->
+            </ListView.ItemTemplate>
         </ListView>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Spacing="12">

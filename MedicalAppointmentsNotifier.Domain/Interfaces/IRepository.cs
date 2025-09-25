@@ -10,6 +10,6 @@
 
         public TModel GetById(Guid id);
 
-        public List<TModel> GetAll();
+        public Task<List<TModel>> GetAll();
     }
 }

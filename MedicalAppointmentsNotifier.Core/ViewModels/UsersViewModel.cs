@@ -1,26 +1,52 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
+using MedicalAppointmentsNotifier.Data.Repositories;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
-namespace MedicalAppointmentsNotifier.Core.ViewModels
+namespace MedicalAppointmentsNotifier.Core.ViewModels;
+
+public partial class UsersViewModel : ObservableObject
 {
-    public partial class UsersViewModel : ObservableObject
+    [ObservableProperty]
+    private ObservableCollection<User> users = new();
+
+    public IAsyncRelayCommand LoadUsersCommand { get; }
+
+    public IRepository<User> UsersRepository { get; set; } = Ioc.Default.GetRequiredService<IRepository<User>>();
+
+    public UsersViewModel()
     {
-        [ObservableProperty]
-        private ObservableCollection<User> users = new();
+        LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
+        LoadUsersCommand.Execute(null);
+    }
 
-        private IRepository<User> usersRepository;
+    private async Task LoadUsersAsync()
+    {
+        var _users = await UsersRepository.GetAll();
 
-        public UsersViewModel(IRepository<User> repository)
+        Users.Clear();
+
+        foreach (var user in _users)
         {
-            usersRepository = repository ?? throw new ArgumentNullException(nameof(repository));
-            GetAll();
+            Users.Add(user);
         }
+    }
 
-        private void GetAll()
+    [RelayCommand]
+    private void Add()
+    {
+        User user = new User
         {
-            users = new ObservableCollection<User>(usersRepository.GetAll());
-        }
+            Id = Guid.NewGuid(),
+            Name = "New User",
+            Appointments = new List<Appointment>(),
+            Notes = new List<Note>()
+        };
+
+        UsersRepository.Add(user);
     }
 }

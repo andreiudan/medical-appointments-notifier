@@ -33,9 +33,9 @@ namespace MedicalAppointmentsNotifier.Core.Models
             return user;
         }
 
-        public List<User> GetAll()
+        public async Task<List<User>> GetAll()
         {
-            return usersRepository.GetAll();
+            return await usersRepository.GetAll();
         }
 
         public User Create(string name)

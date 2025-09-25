@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedicalAppointmentsNotifier.Data.Repositories
 {
-    internal class Repository<TModel> : IRepository<TModel> where TModel : class
+    public class Repository<TModel> : IRepository<TModel> where TModel : class
     {
         protected readonly DbContext context;
 
-        public Repository()
+        public Repository(MedicalAppointmentsContext context)
         {
-            this.context = new MedicalAppointmentsContext();
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public TModel Add(TModel model)
@@ -38,9 +38,9 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
             return true;
         }
 
-        public List<TModel> GetAll()
+        public async Task<List<TModel>> GetAll()
         {
-            return context.Set<TModel>().ToList();
+            return await Task.Run(() => context.Set<TModel>().ToList());
         }
 
         public TModel GetById(Guid id)
