@@ -24,7 +24,7 @@
 
             <TextBlock Grid.Column="0" Text="Beneficiari" HorizontalAlignment="Left" FontSize="32" FontWeight="Bold" Margin="10"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Add User" Margin="5" Command="{x:Bind ViewModel.AddCommand}"/>
+                <Button Content="Add User" Margin="5" Command="{x:Bind ViewModel.AddUserCommand}"/>
                 <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.LoadUsersCommand}"/>
             </StackPanel>
         </Grid>
@@ -35,7 +35,9 @@
             Margin="10" 
             Grid.Row="1" 
             x:Name="UsersListView"
-            ItemsSource="{x:Bind ViewModel.Users}">
+            ItemsSource="{x:Bind ViewModel.Users}"
+            IsItemClickEnabled="True"
+            ItemClick="UsersListView_ItemClick">
             
             <ListView.HeaderTemplate>
                 <DataTemplate>
@@ -52,9 +54,9 @@
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
-            
+
             <ListView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
                     <Grid Padding="16" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="40*"/>

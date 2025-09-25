@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Diagnostics;
 using System.IO;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -65,6 +64,7 @@ namespace MedicalAppointmentsNotifier
 
             services.AddScoped<IRepository<User>, Repository<User>>();
             services.AddTransient<UsersViewModel>();
+            services.AddTransient<UserAppointmentsViewModel>();
 
             return services.BuildServiceProvider();
         }
