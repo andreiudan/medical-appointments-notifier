@@ -1,15 +1,17 @@
-﻿namespace MedicalAppointmentsNotifier.Domain.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace MedicalAppointmentsNotifier.Domain.Interfaces
 {
     public interface IRepository<TModel> where TModel : class
     {
-        public TModel Add(TModel model);
+        public Task<TModel> AddAsync(TModel model);
 
-        public TModel Update(TModel model);
+        public Task<bool> UpdateAsync(TModel model);
 
-        public bool Delete(TModel model);
+        public Task<bool> DeleteAsync(TModel model);
 
-        public TModel GetById(Guid id);
+        public Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate);
 
-        public List<TModel> GetAll();
+        public Task<List<TModel>> GetAllAsync();
     }
 }

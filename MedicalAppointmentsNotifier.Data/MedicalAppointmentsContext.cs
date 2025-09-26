@@ -3,8 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedicalAppointmentsNotifier.Data
 {
-    internal class MedicalAppointmentsContext : DbContext
+    public class MedicalAppointmentsContext : DbContext
     {
+        public MedicalAppointmentsContext(DbContextOptions options) : base(options)
+        {
+            
+        }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Appointment> Appointments { get; set; }
@@ -13,7 +18,7 @@ namespace MedicalAppointmentsNotifier.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source= ..\\MedicalAppointmentsNotifier.Data\\Database\\MedicalAppointments.db");
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
