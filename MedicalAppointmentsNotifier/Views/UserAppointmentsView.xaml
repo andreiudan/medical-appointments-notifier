@@ -8,7 +8,37 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
-        <Button x:Name="btnBack" Content="{x:Bind ViewModel.User.Id}" Click="btnBack_Click"/>
+    <Grid Margin="12" RowSpacing="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="45*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Button x:Name="btnBack" Grid.Row="0" Content="Inapoi" Click="btnBack_Click"/>
+        <TextBlock Text="Beneficiar: " Grid.Row="1" VerticalAlignment="Top"/>
+
+        <Grid Grid.Row="2">
+            <GridViewHeaderItem>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Mentiuni" Grid.Column="0" HorizontalAlignment="Left"/>
+                    <Button Content="Adauga" Grid.Column="1" HorizontalAlignment="Right"/>
+                </Grid>
+                
+            </GridViewHeaderItem>
+        </Grid>
+
+        <Grid Grid.Row="3">
+            
+        </Grid>
     </Grid>
 </Page>
