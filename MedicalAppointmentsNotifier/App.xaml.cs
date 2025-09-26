@@ -43,6 +43,10 @@ namespace MedicalAppointmentsNotifier
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            DbContext dbContext = Services.GetRequiredService<MedicalAppointmentsContext>();
+
+            dbContext.Database.Migrate();
+
             _window = new MainWindow();
 
             RootFrame = new Frame();
