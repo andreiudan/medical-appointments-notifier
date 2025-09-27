@@ -1,11 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using MedicalAppointmentsNotifier.Data.Repositories;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
