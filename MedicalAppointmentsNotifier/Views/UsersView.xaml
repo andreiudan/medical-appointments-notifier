@@ -24,8 +24,8 @@
 
             <TextBlock Grid.Column="0" Text="Beneficiari" HorizontalAlignment="Left" FontSize="32" FontWeight="Bold" Margin="10"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Add User" Margin="5" Command="{x:Bind ViewModel.AddUserCommand}"/>
-                <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.LoadUsersCommand}"/>
+                <Button Content="Add User" Margin="5"/>
+                <Button Content="Delete User" Margin="5"/>
             </StackPanel>
         </Grid>
 

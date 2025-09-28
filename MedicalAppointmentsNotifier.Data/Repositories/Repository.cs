@@ -44,7 +44,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<List<TModel>> GetAllAsync()
         {
-            return await Task.Run(() => context.Set<TModel>().ToList());
+            return await Task.Run(() => context.Set<TModel>().IgnoreAutoIncludes().ToList());
         }
 
         public async Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate)
