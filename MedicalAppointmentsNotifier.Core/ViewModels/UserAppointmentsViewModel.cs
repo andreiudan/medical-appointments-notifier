@@ -13,37 +13,25 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     [ObservableProperty]
     private User user = new();
 
-    public IAsyncRelayCommand AddNoteCommand { get; }
-
-    public IAsyncRelayCommand AddAppointmentCommand { get; }
-
     public IAsyncRelayCommand DeleteNotesCommand { get; }
 
     public IAsyncRelayCommand DeleteAppointmentsCommand { get; }
 
+    private List<Note> selectedNoteEntries = new();
+
+    private List<Appointment> selectedAppointmentEntries = new();
+
     public UserAppointmentsViewModel()
     {
-        AddNoteCommand = new AsyncRelayCommand<Note>(AddNoteAsync);
-        AddAppointmentCommand = new AsyncRelayCommand<Appointment>(AddAppointmentAsync);
+        DeleteNotesCommand = new AsyncRelayCommand(DeleteNotesAsync);
+        DeleteAppointmentsCommand = new AsyncRelayCommand(DeleteAppointmentsAsync);
+
+        IsActive = true;
     }
 
     public void LoadUser(User selectedUser)
     {
         User = selectedUser;
-    }
-
-    private async Task AddNoteAsync(Note note)
-    {
-        IRepository<Note> repository = Ioc.Default.GetRequiredService<IRepository<Note>>();
-
-        await repository.AddAsync(note);
-    }
-
-    private async Task AddAppointmentAsync(Appointment appointment)
-    {
-        IRepository<Appointment> repository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
-
-        await repository.AddAsync(appointment);
     }
 
     public void Receive(NoteAddedMessage message)
@@ -54,5 +42,43 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         }
 
         User.Notes.Add(message.note);
+    }
+
+    private async Task DeleteNotesAsync()
+    {
+        IEnumerable<Note> deletedNotes = await DeleteEntriesAsync<Note>(selectedNoteEntries);
+
+        foreach(Note note in deletedNotes)
+        {
+            User.Notes.Remove(note);
+        }
+    }
+
+    private async Task DeleteAppointmentsAsync()
+    {
+        IEnumerable<Appointment> deletedAppointments = await DeleteEntriesAsync<Appointment>(selectedAppointmentEntries);
+
+        foreach(Appointment appointment in deletedAppointments)
+        {
+            User.Appointments.Remove(appointment);
+        }
+    }
+
+    private async Task<IEnumerable<TModel>> DeleteEntriesAsync<TModel>(List<TModel> selectedEntries) where TModel : class
+    {
+        IRepository<TModel> repository = Ioc.Default.GetRequiredService<IRepository<TModel>>();
+        List<TModel> deletedEntries = new();
+
+        foreach (TModel entry in selectedEntries)
+        {
+            bool deleted = await repository.DeleteAsync(entry);
+            if (deleted)
+            {
+                selectedEntries.Remove(entry);
+                deletedEntries.Add(entry);
+            }
+        }
+
+        return deletedEntries;
     }
 }
