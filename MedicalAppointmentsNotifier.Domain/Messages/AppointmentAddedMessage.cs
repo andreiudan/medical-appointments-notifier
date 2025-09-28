@@ -2,11 +2,11 @@
 
 namespace MedicalAppointmentsNotifier.Domain.Messages
 {
-    public class AppontmentAddedMessage
+    public class AppointmentAddedMessage
     {
         public readonly Appointment appointment;
 
-        public AppontmentAddedMessage(Appointment appointment)
+        public AppointmentAddedMessage(Appointment appointment)
         {
             this.appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
         }

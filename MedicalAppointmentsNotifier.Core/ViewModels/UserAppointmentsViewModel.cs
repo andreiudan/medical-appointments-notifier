@@ -8,7 +8,7 @@ using MedicalAppointmentsNotifier.Domain.Messages;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>
+public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>, IRecipient<AppointmentAddedMessage>
 {
     [ObservableProperty]
     private User user = new();
@@ -25,6 +25,7 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     {
         AddNoteCommand = new AsyncRelayCommand<Note>(AddNoteAsync);
         AddAppointmentCommand = new AsyncRelayCommand<Appointment>(AddAppointmentAsync);
+        IsActive = true;
     }
 
     public void LoadUser(User selectedUser)
@@ -48,11 +49,11 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     public void Receive(NoteAddedMessage message)
     {
-        if(message == null)
-        {
-            return;
-        }
-
         User.Notes.Add(message.note);
+    }
+
+    public void Receive(AppointmentAddedMessage message)
+    {
+        User.Appointments.Add(message.appointment);
     }
 }

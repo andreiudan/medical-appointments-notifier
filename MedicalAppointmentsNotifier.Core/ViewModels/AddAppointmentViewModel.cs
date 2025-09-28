@@ -86,6 +86,6 @@ public partial class AddAppointmentViewModel : ObservableValidator
 
         Appointment addedAppointment =  await repository.AddAsync(appointment);
 
-        WeakReferenceMessenger.Default.Send<AppontmentAddedMessage>(new AppontmentAddedMessage(addedAppointment));
+        WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(addedAppointment));
     }
 }

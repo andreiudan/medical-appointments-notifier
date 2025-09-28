@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
+using MedicalAppointmentsNotifier.Domain.Messages;
 using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UsersViewModel : ObservableObject
+public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>
 {
     [ObservableProperty]
     private ObservableCollection<User> users = new();
@@ -23,7 +25,7 @@ public partial class UsersViewModel : ObservableObject
         LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
         LoadUsersCommand.Execute(null);
 
-        AddUserCommand = new AsyncRelayCommand(AddAsync);
+        IsActive = true;
     }
 
     private async Task LoadUsersAsync()
@@ -38,16 +40,8 @@ public partial class UsersViewModel : ObservableObject
         }
     }
 
-    private async Task AddAsync()
+    public void Receive(UserAddedMessage message)
     {
-        User user = new User
-        {
-            Id = Guid.NewGuid(),
-            Name = "New User",
-            Appointments = new List<Appointment>(),
-            Notes = new List<Note>()
-        };
-
-        await UsersRepository.AddAsync(user);
+        Users.Add(message.user);
     }
 }
