@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using MedicalAppointmentsNotifier.Data.Repositories;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
@@ -23,8 +24,6 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     public UserAppointmentsViewModel()
     {
-        AddNoteCommand = new AsyncRelayCommand<Note>(AddNoteAsync);
-        AddAppointmentCommand = new AsyncRelayCommand<Appointment>(AddAppointmentAsync);
         DeleteNotesCommand = new AsyncRelayCommand(DeleteNotesAsync);
         DeleteAppointmentsCommand = new AsyncRelayCommand(DeleteAppointmentsAsync);
 
@@ -39,5 +38,47 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     public void Receive(NoteAddedMessage message)
     {
         User.Notes.Add(message.note);
+    }
+
+    public void Receive(AppointmentAddedMessage message)
+    {
+        User.Appointments.Add(message.appointment);
+    }
+
+    private async Task DeleteNotesAsync()
+    {
+        IEnumerable<Note> deletedNotes = await DeleteEntriesAsync<Note>(selectedNoteEntries);
+
+        foreach (Note note in deletedNotes)
+        {
+            User.Notes.Remove(note);
+        }
+    }
+
+    private async Task DeleteAppointmentsAsync()
+    {
+        IEnumerable<Appointment> deletedAppointments = await DeleteEntriesAsync<Appointment>(selectedAppointmentEntries);
+
+        foreach (Appointment appointment in deletedAppointments)
+        {
+            User.Appointments.Remove(appointment);
+        }
+    }
+
+    private async Task<IEnumerable<TModel>> DeleteEntriesAsync<TModel>(List<TModel> selectedEntries) where TModel : class
+    {
+        IRepository<TModel> repository = Ioc.Default.GetRequiredService<IRepository<TModel>>();
+        List<TModel> deletedEntries = new();
+
+        foreach (TModel entry in selectedEntries)
+        {
+            bool deleted = await repository.DeleteAsync(entry);
+            if (deleted)
+            {
+                selectedEntries.Remove(entry);
+                deletedEntries.Add(entry);
+            }
+        }
+        return deletedEntries;
     }
 }

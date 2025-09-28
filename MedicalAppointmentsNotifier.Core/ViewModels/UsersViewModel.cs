@@ -54,6 +54,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     public void Receive(UserAddedMessage message)
     {
-        Users.Add(message.user);
+        Users.Add(new Tuple<User, bool>(message.user, false));
     }
 }
