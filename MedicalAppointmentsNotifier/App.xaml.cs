@@ -67,8 +67,14 @@ namespace MedicalAppointmentsNotifier
             });
 
             services.AddScoped<IRepository<User>, Repository<User>>();
+            services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
+            services.AddScoped<IRepository<Note>, Repository<Note>>();
+
             services.AddTransient<UsersViewModel>();
             services.AddTransient<UserAppointmentsViewModel>();
+            services.AddTransient<AddUserViewModel>();
+            services.AddTransient<AddNoteViewModel>();
+            services.AddTransient<AddUserViewModel>();
 
             return services.BuildServiceProvider();
         }

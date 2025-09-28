@@ -13,18 +13,21 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     [ObservableProperty]
     private User user = new();
 
-    public IAsyncRelayCommand AddNoteCommand { get; }
-
-    public IAsyncRelayCommand AddAppointmentCommand { get; }
-
     public IAsyncRelayCommand DeleteNotesCommand { get; }
 
     public IAsyncRelayCommand DeleteAppointmentsCommand { get; }
+
+    private List<Note> selectedNoteEntries = new();
+
+    private List<Appointment> selectedAppointmentEntries = new();
 
     public UserAppointmentsViewModel()
     {
         AddNoteCommand = new AsyncRelayCommand<Note>(AddNoteAsync);
         AddAppointmentCommand = new AsyncRelayCommand<Appointment>(AddAppointmentAsync);
+        DeleteNotesCommand = new AsyncRelayCommand(DeleteNotesAsync);
+        DeleteAppointmentsCommand = new AsyncRelayCommand(DeleteAppointmentsAsync);
+
         IsActive = true;
     }
 
@@ -33,27 +36,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         User = selectedUser;
     }
 
-    private async Task AddNoteAsync(Note note)
-    {
-        IRepository<Note> repository = Ioc.Default.GetRequiredService<IRepository<Note>>();
-
-        await repository.AddAsync(note);
-    }
-
-    private async Task AddAppointmentAsync(Appointment appointment)
-    {
-        IRepository<Appointment> repository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
-
-        await repository.AddAsync(appointment);
-    }
-
     public void Receive(NoteAddedMessage message)
     {
         User.Notes.Add(message.note);
-    }
-
-    public void Receive(AppointmentAddedMessage message)
-    {
-        User.Appointments.Add(message.appointment);
     }
 }
