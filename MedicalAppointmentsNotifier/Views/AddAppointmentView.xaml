@@ -41,15 +41,10 @@
 
             <ComboBox 
                 Header="Specializarea Medicala"
-                ItemsSource="{x:Bind ViewModel.MedicalSpecialities}"
+                ItemsSource="{x:Bind ViewModel.MedicalSpecialties}"
                 SelectedItem="{x:Bind ViewModel.Specialty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 Grid.Column="0"
                 HorizontalAlignment="Stretch">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource EnumToDisplayNameConverter}}"/>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
             </ComboBox>
             <NumberBox 
                 Header="Interval Consultatie"
@@ -69,13 +64,15 @@
                 PlaceholderText="Alege o data" 
                 Header="Din data" Grid.Column="0" 
                 Date="{x:Bind ViewModel.LatestDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                DateFormat="{}{day.integer}/{month.integer}/{year.full}"
                 HorizontalAlignment="Stretch"/>
             
             <CalendarDatePicker 
                 PlaceholderText="Alege o data" 
                 Header="Pana in data" Grid.Column="1" 
                 HorizontalAlignment="Stretch"
-                Date="{x:Bind ViewModel.NextDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                Date="{x:Bind ViewModel.NextDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
         </Grid>
 
         <Grid Grid.Row="3" ColumnSpacing="12" Margin="0, 32, 0, 0">

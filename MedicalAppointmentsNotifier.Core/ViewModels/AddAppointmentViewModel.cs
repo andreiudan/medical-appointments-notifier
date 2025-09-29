@@ -16,6 +16,8 @@ public partial class AddAppointmentViewModel : ObservableValidator
     [ObservableProperty]
     private MedicalSpecialty specialty = 0;
 
+    public MedicalSpecialty[] MedicalSpecialties => (MedicalSpecialty[])Enum.GetValues(typeof(MedicalSpecialty));
+
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
     [ObservableProperty]
     private int daysInterval = 30;
@@ -28,7 +30,7 @@ public partial class AddAppointmentViewModel : ObservableValidator
 
     private User user { get; set; }
 
-    private IAsyncRelayCommand AddAppointmentCommand { get; }
+    public IAsyncRelayCommand AddAppointmentCommand { get; }
 
     public AddAppointmentViewModel()
     {
