@@ -25,40 +25,52 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Adauga Mentiune" FontSize="28" FontWeight="SemiBold" Grid.Row="0" HorizontalAlignment="Center"/>
-                
-        <TextBox 
-            Grid.Row="1" 
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch"
-            Header="Descriere"
-            Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            />
-        <TextBlock
-            Foreground="{ThemeResource SystemErrorTextColor}"
-            Text="{x:Bind ViewModel.DescriptionErrorMessage, Mode=OneWay}"/>
+        <TextBlock 
+            Text="Adauga Mentiune" 
+            FontSize="28"
+            FontWeight="SemiBold" 
+            Grid.Row="0" 
+            HorizontalAlignment="Center"
+            Margin="0,0,0,32"/>
 
-        <Grid Grid.Row="2" ColumnSpacing="12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50*"/>
-                <ColumnDefinition Width="50*"/>
-            </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="1">
+            <TextBox 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch"
+                Header="Descriere"
+                Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock
+                Foreground="{ThemeResource SystemErrorTextColor}"
+                Text="{x:Bind ViewModel.DescriptionErrorMessage, Mode=OneWay}"/>
+        </StackPanel>
 
-            <CalendarDatePicker 
-                PlaceholderText="Alege o data" 
-                Header="Din data" Grid.Column="0" 
-                HorizontalAlignment="Left"
-                Date="{x:Bind ViewModel.DateFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
-            <CalendarDatePicker 
-                PlaceholderText="Alege o data" 
-                Header="Pana in data" Grid.Column="1" 
-                HorizontalAlignment="Right"
-                Date="{x:Bind ViewModel.DateTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
-        </Grid>
+        <StackPanel Grid.Row="2">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition Width="50*"/>
+                </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="3" ColumnSpacing="12">
+                <CalendarDatePicker 
+                    PlaceholderText="Alege o data" 
+                    Header="Din data" Grid.Column="0" 
+                    HorizontalAlignment="Left"
+                    Date="{x:Bind ViewModel.DateFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
+                <CalendarDatePicker 
+                    PlaceholderText="Alege o data" 
+                    Header="Pana in data" Grid.Column="1" 
+                    HorizontalAlignment="Right"
+                    Date="{x:Bind ViewModel.DateTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
+            </Grid>
+
+            <TextBlock
+                Foreground="{ThemeResource SystemErrorTextColor}"
+                Text="{x:Bind ViewModel.DateIntervalErrorMessage, Mode=OneWay}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="3" ColumnSpacing="12" Margin="0, 32, 0, 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
                 <ColumnDefinition Width="50*"/>

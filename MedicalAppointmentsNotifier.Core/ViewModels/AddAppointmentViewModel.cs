@@ -13,20 +13,30 @@ namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
 public partial class AddAppointmentViewModel : ObservableValidator
 {
+    public event EventHandler OnAppointmentAdded;
+
     [ObservableProperty]
     private MedicalSpecialty specialty = 0;
 
     public MedicalSpecialty[] MedicalSpecialties => (MedicalSpecialty[])Enum.GetValues(typeof(MedicalSpecialty));
 
-    [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
+    [NotifyPropertyChangedFor(nameof(DaysIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
+    [Range(1, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
     private int daysInterval = 30;
 
+    public string DaysIntervalErrorMessage => GetErrors(nameof(DaysInterval)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+
+    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
     private DateTimeOffset? latestDate = DateTimeOffset .UtcNow;
 
+    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
     private DateTimeOffset? nextDate = DateTimeOffset.UtcNow.AddDays(1);
+
+    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
     private User user { get; set; }
 
@@ -35,6 +45,36 @@ public partial class AddAppointmentViewModel : ObservableValidator
     public AddAppointmentViewModel()
     {
         AddAppointmentCommand = new AsyncRelayCommand(AddAsync);
+    }
+
+    partial void OnDaysIntervalChanged(int value)
+    {
+        ValidateProperty(value, nameof(DaysInterval));
+    }
+
+    partial void OnLatestDateChanged(DateTimeOffset? value)
+    {
+        ValidateDates();
+    }
+
+    partial void OnNextDateChanged(DateTimeOffset? value)
+    {
+        ValidateDates();
+    }
+
+    private bool ValidateDates()
+    {
+        ClearErrors(nameof(LatestDate));
+        ClearErrors(nameof(NextDate));
+        DateIntervalErrorMessage = string.Empty;
+
+        if (LatestDate.HasValue && NextDate.HasValue && LatestDate.Value >= NextDate.Value)
+        {
+            DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
+            return false;
+        }
+
+        return true;
     }
 
     public void LoadUser(User selectedUser)
@@ -47,18 +87,17 @@ public partial class AddAppointmentViewModel : ObservableValidator
         try
         {
             ValidateAllProperties();
+            if (!ValidateDates())
+            {
+                return false;
+            }
+
+            if (HasErrors)
+            {
+                return false;
+            }
         }
         catch
-        {
-            return false;
-        }
-
-        if (DaysInterval <= 0)
-        {
-            return false;
-        }
-
-        if (LatestDate >= NextDate)
         {
             return false;
         }
@@ -89,5 +128,7 @@ public partial class AddAppointmentViewModel : ObservableValidator
         Appointment addedAppointment =  await repository.AddAsync(appointment);
 
         WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(addedAppointment));
+
+        OnAppointmentAdded?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -12,18 +12,24 @@ namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
 public partial class AddNoteViewModel : ObservableValidator
 {
+    public event EventHandler OnNoteAdded;
+
+    [NotifyPropertyChangedFor(nameof(DescriptionErrorMessage))]
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
-    [NotifyPropertyChangedFor(nameof(DescriptionErrorMessage))]
     private string description = string.Empty;
 
     public string DescriptionErrorMessage => GetErrors(Description).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
+    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
     private DateTimeOffset? dateFrom = DateTimeOffset.UtcNow;
 
+    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
     private DateTimeOffset? dateTo = DateTimeOffset.UtcNow.AddDays(1);
+
+    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
     public IAsyncRelayCommand AddNoteCommand;
 
@@ -34,9 +40,39 @@ public partial class AddNoteViewModel : ObservableValidator
         AddNoteCommand = new AsyncRelayCommand(AddNoteAsync);
     }
 
-    public void LoadUserId(User user)
+    public void LoadUser(User user)
     {
         User = user;
+    }
+
+    partial void OnDescriptionChanged(string value)
+    {
+        ValidateProperty(value, nameof(Description));
+    }
+
+    partial void OnDateFromChanged(DateTimeOffset? value)
+    {
+        ValidateDates();
+    }
+
+    partial void OnDateToChanged(DateTimeOffset? value)
+    {
+        ValidateDates();
+    }
+
+    private bool ValidateDates()
+    {
+        ClearErrors(nameof(DateFrom));
+        ClearErrors(nameof(DateTo));
+        DateIntervalErrorMessage = string.Empty;
+
+        if (DateFrom.HasValue && DateTo.HasValue && DateFrom.Value >= DateTo.Value)
+        {
+            DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
+            return false;
+        }
+
+        return true;
     }
 
     private bool Validate()
@@ -44,18 +80,18 @@ public partial class AddNoteViewModel : ObservableValidator
         try
         {
             ValidateAllProperties();
+
+            if (!ValidateDates())
+            {
+                return false;
+            }
+
+            if (HasErrors)
+            {
+                return false;
+            }
         }
         catch
-        {
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(Description))
-        {
-            return false;
-        }
-
-        if (DateFrom >= DateTo)
         {
             return false;
         }
@@ -81,8 +117,10 @@ public partial class AddNoteViewModel : ObservableValidator
             User = this.User
         };
 
-        Note addedNote = await repository.AddAsync(note);
+        //Note addedNote = await repository.AddAsync(note);
 
-        WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(addedNote));
+        WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(note));
+
+        OnNoteAdded?.Invoke(this, EventArgs.Empty);
     }
 }

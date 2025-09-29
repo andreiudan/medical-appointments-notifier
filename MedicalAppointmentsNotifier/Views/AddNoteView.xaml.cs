@@ -1,6 +1,7 @@
 using MedicalAppointmentsNotifier.Core.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using System;
 using Windows.Graphics;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -20,9 +21,15 @@ public sealed partial class AddNoteView : Window
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<AddNoteViewModel>();
         AppWindow.Resize(startSize);
+        ViewModel.OnNoteAdded += CloseWindow;
     }
 
     public AddNoteViewModel ViewModel => (AddNoteViewModel)RootGrid.DataContext;
+
+    private void CloseWindow(object? sender, EventArgs e)
+    {
+        this.Close();
+    }
 
     public void btnClose_Click(object sender, RoutedEventArgs e)
     {
