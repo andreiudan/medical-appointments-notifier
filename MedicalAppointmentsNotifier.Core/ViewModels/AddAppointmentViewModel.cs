@@ -23,10 +23,10 @@ public partial class AddAppointmentViewModel : ObservableValidator
     private int daysInterval = 30;
 
     [ObservableProperty]
-    private DateTime latestDate = DateTime.UtcNow;
+    private DateOnly latestDate = DateOnly.FromDateTime(DateTime.Now);
 
     [ObservableProperty]
-    private DateTime nextDate = DateTime.UtcNow.AddDays(30);
+    private DateOnly nextDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
 
     private User user { get; set; }
 

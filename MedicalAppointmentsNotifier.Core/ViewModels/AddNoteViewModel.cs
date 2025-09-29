@@ -15,15 +15,18 @@ public partial class AddNoteViewModel : ObservableValidator
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
     [NotifyPropertyChangedFor(nameof(DescriptionErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(DescriptionErrorMessage))]
     private string description = string.Empty;
 
     public string DescriptionErrorMessage => GetErrors(Description).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-    [ObservableProperty]
-    private DateTimeOffset? dateFrom = DateTime.UtcNow;
+    public string DescriptionErrorMessage => GetErrors(Description).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
     [ObservableProperty]
-    private DateTimeOffset? dateTo = DateTime.UtcNow.AddDays(1);
+    private DateOnly dateFrom = DateOnly.FromDateTime(DateTime.Now);
+
+    [ObservableProperty]
+    private DateOnly dateTo = DateOnly.FromDateTime(DateTime.Now.AddDays(1));
 
     public IAsyncRelayCommand AddNoteCommand;
 
