@@ -48,12 +48,14 @@
                 PlaceholderText="Alege o data" 
                 Header="Din data" Grid.Column="0" 
                 HorizontalAlignment="Left"
-                Date="{x:Bind ViewModel.DateFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                Date="{x:Bind ViewModel.DateFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
             <CalendarDatePicker 
                 PlaceholderText="Alege o data" 
                 Header="Pana in data" Grid.Column="1" 
                 HorizontalAlignment="Right"
-                Date="{x:Bind ViewModel.DateTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                Date="{x:Bind ViewModel.DateTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
         </Grid>
 
         <Grid Grid.Row="3" ColumnSpacing="12">

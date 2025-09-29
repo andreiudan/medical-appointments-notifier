@@ -74,7 +74,7 @@ namespace MedicalAppointmentsNotifier
             services.AddTransient<UserAppointmentsViewModel>();
             services.AddTransient<AddUserViewModel>();
             services.AddTransient<AddNoteViewModel>();
-            services.AddTransient<AddUserViewModel>();
+            services.AddTransient<AddAppointmentViewModel>();
 
             return services.BuildServiceProvider();
         }
