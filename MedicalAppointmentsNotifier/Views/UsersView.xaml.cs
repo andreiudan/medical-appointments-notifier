@@ -1,9 +1,10 @@
+using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Core.ViewModels;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
-using System;
+using System.Linq;
 
 namespace MedicalAppointmentsNotifier.Views
 {
@@ -19,21 +20,26 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void UsersListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            //if(e.ClickedItem is null || e.ClickedItem is not User)
-            //{
-            //    return;
-            //}
+            if (e.ClickedItem is null || e.ClickedItem is not UserModel)
+            {
+                return;
+            }
 
-            Tuple<User, bool> clickedUser = e.ClickedItem as Tuple<User, bool>;
+            UserModel clickedUser = e.ClickedItem as UserModel;
 
             var rootFrame = ((App)App.Current).RootFrame;
-            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser.Item1, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser.User, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
         }
 
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             AddUserView addUserView = new AddUserView();
             addUserView.Activate();
+        }
+
+        private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            return;
         }
     }
 }

@@ -43,14 +43,16 @@
                 <DataTemplate>
                     <Grid Padding="12">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
                             <ColumnDefinition Width="35*"/>
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Text="Nume" Grid.Column="0" HorizontalAlignment="Center" />
-                        <TextBlock Text="Urmatoarea programare" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Status" Grid.Column="2" HorizontalAlignment="Center"/>
+
+                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Center" />
+                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" />
+                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
@@ -59,14 +61,16 @@
                 <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
                     <Grid Padding="16" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
                             <ColumnDefinition Width="35*"/>
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="{Binding Item1.Name}" Width="200" Grid.Column="0" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="A" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="B" Width="150" Grid.Column="2" HorizontalTextAlignment="Center"/>
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
+                        <TextBlock Text="{Binding User.Name}" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="A" Width="200" Grid.Column="2" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="B" Width="150" Grid.Column="3" HorizontalTextAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

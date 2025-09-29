@@ -38,14 +38,19 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddNoteView addNoteView = new AddNoteView();
+            AddNoteView addNoteView = new AddNoteView(ViewModel.User);
             addNoteView.Activate();
         }
 
         private void btnAddAppointment_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddAppointmentView addAppointmentView = new AddAppointmentView();
+            AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.User);
             addAppointmentView.Activate();
+        }
+
+        private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+
         }
     }
 }

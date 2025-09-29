@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
@@ -12,7 +13,7 @@ namespace MedicalAppointmentsNotifier.Core.ViewModels;
 public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>
 {
     [ObservableProperty]
-    private ObservableCollection<Tuple<User, bool>> users = new();
+    private ObservableCollection<UserModel> users = new();
 
     public IRepository<User> UsersRepository { get; set; } = Ioc.Default.GetRequiredService<IRepository<User>>();
 
@@ -36,24 +37,26 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         foreach (var user in _users)
         {
-            Users.Add(new Tuple<User, bool>(user, false));
+            Users.Add(new UserModel(user, false));
         }
     }
 
     private async Task DeleteSelectedUsersAsync()
     {
-        foreach (Tuple<User, bool> entry in Users.Where(s => s.Item2 == true))
+        List<UserModel> usersToDelete = Users.Where(u => u.IsSelected).ToList();
+
+        foreach (UserModel entry in usersToDelete)
         {
-            bool deleted = await UsersRepository.DeleteAsync(entry.Item1);
+            bool deleted = await UsersRepository.DeleteAsync(entry.User);
             if (deleted)
             {
-                Users.Remove(Users.First(u => u.Item1.Id == entry.Item1.Id));
+                Users.Remove(Users.First(u => u.User.Id == entry.User.Id));
             }
         }
     }
 
     public void Receive(UserAddedMessage message)
     {
-        Users.Add(new Tuple<User, bool>(message.user, false));
+        Users.Add(new UserModel(message.user, false));
     }
 }

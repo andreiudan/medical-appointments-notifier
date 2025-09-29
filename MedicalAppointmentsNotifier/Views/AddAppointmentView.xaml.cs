@@ -1,4 +1,5 @@
 using MedicalAppointmentsNotifier.Core.ViewModels;
+using MedicalAppointmentsNotifier.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
@@ -16,12 +17,13 @@ public sealed partial class AddAppointmentView : Window
 {
     private readonly SizeInt32 startSize = new(545, 570);
 
-    public AddAppointmentView()
+    public AddAppointmentView(User user)
     {
         AppWindow.Resize(startSize);
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<AddAppointmentViewModel>();
         ViewModel.OnAppointmentAdded += CloseWindow;
+        ViewModel.LoadUser(user);
     }
 
     public AddAppointmentViewModel ViewModel => (AddAppointmentViewModel)RootGrid.DataContext;

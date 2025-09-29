@@ -117,7 +117,7 @@ public partial class AddNoteViewModel : ObservableValidator
             User = this.User
         };
 
-        //Note addedNote = await repository.AddAsync(note);
+        Note addedNote = await repository.AddAsync(note);
 
         WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(note));
 
