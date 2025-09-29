@@ -8,5 +8,7 @@
         public const string RequiredErrorMessage = "Campul nu poate fi gol.";
 
         public const string DateIntervalErrorMessage = "Data de inceput trebuie sa fie inaintea datei de sfarsit.";
+
+        public const string DaysIntervalErrorMessage = "Intervalul trebuie sa fie un numar pozitiv.";
     }
 }

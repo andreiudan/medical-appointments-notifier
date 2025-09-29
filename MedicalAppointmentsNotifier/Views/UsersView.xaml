@@ -24,8 +24,8 @@
 
             <TextBlock Grid.Column="0" Text="Beneficiari" HorizontalAlignment="Left" FontSize="32" FontWeight="Bold" Margin="10"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Add User" Margin="5"/>
-                <Button Content="Delete User" Margin="5"/>
+                <Button x:Name="btnAdd" Content="Add User" Margin="5" Click="btnAdd_Click"/>
+                <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
             </StackPanel>
         </Grid>
 
@@ -64,7 +64,7 @@
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="{Binding Name}" Width="200" Grid.Column="0" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="{Binding Item1.Name}" Width="200" Grid.Column="0" HorizontalTextAlignment="Center"/>
                         <TextBlock Text="A" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
                         <TextBlock Text="B" Width="150" Grid.Column="2" HorizontalTextAlignment="Center"/>
                     </Grid>

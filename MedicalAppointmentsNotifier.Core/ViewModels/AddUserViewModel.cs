@@ -14,21 +14,39 @@ namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
 public partial class AddUserViewModel : ObservableValidator
 {
+    public event EventHandler OnUserAdded;
+
+    [NotifyPropertyChangedFor(nameof(FirstNameErrorMessage))]
+    [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
     [RegularExpression(ValidationConstants.NameRegex, ErrorMessage = ValidationConstants.NameErrorMessage)]
-    [ObservableProperty]
     private string firstName;
 
+    public string FirstNameErrorMessage => GetErrors(nameof(FirstName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+
+    [NotifyPropertyChangedFor(nameof(LastNameErrorMessage))]
+    [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
     [RegularExpression(ValidationConstants.NameRegex, ErrorMessage = ValidationConstants.NameErrorMessage)]
-    [ObservableProperty]
     private string lastName;
 
-    private IAsyncRelayCommand AddUserCommand { get; }
+    public string LastNameErrorMessage => GetErrors(nameof(LastName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+
+    public IAsyncRelayCommand AddUserCommand { get; }
 
     public AddUserViewModel()
     {
         AddUserCommand = new AsyncRelayCommand(AddAsync);
+    }
+
+    partial void OnFirstNameChanged(string value)
+    {
+        ValidateProperty(value, nameof(FirstName));
+    }
+
+    partial void OnLastNameChanged(string value)
+    {
+        ValidateProperty(value, nameof(LastName));
     }
 
     private bool Validate()
@@ -36,6 +54,11 @@ public partial class AddUserViewModel : ObservableValidator
         try
         {
             ValidateAllProperties();
+
+            if(HasErrors)
+            {
+                return false;
+            }
         }
         catch 
         {
@@ -54,7 +77,7 @@ public partial class AddUserViewModel : ObservableValidator
 
         INameNormalizer nameNormalizer = new NameNormalizer();
 
-        string userName = nameNormalizer.Normalize(firstName, lastName);
+        string userName = nameNormalizer.Normalize(FirstName, LastName);
 
         IRepository<User> repository = Ioc.Default.GetRequiredService<IRepository<User>>();
 
@@ -67,5 +90,7 @@ public partial class AddUserViewModel : ObservableValidator
         User addedUser = await repository.AddAsync(user);
 
         WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(user));
+
+        OnUserAdded?.Invoke(this, EventArgs.Empty);
     }
 }

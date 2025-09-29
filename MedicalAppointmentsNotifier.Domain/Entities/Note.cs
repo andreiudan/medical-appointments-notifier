@@ -13,10 +13,10 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         public string Description { get; set; }
 
         [Required]
-        public DateOnly From { get; set; }
+        public DateTimeOffset? From { get; set; }
 
         [Required]
-        public DateOnly Until { get; set; }
+        public DateTimeOffset? Until { get; set; }
 
         [Required]
         public User? User { get; set; }

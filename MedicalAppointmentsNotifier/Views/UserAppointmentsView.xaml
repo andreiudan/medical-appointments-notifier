@@ -32,7 +32,7 @@
 
             <TextBlock Text="Mentiuni" FontWeight="SemiBold" FontSize="18" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Spacing="6">
-                <Button Content="Adauga"/>
+                <Button x:Name="btnAddNote" Content="Adauga" Click="btnAddNote_Click"/>
                 <Button Content="Sterge"/>
             </StackPanel>
         </Grid>
@@ -88,8 +88,8 @@
 
             <TextBlock Text="Scrisori Medicale" FontWeight="SemiBold"  FontSize="18" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Spacing="6">
-                <Button Content="Adauga" Grid.Column="1"/>
-                <Button Content="Sterge" Grid.Column="1"/>
+                <Button x:Name="btnAddAppointment" Content="Adauga" Click="btnAddAppointment_Click"/>
+                <Button Content="Sterge"/>
             </StackPanel>
         </Grid>
 
