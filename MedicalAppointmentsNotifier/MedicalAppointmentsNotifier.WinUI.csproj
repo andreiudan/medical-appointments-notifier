@@ -13,6 +13,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Views\AddAppointmentView.xaml" />
+    <None Remove="Views\AddNoteView.xaml" />
+    <None Remove="Views\AddUserView.xaml" />
     <None Remove="Views\UserAppointmentsView.xaml" />
     <None Remove="Views\UsersView.xaml" />
   </ItemGroup>
@@ -58,6 +61,21 @@
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Core\MedicalAppointmentsNotifier.Core.csproj" />
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Data\MedicalAppointmentsNotifier.Data.csproj" />
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Domain\MedicalAppointmentsNotifier.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AddAppointmentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AddNoteView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AddUserView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\UserAppointmentsView.xaml">

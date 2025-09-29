@@ -3,6 +3,7 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using System;
 
 namespace MedicalAppointmentsNotifier.Views
 {
@@ -18,15 +19,21 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void UsersListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if(e.ClickedItem is null || e.ClickedItem is not User)
-            {
-                return;
-            }
+            //if(e.ClickedItem is null || e.ClickedItem is not User)
+            //{
+            //    return;
+            //}
 
-            User clickedUser = e.ClickedItem as User;
+            Tuple<User, bool> clickedUser = e.ClickedItem as Tuple<User, bool>;
 
             var rootFrame = ((App)App.Current).RootFrame;
-            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser.Item1, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+        }
+
+        private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            AddUserView addUserView = new AddUserView();
+            addUserView.Activate();
         }
     }
 }

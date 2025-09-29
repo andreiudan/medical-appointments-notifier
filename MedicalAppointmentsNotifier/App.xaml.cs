@@ -48,7 +48,7 @@ namespace MedicalAppointmentsNotifier
             dbContext.Database.Migrate();
 
             _window = new MainWindow();
-
+            
             RootFrame = new Frame();
             RootFrame.Navigate(typeof(UsersView), args.Arguments);
 

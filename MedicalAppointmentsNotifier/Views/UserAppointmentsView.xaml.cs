@@ -35,5 +35,17 @@ namespace MedicalAppointmentsNotifier.Views
                 rootFrame.GoBack();
             }
         }
+
+        private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            AddNoteView addNoteView = new AddNoteView();
+            addNoteView.Activate();
+        }
+
+        private void btnAddAppointment_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            AddAppointmentView addAppointmentView = new AddAppointmentView();
+            addAppointmentView.Activate();
+        }
     }
 }
