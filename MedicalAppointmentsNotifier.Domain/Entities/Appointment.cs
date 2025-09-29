@@ -20,10 +20,10 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         public string Status { get; set; }
 
         [Required]
-        public DateTime LatestDate { get; set; }
+        public DateOnly LatestDate { get; set; }
 
         [Required]
-        public DateTime NextDate { get; set; }
+        public DateOnly NextDate { get; set; }
 
         [Required]
         public User? User { get; set; }
