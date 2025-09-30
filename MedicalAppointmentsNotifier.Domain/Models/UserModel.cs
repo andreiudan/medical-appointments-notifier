@@ -1,6 +1,4 @@
-﻿using MedicalAppointmentsNotifier.Domain.Entities;
-
-namespace MedicalAppointmentsNotifier.Core.Models
+﻿namespace MedicalAppointmentsNotifier.Domain.Models
 {
     public class UserModel
     {
@@ -13,17 +11,6 @@ namespace MedicalAppointmentsNotifier.Core.Models
         public string Status { get; set; } = string.Empty;
 
         public bool IsSelected { get; set; } = false;
-
-        public UserModel(User user, int daysUntilNextAppointment = 0, bool isSelected = false)
-        {
-            ArgumentNullException.ThrowIfNull(user);
-
-            Id = user.Id;
-            Name = user.Name;
-
-            DaysUntilNextAppointment = daysUntilNextAppointment;
-            IsSelected = isSelected;
-        }
 
         public override bool Equals(object? obj)
         {

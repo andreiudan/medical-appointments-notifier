@@ -2,10 +2,10 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
+using MedicalAppointmentsNotifier.Domain.Models;
 using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
@@ -15,7 +15,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     [ObservableProperty]
     private ObservableCollection<UserModel> users = new();
 
-    public IRepository<User> UsersRepository { get; set; } = Ioc.Default.GetRequiredService<IRepository<User>>();
+    private IRepository<User> UsersRepository { get; } = Ioc.Default.GetRequiredService<IRepository<User>>();
+    private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
     public IAsyncRelayCommand DeleteSelectedUsersCommand { get; }
@@ -37,7 +38,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         foreach (var user in _users)
         {
-            Users.Add(new UserModel(user));
+            Users.Add(Mapper.Map(user));
         }
     }
 
@@ -57,6 +58,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     public void Receive(UserAddedMessage message)
     {
-        Users.Add(new UserModel(message.user));
+        Users.Add(Mapper.Map(message.user));
+        IsActive = true;
     }
 }

@@ -1,6 +1,4 @@
-﻿using MedicalAppointmentsNotifier.Domain.Entities;
-
-namespace MedicalAppointmentsNotifier.Core.Models
+﻿namespace MedicalAppointmentsNotifier.Domain.Models
 {
     public class NoteModel
     {
@@ -13,18 +11,6 @@ namespace MedicalAppointmentsNotifier.Core.Models
         public DateTimeOffset? Until { get; set; }
 
         public bool IsSelected { get; set; } = false;
-
-        public NoteModel(Note note, bool isSelected = false)
-        {
-            ArgumentNullException.ThrowIfNull(note);
-
-            Id = note.Id;
-            Description = note.Description;
-            From = note.From;
-            Until = note.Until;
-
-            IsSelected = isSelected;
-        }
 
         public override bool Equals(object? obj)
         {

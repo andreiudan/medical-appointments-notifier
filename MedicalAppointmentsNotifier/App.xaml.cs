@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using MedicalAppointmentsNotifier.Core.Services;
 using MedicalAppointmentsNotifier.Core.ViewModels;
 using MedicalAppointmentsNotifier.Data;
 using MedicalAppointmentsNotifier.Data.Repositories;
@@ -69,6 +70,7 @@ namespace MedicalAppointmentsNotifier
             services.AddScoped<IRepository<User>, Repository<User>>();
             services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
             services.AddScoped<IRepository<Note>, Repository<Note>>();
+            services.AddScoped<IEntityToModelMapper, EntityToModelMapper>();
 
             services.AddTransient<UsersViewModel>();
             services.AddTransient<UserAppointmentsViewModel>();

@@ -143,7 +143,7 @@
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
                         <TextBlock Text="{Binding MedicalSpecialty}" Grid.Column="1" HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding IntervalDays}" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Zile ramase" Grid.Column="3" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="3" HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding Status}" Grid.Column="4" HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding LatestDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="5" HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding NextDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="6" HorizontalAlignment="Center" />

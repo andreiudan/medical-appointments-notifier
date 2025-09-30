@@ -2,10 +2,10 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
+using MedicalAppointmentsNotifier.Domain.Models;
 using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
@@ -26,6 +26,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     public IAsyncRelayCommand DeleteNotesCommand { get; }
     public IAsyncRelayCommand DeleteAppointmentsCommand { get; }
     private IAsyncRelayCommand LoadCollectionsCommand { get; }
+
+    private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
     public UserAppointmentsViewModel()
     {
@@ -57,7 +59,7 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         Notes.Clear();
         foreach (Note note in notes)
         {
-            Notes.Add(new NoteModel(note, false));
+            Notes.Add(Mapper.Map(note));
         }
     }
 
@@ -69,19 +71,19 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         Appointments.Clear();
         foreach (Appointment appointment in appointments)
         {
-            Appointments.Add(new AppointmentModel(appointment, false));
+            Appointments.Add(Mapper.Map(appointment));
         }
     }
 
     public void Receive(NoteAddedMessage message)
     {
-        Notes.Add(new NoteModel(message.note, false));
+        Notes.Add(Mapper.Map(message.note));
         IsActive = true;
     }
 
     public void Receive(AppointmentAddedMessage message)
     {
-        Appointments.Add(new AppointmentModel(message.appointment, false));
+        Appointments.Add(Mapper.Map(message.appointment));
         IsActive = true;
     }
 
