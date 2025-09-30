@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using MedicalAppointmentsNotifier.Domain.Entities;
+using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
 using MedicalAppointmentsNotifier.Domain.Models;
@@ -23,19 +24,42 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     [ObservableProperty]
     private ObservableCollection<AppointmentModel> appointments = new();
 
+    public AppointmentStatus[] AppointmentStatuses { get; } = (AppointmentStatus[])Enum.GetValues(typeof(AppointmentStatus));
+
     public IAsyncRelayCommand DeleteNotesCommand { get; }
     public IAsyncRelayCommand DeleteAppointmentsCommand { get; }
+    public IAsyncRelayCommand UpdateAppointmentCommand { get; }
     private IAsyncRelayCommand LoadCollectionsCommand { get; }
 
     private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+    private bool isLoaded = false;
 
     public UserAppointmentsViewModel()
     {
         DeleteNotesCommand = new AsyncRelayCommand(DeleteNotesAsync);
         DeleteAppointmentsCommand = new AsyncRelayCommand(DeleteAppointmentsAsync);
         LoadCollectionsCommand = new AsyncRelayCommand(LoadCollectionsAsync);
+        UpdateAppointmentCommand = new AsyncRelayCommand<AppointmentModel>(UpdateAppointmentAsync);
 
         IsActive = true;
+    }
+
+    private async Task UpdateAppointmentAsync(AppointmentModel appointment)
+    {
+        if(!isLoaded || appointment is null)
+        {
+            return;
+        }
+
+        IRepository<Appointment> appointmentRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
+        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
+
+        User user = await userRepository.FindAsync(u => u.Id == UserId);
+
+        Appointment updateAppointment = Mapper.Map(appointment, user);
+
+        await appointmentRepository.UpdateAsync(updateAppointment);
     }
 
     public void LoadUser(Guid userId, string username)
@@ -43,6 +67,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         UserId = userId;
         UserName = username;
         LoadCollectionsCommand.Execute(null);
+
+        isLoaded = true;
     }
 
     private async Task LoadCollectionsAsync()

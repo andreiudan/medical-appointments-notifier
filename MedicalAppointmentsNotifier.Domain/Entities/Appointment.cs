@@ -17,7 +17,7 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         public int IntervalDays { get; set; }
 
         [Required]
-        public string Status { get; set; }
+        public AppointmentStatus Status { get; set; }
 
         [Required]
         public DateTimeOffset? LatestDate { get; set; }

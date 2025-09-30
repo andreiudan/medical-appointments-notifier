@@ -26,6 +26,24 @@ namespace MedicalAppointmentsNotifier.Core.Services
             return appointmentModel;
         }
 
+        public Appointment Map(AppointmentModel appointmentModel, User user)
+        {
+            ArgumentNullException.ThrowIfNull(appointmentModel);
+
+            Appointment appointment = new Appointment
+            {
+                Id = appointmentModel.Id,
+                MedicalSpecialty = appointmentModel.MedicalSpecialty,
+                IntervalDays = appointmentModel.IntervalDays,
+                Status = appointmentModel.Status,
+                LatestDate = appointmentModel.LatestDate,
+                NextDate = appointmentModel.NextDate,
+                User = user
+            };
+
+            return appointment;
+        }
+
         public NoteModel Map(Note note)
         {
             ArgumentNullException.ThrowIfNull(note);
@@ -39,6 +57,22 @@ namespace MedicalAppointmentsNotifier.Core.Services
             };
 
             return noteModel;
+        }
+
+        public Note Map(NoteModel noteModel, User user)
+        {
+            ArgumentNullException.ThrowIfNull(noteModel);
+
+            Note note = new Note
+            {
+                Id = noteModel.Id,
+                Description = noteModel.Description,
+                From = noteModel.From,
+                Until = noteModel.Until,
+                User = user
+            };
+
+            return note;
         }
 
         public UserModel Map(User user)
@@ -55,6 +89,19 @@ namespace MedicalAppointmentsNotifier.Core.Services
             };
 
             return userModel;
+        }
+
+        public User Map(UserModel userModel)
+        {
+            ArgumentNullException.ThrowIfNull(userModel);
+
+            User user = new User
+            {
+                Id = userModel.Id,
+                Name = userModel.Name,
+            };
+
+            return user;
         }
 
         private int CalculateRemainingDays(DateTimeOffset? nextDate)

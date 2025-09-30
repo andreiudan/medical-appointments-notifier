@@ -10,7 +10,7 @@ namespace MedicalAppointmentsNotifier.Domain.Models
 
         public int IntervalDays { get; set; }
 
-        public string Status { get; set; }
+        public AppointmentStatus Status { get; set; }
 
         public int DaysUntilNextAppointment { get; set; }
 

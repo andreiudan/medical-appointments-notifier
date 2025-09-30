@@ -52,7 +52,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-
+            
         }
     }
 }
