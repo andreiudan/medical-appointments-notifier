@@ -6,7 +6,9 @@
     xmlns:local="using:MedicalAppointmentsNotifier.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels"
+    xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels" 
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity" 
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     mc:Ignorable="d">
 
     <Grid Margin="12">
@@ -22,8 +24,17 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Beneficiari" HorizontalAlignment="Left" FontSize="32" FontWeight="Bold" Margin="10"/>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock 
+                Grid.Column="0" 
+                Text="Beneficiari" 
+                HorizontalAlignment="Left" 
+                FontSize="32" 
+                Style="{StaticResource TitleTextBlockStyle}"
+                Margin="12"/>
+            <StackPanel 
+                Grid.Column="1" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Right">
                 <Button x:Name="btnAdd" Content="Add User" Margin="5" Click="btnAdd_Click"/>
                 <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
             </StackPanel>
@@ -31,7 +42,8 @@
 
         <ListView 
             BorderThickness="1" 
-            BorderBrush="DarkRed" 
+            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+            CornerRadius="8"
             Margin="10" 
             Grid.Row="1" 
             x:Name="UsersListView"
@@ -41,7 +53,10 @@
             
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="18, 6, 18, 6">
+                    <Grid 
+                        Padding="18, 6, 18, 6"
+                        Margin="0, 0, 0, 4"
+                        Background="{ThemeResource SystemControlBackgroundAccentBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -49,17 +64,21 @@
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Center" />
-                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" />
-                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center"/>
+                        <interactivity:Interaction.Behaviors>
+                            <behaviors:StickyHeaderBehavior/>
+                        </interactivity:Interaction.Behaviors>
+
+                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
 
             <ListView.ItemTemplate>
                 <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
-                    <Grid Padding="0,12,0,0" Margin="0,6,0,0" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
+                    <Grid Margin="0,6,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -67,10 +86,15 @@
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Name}" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Width="200" Grid.Column="2" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="{Binding Status}" Width="150" Grid.Column="3" HorizontalTextAlignment="Center"/>
+                        <CheckBox 
+                            IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center" 
+                            Grid.Column="0" 
+                            Click="CheckBox_Click"/>
+                        <TextBlock Text="{Binding Name}" Grid.Column="1" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="2" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Status}" Grid.Column="3" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
