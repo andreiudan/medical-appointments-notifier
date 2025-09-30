@@ -38,7 +38,7 @@ public partial class AddAppointmentViewModel : ObservableValidator
 
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
-    private User user { get; set; }
+    private Guid UserId { get; set; }
 
     public IAsyncRelayCommand AddAppointmentCommand { get; }
 
@@ -77,9 +77,9 @@ public partial class AddAppointmentViewModel : ObservableValidator
         return true;
     }
 
-    public void LoadUser(User selectedUser)
+    public void LoadUserId(Guid userId)
     {
-        user = selectedUser;
+        UserId = userId;
     }
 
     public bool Validate()
@@ -112,7 +112,9 @@ public partial class AddAppointmentViewModel : ObservableValidator
             return;
         }
 
-        IRepository<Appointment> repository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
+        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
+
+        User user = await userRepository.FindAsync(u => u.Id == UserId);
 
         Appointment appointment = new Appointment
         {
@@ -125,7 +127,9 @@ public partial class AddAppointmentViewModel : ObservableValidator
             User = user,
         };
 
-        Appointment addedAppointment =  await repository.AddAsync(appointment);
+        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
+
+        Appointment addedAppointment =  await appointmentsRepository.AddAsync(appointment);
 
         WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(addedAppointment));
 

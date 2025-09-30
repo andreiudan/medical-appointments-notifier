@@ -1,5 +1,5 @@
+using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Core.ViewModels;
-using MedicalAppointmentsNotifier.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -20,9 +20,11 @@ namespace MedicalAppointmentsNotifier.Views
         {
             base.OnNavigatedTo(e);
 
-            if(e.Parameter is not null && e.Parameter is User)
+            if(e.Parameter is not null && e.Parameter is UserModel)
             {
-                ViewModel.LoadUser(e.Parameter as User);
+                UserModel user = e.Parameter as UserModel;
+
+                ViewModel.LoadUser(user.Id, user.Name);
             }
         }
 
@@ -38,13 +40,13 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddNoteView addNoteView = new AddNoteView(ViewModel.User);
+            AddNoteView addNoteView = new AddNoteView(ViewModel.UserId);
             addNoteView.Activate();
         }
 
         private void btnAddAppointment_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.User);
+            AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.UserId);
             addAppointmentView.Activate();
         }
 

@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels"
     mc:Ignorable="d"
-    Title="AddUserView">
+    Title="Adauga Beneficiar">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />

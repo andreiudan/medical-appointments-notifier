@@ -33,16 +33,16 @@ public partial class AddNoteViewModel : ObservableValidator
 
     public IAsyncRelayCommand AddNoteCommand;
 
-    private User User { get; set; }
+    private Guid UserId { get; set; }
 
     public AddNoteViewModel()
     {
         AddNoteCommand = new AsyncRelayCommand(AddNoteAsync);
     }
 
-    public void LoadUser(User user)
+    public void LoadUserId(Guid userId)
     {
-        User = user;
+        UserId = userId;
     }
 
     partial void OnDescriptionChanged(string value)
@@ -106,7 +106,14 @@ public partial class AddNoteViewModel : ObservableValidator
             return;
         }
 
-        IRepository<Note> repository = Ioc.Default.GetRequiredService<IRepository<Note>>();
+        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
+
+        User user = await userRepository.FindAsync(u => u.Id == UserId);
+
+        if(user == null)
+        {
+            return;
+        }
 
         Note note = new Note
         {
@@ -114,10 +121,12 @@ public partial class AddNoteViewModel : ObservableValidator
             Description = Description,
             From = DateFrom,
             Until = DateTo,
-            User = this.User
+            User = user,
         };
 
-        Note addedNote = await repository.AddAsync(note);
+        IRepository<Note> noteRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
+
+        Note addedNote = await noteRepository.AddAsync(note);
 
         WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(note));
 

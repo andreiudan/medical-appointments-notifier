@@ -1,16 +1,35 @@
 ﻿using MedicalAppointmentsNotifier.Domain.Entities;
+using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 
 namespace MedicalAppointmentsNotifier.Core.Models
 {
     public class AppointmentModel
     {
-        public Appointment Appointment { get; set; } = new();
+        public Guid Id { get; set; }
+
+        public MedicalSpecialty? MedicalSpecialty { get; set; }
+
+        public int IntervalDays { get; set; }
+
+        public string Status { get; set; }
+
+        public DateTimeOffset? LatestDate { get; set; }
+
+        public DateTimeOffset? NextDate { get; set; }
 
         public bool IsSelected { get; set; } = false;
 
-        public AppointmentModel(Appointment appointment, bool isSelected)
+        public AppointmentModel(Appointment appointment, bool isSelected = false)
         {
-            Appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
+            ArgumentNullException.ThrowIfNull(appointment);
+
+            Id = appointment.Id;
+            MedicalSpecialty = appointment.MedicalSpecialty;
+            IntervalDays = appointment.IntervalDays;
+            Status = appointment.Status;
+            LatestDate = appointment.LatestDate;
+            NextDate = appointment.NextDate;
+
             IsSelected = isSelected;
         }
 
@@ -29,13 +48,18 @@ namespace MedicalAppointmentsNotifier.Core.Models
 
         private bool Equals(AppointmentModel obj)
         {
-            return this.Appointment.Equals(obj.Appointment) &&
+            return this.Id.Equals(obj.Id) &&
+                this.MedicalSpecialty == obj.MedicalSpecialty &&
+                this.IntervalDays == obj.IntervalDays &&
+                this.Status == obj.Status &&
+                this.LatestDate == obj.LatestDate &&
+                this.NextDate == obj.NextDate &&
                 this.IsSelected == obj.IsSelected;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Appointment, IsSelected);
+            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, LatestDate, NextDate, IsSelected);
         }
     }
 }

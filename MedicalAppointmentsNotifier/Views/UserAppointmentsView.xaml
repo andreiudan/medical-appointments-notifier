@@ -5,8 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MedicalAppointmentsNotifier.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:c="using:MedicalAppointmentsNotifier.Converters"
     mc:Ignorable="d">
+    <Page.Resources>
+        <c:DateOnlyConverter x:Key="DateOnlyConverter"/>
+    </Page.Resources>
 
     <Grid Margin="12" RowSpacing="12">
         <Grid.RowDefinitions>
@@ -22,7 +26,7 @@
         </Grid.ColumnDefinitions>
         
         <Button x:Name="btnBack" Grid.Row="0" Content="Inapoi" Click="btnBack_Click"/>
-        <TextBlock Text="{x:Bind ViewModel.User.Name}" Grid.Row="1" VerticalAlignment="Top" FontSize="32" FontWeight="Bold"/>
+        <TextBlock Text="{x:Bind ViewModel.UserName}" Grid.Row="1" VerticalAlignment="Top" FontSize="32" FontWeight="Bold"/>
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -45,7 +49,7 @@
             ItemsSource="{x:Bind ViewModel.Notes}">
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="12" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}">
+                    <Grid Padding="18, 6, 18, 6" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="60*"/>
@@ -63,7 +67,7 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="12">
+                    <Grid Padding="0,12,0,0" Margin="0,6,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="60*"/>
@@ -71,10 +75,10 @@
                             <ColumnDefinition Width="10*"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Note.Description}" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding Note.From}" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding Note.Until}" Grid.Column="3" HorizontalAlignment="Center"/>
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="0" Click="CheckBox_Click"/>
+                        <TextBlock Text="{Binding Description}" Grid.Column="1" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding From, Converter={StaticResource DateOnlyConverter}}" Grid.Column="2" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}}" Grid.Column="3" HorizontalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
@@ -101,7 +105,7 @@
             ItemsSource="{x:Bind ViewModel.Appointments}">
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="12" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}">
+                    <Grid Padding="18, 6, 18, 6" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="40*"/>
@@ -125,7 +129,7 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
-                    <Grid Padding="16" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
+                    <Grid Padding="0,12,0,0" Margin="0,6,0,0" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="40*"/>
@@ -137,12 +141,12 @@
                         </Grid.ColumnDefinitions>
 
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Appointment.MedicalSpecialty}" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding Appointment.IntervalDays}" Grid.Column="2" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding MedicalSpecialty}" Grid.Column="1" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding IntervalDays}" Grid.Column="2" HorizontalAlignment="Center"/>
                         <TextBlock Text="Zile ramase" Grid.Column="3" HorizontalAlignment="Center" />
-                        <TextBlock Text="{Binding Appointment.Status}" Grid.Column="4" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding Appointment.LatestDate}" Grid.Column="5" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding Appointment.NextDate}" Grid.Column="6" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding Status}" Grid.Column="4" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding LatestDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="5" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding NextDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="6" HorizontalAlignment="Center" />
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

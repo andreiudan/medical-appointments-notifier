@@ -1,4 +1,4 @@
-﻿namespace MedicalAppointmentsNotifier.Data.Repositories
+﻿namespace MedicalAppointmentsNotifier.Domain.Interfaces
 {
     public interface INameNormalizer
     {

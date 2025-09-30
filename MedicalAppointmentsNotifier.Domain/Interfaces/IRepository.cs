@@ -10,7 +10,11 @@ namespace MedicalAppointmentsNotifier.Domain.Interfaces
 
         public Task<bool> DeleteAsync(TModel model);
 
+        public Task<bool> DeleteAsync(Guid modelId);
+
         public Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate);
+
+        public Task<IEnumerable<TModel>> FindAllAsync(Expression<Func<TModel, bool>> predicate);
 
         public Task<List<TModel>> GetAllAsync();
     }

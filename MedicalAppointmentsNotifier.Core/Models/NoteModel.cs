@@ -4,13 +4,25 @@ namespace MedicalAppointmentsNotifier.Core.Models
 {
     public class NoteModel
     {
-        public Note Note { get; set; } = new();
+        public Guid Id { get; set; }
+
+        public string Description { get; set; }
+
+        public DateTimeOffset? From { get; set; }
+
+        public DateTimeOffset? Until { get; set; }
 
         public bool IsSelected { get; set; } = false;
 
-        public NoteModel(Note note, bool isSelected)
+        public NoteModel(Note note, bool isSelected = false)
         {
-            Note = note ?? throw new ArgumentNullException(nameof(note));
+            ArgumentNullException.ThrowIfNull(note);
+
+            Id = note.Id;
+            Description = note.Description;
+            From = note.From;
+            Until = note.Until;
+
             IsSelected = isSelected;
         }
 
@@ -31,13 +43,16 @@ namespace MedicalAppointmentsNotifier.Core.Models
 
         private bool Equals(NoteModel obj)
         {
-            return this.Note.Equals(obj.Note) &&
+            return this.Id.Equals(obj.Id) &&
+                this.Description == obj.Description &&
+                this.From == obj.From &&
+                this.Until == obj.Until &&
                 this.IsSelected == obj.IsSelected;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Note, IsSelected);
+            return HashCode.Combine(Id, Description, From, Until, IsSelected);
         }
     }
 }

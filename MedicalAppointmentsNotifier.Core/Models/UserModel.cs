@@ -4,13 +4,24 @@ namespace MedicalAppointmentsNotifier.Core.Models
 {
     public class UserModel
     {
-        public User User { get; set; } = new();
+        public Guid Id { get; set; } = new();
+
+        public string Name { get; set; } = string.Empty;
+
+        public int DaysUntilNextAppointment { get; set; } = 0;
+
+        public string Status { get; set; } = string.Empty;
 
         public bool IsSelected { get; set; } = false;
 
-        public UserModel(User user, bool isSelected)
+        public UserModel(User user, int daysUntilNextAppointment = 0, bool isSelected = false)
         {
-            User = user ?? throw new ArgumentNullException(nameof(user));
+            ArgumentNullException.ThrowIfNull(user);
+
+            Id = user.Id;
+            Name = user.Name;
+
+            DaysUntilNextAppointment = daysUntilNextAppointment;
             IsSelected = isSelected;
         }
 
@@ -31,13 +42,16 @@ namespace MedicalAppointmentsNotifier.Core.Models
 
         private bool Equals(UserModel obj)
         {
-            return this.User.Equals(obj.User) &&
+            return this.Id.Equals(obj.Id) &&
+                this.Name == obj.Name &&
+                this.DaysUntilNextAppointment == obj.DaysUntilNextAppointment &&
+                this.Status == obj.Status &&
                 this.IsSelected == obj.IsSelected;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(User, IsSelected);
+            return HashCode.Combine(Id, Name, DaysUntilNextAppointment, Status, IsSelected);
         }
     }
 }

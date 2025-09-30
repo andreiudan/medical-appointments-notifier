@@ -1,4 +1,4 @@
-﻿using MedicalAppointmentsNotifier.Data.Repositories;
+﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
 using System.Text;
 
 namespace MedicalAppointmentsNotifier.Core.Services

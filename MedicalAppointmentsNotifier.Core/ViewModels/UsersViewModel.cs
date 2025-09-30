@@ -37,7 +37,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         foreach (var user in _users)
         {
-            Users.Add(new UserModel(user, false));
+            Users.Add(new UserModel(user));
         }
     }
 
@@ -47,16 +47,16 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         foreach (UserModel entry in usersToDelete)
         {
-            bool deleted = await UsersRepository.DeleteAsync(entry.User);
+            bool deleted = await UsersRepository.DeleteAsync(entry.Id);
             if (deleted)
             {
-                Users.Remove(Users.First(u => u.User.Id == entry.User.Id));
+                Users.Remove(Users.First(u => u.Id == entry.Id));
             }
         }
     }
 
     public void Receive(UserAddedMessage message)
     {
-        Users.Add(new UserModel(message.user, false));
+        Users.Add(new UserModel(message.user));
     }
 }

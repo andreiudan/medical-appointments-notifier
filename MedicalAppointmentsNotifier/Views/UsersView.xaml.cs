@@ -1,10 +1,8 @@
 using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Core.ViewModels;
-using MedicalAppointmentsNotifier.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
-using System.Linq;
 
 namespace MedicalAppointmentsNotifier.Views
 {
@@ -28,7 +26,7 @@ namespace MedicalAppointmentsNotifier.Views
             UserModel clickedUser = e.ClickedItem as UserModel;
 
             var rootFrame = ((App)App.Current).RootFrame;
-            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser.User, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
         }
 
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

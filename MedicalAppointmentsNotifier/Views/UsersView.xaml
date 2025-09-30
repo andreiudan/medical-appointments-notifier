@@ -41,7 +41,7 @@
             
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="12">
+                    <Grid Padding="18, 6, 18, 6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -59,7 +59,7 @@
 
             <ListView.ItemTemplate>
                 <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
-                    <Grid Padding="16" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
+                    <Grid Padding="0,12,0,0" Margin="0,6,0,0" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -68,9 +68,9 @@
                         </Grid.ColumnDefinitions>
 
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding User.Name}" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="A" Width="200" Grid.Column="2" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="B" Width="150" Grid.Column="3" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="{Binding Name}" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Width="200" Grid.Column="2" HorizontalTextAlignment="Center"/>
+                        <TextBlock Text="{Binding Status}" Width="150" Grid.Column="3" HorizontalTextAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
