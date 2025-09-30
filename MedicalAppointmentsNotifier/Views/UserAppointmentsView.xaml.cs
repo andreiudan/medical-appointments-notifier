@@ -1,5 +1,5 @@
-using MedicalAppointmentsNotifier.Core.Models;
 using MedicalAppointmentsNotifier.Core.ViewModels;
+using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -52,7 +52,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-
+            
         }
     }
 }

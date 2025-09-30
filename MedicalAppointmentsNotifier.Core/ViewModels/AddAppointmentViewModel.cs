@@ -120,7 +120,7 @@ public partial class AddAppointmentViewModel : ObservableValidator
         {
             Id = Guid.NewGuid(),
             MedicalSpecialty = Specialty,
-            Status = "",
+            Status = 0,
             IntervalDays = DaysInterval,
             NextDate = NextDate,
             LatestDate = LatestDate,
