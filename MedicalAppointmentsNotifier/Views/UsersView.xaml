@@ -11,14 +11,16 @@
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     mc:Ignorable="d">
 
-    <Grid Margin="12">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="80*"/>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <Grid VerticalAlignment="Top">
+        <Grid 
+            VerticalAlignment="Top"
+            Padding="36, 40, 36, 24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -29,22 +31,22 @@
                 Text="Beneficiari" 
                 HorizontalAlignment="Left" 
                 FontSize="32" 
-                Style="{StaticResource TitleTextBlockStyle}"
-                Margin="12"/>
+                Style="{StaticResource TitleTextBlockStyle}"/>
             <StackPanel 
                 Grid.Column="1" 
                 Orientation="Horizontal" 
-                HorizontalAlignment="Right">
-                <Button x:Name="btnAdd" Content="Add User" Margin="5" Click="btnAdd_Click"/>
-                <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
+                HorizontalAlignment="Right"
+                Spacing="8">
+                <Button x:Name="btnAdd" Content="Adauga" Click="btnAdd_Click"/>
+                <Button Content="Sterge" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
             </StackPanel>
         </Grid>
 
         <ListView 
             BorderThickness="1" 
             BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-            CornerRadius="8"
-            Margin="10" 
+            CornerRadius="{StaticResource ControlCornerRadius}"
+            Margin="36,0,36,0"
             Grid.Row="1" 
             x:Name="UsersListView"
             ItemsSource="{x:Bind ViewModel.Users}"
@@ -54,9 +56,10 @@
             <ListView.HeaderTemplate>
                 <DataTemplate>
                     <Grid 
-                        Padding="18, 6, 18, 6"
+                        Padding="14, 12, 14, 12"
                         Margin="0, 0, 0, 4"
-                        Background="{ThemeResource SystemControlBackgroundAccentBrush}">
+                        Background="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}"
+                        ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -68,17 +71,20 @@
                             <behaviors:StickyHeaderBehavior/>
                         </interactivity:Interaction.Behaviors>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
 
             <ListView.ItemTemplate>
-                <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
-                    <Grid Margin="0,6,0,0">
+                <DataTemplate>
+                    <Grid 
+                        Margin="0,8,0,8"
+                        Padding="0,6"
+                        ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -88,7 +94,7 @@
 
                         <CheckBox 
                             IsChecked="{Binding IsSelected, Mode=TwoWay}" 
-                            HorizontalAlignment="Center" 
+                            HorizontalAlignment="Left" 
                             VerticalAlignment="Center" 
                             Grid.Column="0" 
                             Click="CheckBox_Click"/>
@@ -100,7 +106,13 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Spacing="12">
+        <StackPanel 
+            Orientation="Horizontal" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Center" 
+            Grid.Row="2" 
+            Spacing="12"
+            Padding="36,24,36,24">
             <TextBlock Text="Urmeaza sa expire" FontSize="16"></TextBlock>
             <TextBlock Text="A expirat" FontSize="16"></TextBlock>
             <TextBlock Text="Nu expira curand" FontSize="16"></TextBlock>

@@ -14,26 +14,26 @@
     </Window.SystemBackdrop>
 
     <Grid 
-        x:Name="RootGrid"
-        VerticalAlignment="Center"
-        RowSpacing="18"
-        Padding="32">
+        x:Name="RootGrid">
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock 
             Text="Adauga Scrisoare Medicala" 
             FontSize="28" 
-            FontWeight="SemiBold" 
+            Style="{StaticResource TitleTextBlockStyle}"
             Grid.Row="0"
             HorizontalAlignment="Center"
-            Margin="0, 0, 0, 32"/>
+            Padding="24, 32, 24, 24"/>
 
-        <Grid Grid.Row="1" ColumnSpacing="18">
+        <Grid 
+            Grid.Row="1" 
+            ColumnSpacing="24"
+            Padding="24, 0, 24, 16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
                 <ColumnDefinition Width="50*"/>
@@ -46,7 +46,9 @@
                 Grid.Column="0"
                 HorizontalAlignment="Stretch">
             </ComboBox>
-            <StackPanel Grid.Column="1">
+            <StackPanel 
+                Grid.Column="1"
+                Spacing="12">
                 <NumberBox 
                     Header="Interval Consultatie"
                     Text="{x:Bind ViewModel.DaysInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -58,8 +60,12 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="2">
-            <Grid ColumnSpacing="18">
+        <StackPanel 
+            Grid.Row="2"
+            Spacing="12"
+            Padding="24, 0, 24, 24">
+            <Grid 
+                ColumnSpacing="24">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50*"/>
                     <ColumnDefinition Width="50*"/>
@@ -85,7 +91,13 @@
                 Text="{x:Bind ViewModel.DateIntervalErrorMessage, Mode=OneWay}"/>
         </StackPanel>
 
-        <Grid Grid.Row="3" ColumnSpacing="12" Margin="0, 32, 0, 0">
+        <Grid 
+            Grid.Row="3" 
+            ColumnSpacing="8" 
+            Padding="24"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
                 <ColumnDefinition Width="50*"/>
@@ -94,12 +106,15 @@
             <Button 
                 x:Name="btnClose" 
                 Content="Anuleaza" 
-                Grid.Column="0" 
+                Grid.Column="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
                 Click="btnClose_Click"/>
             <Button 
                 Content="Adauga" 
                 Grid.Column="1" 
-                HorizontalAlignment="Right" 
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
                 Command="{x:Bind ViewModel.AddAppointmentCommand}"/>
         </Grid>
     </Grid>

@@ -13,7 +13,7 @@ namespace MedicalAppointmentsNotifier.Views
     /// </summary>
     public sealed partial class AddUserView : Window
     {
-        private readonly Windows.Graphics.SizeInt32 startSize = new(475, 475);
+        private readonly Windows.Graphics.SizeInt32 startSize = new(460, 402);
 
         public AddUserView()
         {
