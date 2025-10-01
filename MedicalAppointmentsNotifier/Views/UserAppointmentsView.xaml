@@ -14,138 +14,206 @@
         <c:DateOnlyConverter x:Key="DateOnlyConverter"/>
     </Page.Resources>
 
-    <Grid Margin="12" RowSpacing="12">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="30*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="60*"/>
+            <RowDefinition Height="55*"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        
-        <Button x:Name="btnBack" Grid.Row="0" Content="Inapoi" Click="btnBack_Click"/>
-        <TextBlock Text="{x:Bind ViewModel.UserName}" Grid.Row="1" VerticalAlignment="Top" FontSize="32" FontWeight="Bold"/>
 
-        <Grid Grid.Row="2">
+        <Grid 
+            Grid.Row="0"
+            Padding="36, 32, 36, 24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button 
+                x:Name="btnBack" 
+                Grid.Column="0" 
+                Content="Inapoi"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Click="btnBack_Click"/>
+            <TextBlock 
+                Text="{x:Bind ViewModel.UserName}"
+                Grid.Column="1"
+                FontSize="32" 
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Style="{StaticResource TitleTextBlockStyle}"/>
+        </Grid>
+        
+
+        <Grid 
+            Grid.Row="1"
+            Padding="36, 0, 36, 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Mentiuni" FontWeight="SemiBold" FontSize="18" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Spacing="6">
+            <TextBlock 
+                Text="Mentiuni" 
+                FontSize="18" 
+                Grid.Column="0" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Center" 
+                Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <StackPanel 
+                Orientation="Horizontal" 
+                Grid.Column="1" 
+                HorizontalAlignment="Right" 
+                Spacing="8">
                 <Button x:Name="btnAddNote" Content="Adauga" Click="btnAddNote_Click"/>
                 <Button Content="Sterge" Command="{x:Bind ViewModel.DeleteNotesCommand}"/>
             </StackPanel>
         </Grid>
 
         <ListView
+            Margin="36,0,36,16"
             x:Name="lvNotes"
-            Grid.Row="3" 
-            BorderThickness="1" 
-            BorderBrush="{ThemeResource ListViewGroupHeaderPressedForegroundThemeBrush}" 
+            Grid.Row="2" 
+            BorderThickness="1"
+            CornerRadius="{StaticResource ControlCornerRadius}"
+            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}" 
             ItemsSource="{x:Bind ViewModel.Notes}">
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="18, 6, 18, 6" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}">
+                    <Grid 
+                        Padding="14, 12, 14, 12"
+                        Margin="0, 0, 0, 4"
+                        ColumnSpacing="12"
+                        Background="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="60*"/>
                             <ColumnDefinition Width="10*"/>
-                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="70*"/>
+                            <ColumnDefinition Width="15*"/>
+                            <ColumnDefinition Width="15*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="Descriere" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Din Data" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Pana in Data" Grid.Column="3" HorizontalAlignment="Center"/>
+                        <interactivity:Interaction.Behaviors>
+                            <behaviors:StickyHeaderBehavior/>
+                        </interactivity:Interaction.Behaviors>
+
+                        <TextBlock Text="DEL" Grid.Column="0" HorizontalTextAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Descriere" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Din Data" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Pana in Data" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
 
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="0,12,0,0" Margin="0,6,0,0">
+                    <Grid 
+                        Margin="0,8,0,8"
+                        Padding="0,6" 
+                        ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="60*"/>
-                            <ColumnDefinition Width="10*"/>
-                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="15*"/>
+                            <ColumnDefinition Width="15*"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Description}" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding From, Converter={StaticResource DateOnlyConverter}}" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}}" Grid.Column="3" HorizontalAlignment="Center"/>
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
+                        <TextBlock Text="{Binding Description}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding From, Converter={StaticResource DateOnlyConverter}}" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}}" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <Grid Grid.Row="4">
+        <Grid 
+            Grid.Row="3"
+            Padding="36, 0, 36, 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Scrisori Medicale" FontWeight="SemiBold"  FontSize="18" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Spacing="6">
+            <TextBlock 
+                Text="Scrisori Medicale"  
+                FontSize="18" 
+                Grid.Column="0" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Center"
+                Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <StackPanel 
+                Orientation="Horizontal" 
+                Grid.Column="1" 
+                HorizontalAlignment="Right" 
+                Spacing="8">
                 <Button x:Name="btnAddAppointment" Content="Adauga" Click="btnAddAppointment_Click"/>
                 <Button Content="Sterge" Command="{x:Bind ViewModel.DeleteAppointmentsCommand}"/>
             </StackPanel>
         </Grid>
 
         <ListView 
+            Margin="36, 0, 36, 24"
             x:Name="lvAppointments"
             BorderThickness="1" 
-            BorderBrush="{ThemeResource ListViewGroupHeaderPressedForegroundThemeBrush}" 
-            Grid.Row="5"
+            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}" 
+            Grid.Row="4"
+            CornerRadius="{StaticResource ControlCornerRadius}"
             ItemsSource="{x:Bind ViewModel.Appointments}">
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="18, 6, 18, 6" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}">
+                    <Grid
+                        Padding="14, 12, 14, 12"
+                        Margin="0, 0, 0, 4"
+                        ColumnSpacing="12"
+                        Background="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="40*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="25*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="25*"/>
                             <ColumnDefinition Width="15*"/>
                             <ColumnDefinition Width="15*"/>
-                            <ColumnDefinition Width="30*"/>
-                            <ColumnDefinition Width="20*"/>
-                            <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Center" />
-                        <TextBlock Text="Specialitate" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Interval" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Zile ramase" Grid.Column="3" HorizontalAlignment="Center" />
-                        <TextBlock Text="Status" Grid.Column="4" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Din Data" Grid.Column="5" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Pana in Data" Grid.Column="6" HorizontalAlignment="Center" />
+                        <interactivity:Interaction.Behaviors>
+                            <behaviors:StickyHeaderBehavior/>
+                        </interactivity:Interaction.Behaviors>
+
+                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Specialitate" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Interval" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Zile ramase" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Status" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Din Data" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Pana in Data" Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
 
             <ListView.ItemTemplate>
                 <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
-                    <Grid Padding="0,12,0,0" Margin="0,6,0,0" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
+                    <Grid 
+                        Margin="0,8,0,8"
+                        Padding="0,6"
+                        ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="40*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="25*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="25*"/>
                             <ColumnDefinition Width="15*"/>
                             <ColumnDefinition Width="15*"/>
-                            <ColumnDefinition Width="30*"/>
-                            <ColumnDefinition Width="20*"/>
-                            <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding MedicalSpecialty}" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding IntervalDays}" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="3" HorizontalAlignment="Center" />
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
+                        <TextBlock Text="{Binding MedicalSpecialty}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding IntervalDays}" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <ComboBox 
                             ItemsSource="{Binding DataContext.AppointmentStatuses, ElementName=RootPage}"
                             SelectedItem="{Binding Status, Mode=TwoWay}"
@@ -160,8 +228,8 @@
                                 </interactivity:EventTriggerBehavior>
                             </interactivity:Interaction.Behaviors>
                         </ComboBox>
-                        <TextBlock Text="{Binding LatestDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="5" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding NextDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="6" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding LatestDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding NextDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

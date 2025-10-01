@@ -17,25 +17,23 @@
     <Grid 
         x:Name="RootGrid"
         HorizontalAlignment="Stretch" 
-        VerticalAlignment="Center"
-        Padding="32"
-        RowSpacing="18">
+        VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
         <TextBlock 
             Text="Adauga Beneficiar" 
             FontSize="28" 
-            FontWeight="SemiBold" 
+            Style="{StaticResource TitleTextBlockStyle}"
             Grid.Row="0" 
             HorizontalAlignment="Center"
-            Margin="0,0,0,32"/>
+            Padding="32, 32, 32, 24"/>
 
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Padding="32, 0, 32, 16">
             <TextBox 
                 Header="Prenume"  
                 Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -44,9 +42,9 @@
                 Text="{x:Bind ViewModel.FirstNameErrorMessage, Mode=OneWay}"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2">
+        <StackPanel Grid.Row="2" Padding="32, 0, 32, 24">
             <TextBox 
-                Header="Nume de familie" 
+                Header="Nume de familie"
                 Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock
                 Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
@@ -55,15 +53,29 @@
 
         <Grid 
             Grid.Row="3"
-            ColumnSpacing="12" 
-            Margin="0,32,0,0">
+            ColumnSpacing="8" 
+            Padding="32, 24, 32, 24"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
                 <ColumnDefinition Width="50*"/>
             </Grid.ColumnDefinitions>
             
-            <Button x:Name="btnClose" Content="Anuleaza" Click="btnClose_Click"  Grid.Column="0" HorizontalAlignment="Left"/>
-            <Button Content="Adauga" Command="{x:Bind ViewModel.AddUserCommand}" Grid.Column="1" HorizontalAlignment="Right"/>
+            <Button 
+                x:Name="btnClose" 
+                Content="Anuleaza" 
+                Click="btnClose_Click"  
+                Grid.Column="0" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Center"/>
+            <Button 
+                Content="Adauga" 
+                Command="{x:Bind ViewModel.AddUserCommand}" 
+                Grid.Column="1" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Center"/>
         </Grid>
     </Grid>
 </Window>

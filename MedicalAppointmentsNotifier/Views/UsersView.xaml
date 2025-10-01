@@ -6,33 +6,47 @@
     xmlns:local="using:MedicalAppointmentsNotifier.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels"
+    xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels" 
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity" 
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     mc:Ignorable="d">
 
-    <Grid Margin="12">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="80*"/>
-            <RowDefinition Height="10*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <Grid VerticalAlignment="Top">
+        <Grid 
+            VerticalAlignment="Top"
+            Padding="36, 40, 36, 24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Beneficiari" HorizontalAlignment="Left" FontSize="32" FontWeight="Bold" Margin="10"/>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="btnAdd" Content="Add User" Margin="5" Click="btnAdd_Click"/>
-                <Button Content="Delete User" Margin="5" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
+            <TextBlock 
+                Grid.Column="0" 
+                Text="Beneficiari" 
+                HorizontalAlignment="Left" 
+                FontSize="32" 
+                Style="{StaticResource TitleTextBlockStyle}"/>
+            <StackPanel 
+                Grid.Column="1" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Right"
+                Spacing="8">
+                <Button x:Name="btnAdd" Content="Adauga" Click="btnAdd_Click"/>
+                <Button Content="Sterge" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
             </StackPanel>
         </Grid>
 
         <ListView 
             BorderThickness="1" 
-            BorderBrush="DarkRed" 
-            Margin="10" 
+            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+            CornerRadius="{StaticResource ControlCornerRadius}"
+            Margin="36,0,36,0"
             Grid.Row="1" 
             x:Name="UsersListView"
             ItemsSource="{x:Bind ViewModel.Users}"
@@ -41,7 +55,11 @@
             
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Padding="18, 6, 18, 6">
+                    <Grid 
+                        Padding="14, 12, 14, 12"
+                        Margin="0, 0, 0, 4"
+                        Background="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}"
+                        ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -49,17 +67,24 @@
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Center" />
-                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" />
-                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center"/>
+                        <interactivity:Interaction.Behaviors>
+                            <behaviors:StickyHeaderBehavior/>
+                        </interactivity:Interaction.Behaviors>
+
+                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
 
             <ListView.ItemTemplate>
-                <DataTemplate ScrollViewer.IsVerticalRailEnabled="True">
-                    <Grid Padding="0,12,0,0" Margin="0,6,0,0" BorderThickness="1" BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}">
+                <DataTemplate>
+                    <Grid 
+                        Margin="0,8,0,8"
+                        Padding="0,6"
+                        ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10*"/>
                             <ColumnDefinition Width="40*"/>
@@ -67,16 +92,27 @@
                             <ColumnDefinition Width="25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Name}" Width="200" Grid.Column="1" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Width="200" Grid.Column="2" HorizontalTextAlignment="Center"/>
-                        <TextBlock Text="{Binding Status}" Width="150" Grid.Column="3" HorizontalTextAlignment="Center"/>
+                        <CheckBox 
+                            IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                            HorizontalAlignment="Left" 
+                            VerticalAlignment="Center" 
+                            Grid.Column="0" 
+                            Click="CheckBox_Click"/>
+                        <TextBlock Text="{Binding Name}" Grid.Column="1" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="2" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Status}" Grid.Column="3" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="2" Spacing="12">
+        <StackPanel 
+            Orientation="Horizontal" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Center" 
+            Grid.Row="2" 
+            Spacing="12"
+            Padding="36,24,36,24">
             <TextBlock Text="Urmeaza sa expire" FontSize="16"></TextBlock>
             <TextBlock Text="A expirat" FontSize="16"></TextBlock>
             <TextBlock Text="Nu expira curand" FontSize="16"></TextBlock>

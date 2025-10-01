@@ -14,7 +14,7 @@ namespace MedicalAppointmentsNotifier.Views;
 /// </summary>
 public sealed partial class AddNoteView : Window
 {
-    private readonly SizeInt32 startSize = new(460, 555);
+    private readonly SizeInt32 startSize = new(445, 425);
 
     public AddNoteView(Guid userId)
     {
