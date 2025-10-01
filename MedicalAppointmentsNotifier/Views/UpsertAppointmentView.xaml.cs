@@ -13,11 +13,11 @@ namespace MedicalAppointmentsNotifier.Views;
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class AddAppointmentView : Window
+public sealed partial class UpsertAppointmentView : Window
 {
     private readonly SizeInt32 startSize = new(530, 425);
 
-    public AddAppointmentView(Guid userId, AppointmentModel appointment = null)
+    public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null)
     {
         AppWindow.Resize(startSize);
         InitializeComponent();

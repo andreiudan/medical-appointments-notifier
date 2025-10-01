@@ -26,7 +26,7 @@ namespace MedicalAppointmentsNotifier.Views
             {
                 UserModel user = e.Parameter as UserModel;
 
-                ViewModel.LoadUser(user.Id, user.Name);
+                ViewModel.LoadUser(user.Id, user.FirstName, user.LastName);
             }
         }
 
@@ -42,13 +42,13 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddNoteView addNoteView = new AddNoteView(ViewModel.UserId);
+            UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.UserId);
             addNoteView.Activate();
         }
 
         private void btnAddAppointment_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.UserId);
+            UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.UserId);
             addAppointmentView.Activate();
         }
 
@@ -94,7 +94,7 @@ namespace MedicalAppointmentsNotifier.Views
 
             if(sender is Button button && button.DataContext is NoteModel note)
             {
-                AddNoteView addNoteView = new AddNoteView(ViewModel.UserId, note);
+                UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.UserId, note);
                 addNoteView.Activate();
             }
         }
@@ -108,7 +108,7 @@ namespace MedicalAppointmentsNotifier.Views
 
             if (sender is Button button && button.DataContext is AppointmentModel appointment)
             {
-                AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.UserId, appointment);
+                UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.UserId, appointment);
                 addAppointmentView.Activate();
             }
         }

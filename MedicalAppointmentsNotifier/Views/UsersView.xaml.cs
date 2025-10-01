@@ -31,7 +31,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddUserView addUserView = new AddUserView();
+            UpsertUserView addUserView = new UpsertUserView();
             addUserView.Activate();
         }
 
@@ -42,7 +42,16 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
+            if(sender is null || sender is not Button)
+            {
+                return;
+            }
 
+            if(sender is Button button && button.DataContext is UserModel userModel)
+            {
+                UpsertUserView addUserView = new UpsertUserView(userModel);
+                addUserView.Activate();
+            }
         }
     }
 }

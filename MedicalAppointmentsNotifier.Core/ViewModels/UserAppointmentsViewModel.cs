@@ -59,10 +59,10 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         await appointmentRepository.UpdateAsync(updateAppointment);
     }
 
-    public void LoadUser(Guid userId, string username)
+    public void LoadUser(Guid userId, string firstName, string lastName)
     {
         UserId = userId;
-        UserName = username;
+        UserName = string.Format("{0} {1}", firstName, lastName);
         LoadCollectionsCommand.Execute(null);
     }
 

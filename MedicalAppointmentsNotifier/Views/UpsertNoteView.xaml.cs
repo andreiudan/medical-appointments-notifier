@@ -13,11 +13,11 @@ namespace MedicalAppointmentsNotifier.Views;
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class AddNoteView : Window
+public sealed partial class UpsertNoteView : Window
 {
     private readonly SizeInt32 startSize = new(445, 425);
 
-    public AddNoteView(Guid userId, NoteModel noteModel = null)
+    public UpsertNoteView(Guid userId, NoteModel noteModel = null)
     {
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertNoteViewModel>();

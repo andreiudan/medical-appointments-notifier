@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window
-    x:Class="MedicalAppointmentsNotifier.Views.AddUserView"
+    x:Class="MedicalAppointmentsNotifier.Views.UpsertUserView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MedicalAppointmentsNotifier.Views"
@@ -26,7 +26,7 @@
         </Grid.RowDefinitions>
         
         <TextBlock 
-            Text="Adauga Beneficiar" 
+            Text="{x:Bind ViewModel.Title}" 
             FontSize="28" 
             Style="{StaticResource TitleTextBlockStyle}"
             Grid.Row="0" 
@@ -71,7 +71,7 @@
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Center"/>
             <Button 
-                Content="Adauga" 
+                Content="{x:Bind ViewModel.UpsertButtonText}" 
                 Command="{x:Bind ViewModel.AddUserCommand}" 
                 Grid.Column="1" 
                 HorizontalAlignment="Stretch" 

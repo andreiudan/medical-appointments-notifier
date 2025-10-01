@@ -8,11 +8,12 @@ using MedicalAppointmentsNotifier.Domain;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
+using MedicalAppointmentsNotifier.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class AddUserViewModel : ObservableValidator
+public partial class UpsertUserViewModel : ObservableValidator
 {
     public event EventHandler OnUserAdded;
 
@@ -32,11 +33,31 @@ public partial class AddUserViewModel : ObservableValidator
 
     public string LastNameErrorMessage => GetErrors(nameof(LastName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
+    private Guid UserId { get; set; } = Guid.Empty;
+
+    public string Title { get; set; } = "Adauga Beneficiar";
+    public string UpsertButtonText { get; set; } = "Adauga";
+
     public IAsyncRelayCommand AddUserCommand { get; }
 
-    public AddUserViewModel()
+    public UpsertUserViewModel()
     {
         AddUserCommand = new AsyncRelayCommand(AddAsync);
+    }
+
+    public void LoadUser(UserModel user)
+    {
+        if(user == null)
+        {
+            return;
+        }
+
+        UserId = user.Id;
+        FirstName = user.FirstName;
+        LastName = user.LastName;
+
+        Title = "Modifica Beneficiar";
+        UpsertButtonText = "Modifica";
     }
 
     partial void OnFirstNameChanged(string value)
@@ -76,23 +97,48 @@ public partial class AddUserViewModel : ObservableValidator
         }
 
         INameNormalizer nameNormalizer = new NameNormalizer();
-
-        string userName = nameNormalizer.Normalize(FirstName, LastName);
-
-        IRepository<User> repository = Ioc.Default.GetRequiredService<IRepository<User>>();
-
         User user = new User
         {
             Id = Guid.NewGuid(),
-            Name = userName
+            FirstName = nameNormalizer.Normalize(FirstName),
+            LastName = nameNormalizer.Normalize(LastName),
         };
 
-        User addedUser = await repository.AddAsync(user);
+        if (UserId.Equals(Guid.Empty))
+        {
+            await InsertAsync(user);
+        }
+        else
+        {
+            user.Id = UserId;
+            await UpdateAsync(user);
+        }
+
+        OnUserAdded?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async Task InsertAsync(User user)
+    {
+        IRepository<User> repository = Ioc.Default.GetRequiredService<IRepository<User>>();
+        _ = await repository.AddAsync(user);
 
         IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(mapper.Map(user)));
+    }
 
-        OnUserAdded?.Invoke(this, EventArgs.Empty);
+    private async Task UpdateAsync(User user)
+    {
+        IRepository<User> repository = Ioc.Default.GetRequiredService<IRepository<User>>();
+        bool updated = await repository.UpdateAsync(user);
+
+        if (!updated)
+        {
+            return;
+        }
+
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        WeakReferenceMessenger.Default.Send<UserUpdatedMessage>(new UserUpdatedMessage(mapper.Map(user)));
     }
 }

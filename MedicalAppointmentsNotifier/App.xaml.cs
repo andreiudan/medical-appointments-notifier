@@ -72,7 +72,7 @@ namespace MedicalAppointmentsNotifier
 
             services.AddScoped<UsersViewModel>();
             services.AddTransient<UserAppointmentsViewModel>();
-            services.AddTransient<AddUserViewModel>();
+            services.AddTransient<UpsertUserViewModel>();
             services.AddTransient<UpsertNoteViewModel>();
             services.AddTransient<UpsertAppointmentViewModel>();
 

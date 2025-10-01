@@ -13,7 +13,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Views\AddUserView.xaml" />
     <None Remove="Views\UserAppointmentsView.xaml" />
     <None Remove="Views\UsersView.xaml" />
   </ItemGroup>
@@ -72,7 +71,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\AddUserView.xaml">
+    <Page Update="Views\UpsertUserView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

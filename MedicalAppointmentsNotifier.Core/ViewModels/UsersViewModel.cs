@@ -10,7 +10,7 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>
+public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<UserUpdatedMessage>
 {
     [ObservableProperty]
     private ObservableCollection<UserModel> users = new();
@@ -65,5 +65,14 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     {
         Users.Add(message.user);
         IsActive = true;
+    }
+
+    public void Receive(UserUpdatedMessage message)
+    {
+        UserModel updatedUser = message.user;
+        UserModel originalUser = Users.First(u => u.Id.Equals(updatedUser.Id));
+
+        int index = Users.IndexOf(originalUser);
+        Users[index] = updatedUser;
     }
 }

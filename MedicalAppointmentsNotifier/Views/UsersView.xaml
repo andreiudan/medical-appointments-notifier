@@ -119,7 +119,12 @@
                             VerticalAlignment="Center" 
                             Grid.Column="0" 
                             Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Name}" Grid.Column="1" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock 
+                            Text="{Binding Converter={StaticResource UserFullNameConverter}}" 
+                            Grid.Column="1" 
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" 
+                            Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="2" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding Status}" Grid.Column="3" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <Button

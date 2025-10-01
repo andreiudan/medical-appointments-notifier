@@ -5,7 +5,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
 {
     internal class NameNormalizer : INameNormalizer
     {
-        private string CorrectName(string name)
+        public string Normalize(string name)
         {
             name = name.ToLower().Trim();
 
@@ -28,11 +28,6 @@ namespace MedicalAppointmentsNotifier.Core.Services
             }
 
             return sb.ToString();
-        }
-
-        public string Normalize(string firstName, string lastName)
-        {
-            return CorrectName(lastName) + ' ' + CorrectName(firstName);
         }
     }
 }
