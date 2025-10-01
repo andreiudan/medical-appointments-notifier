@@ -1,10 +1,11 @@
-﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
+﻿using MedicalAppointmentsNotifier.Domain.Entities;
+using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace MedicalAppointmentsNotifier.Data.Repositories
 {
-    public class Repository<TModel> : IRepository<TModel> where TModel : class
+    public class Repository<TModel> : IRepository<TModel> where TModel : BaseEntity
     {
         protected readonly DbContext context;
 
@@ -90,24 +91,16 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<bool> UpdateAsync(TModel model)
         {
-            if(model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
-            try
-            {
-                if(context.Entry(model).State == EntityState.Detached)
-                {
-                    context.Set<TModel>().Attach(model);
-                }
+            TModel originalModel = await context.Set<TModel>().FindAsync(model.Id);
 
-                context.Entry(model).State = EntityState.Modified;
-            }
-            catch (Exception ex)
+            if (originalModel == null)
             {
                 return false;
             }
+
+            context.Entry(originalModel).CurrentValues.SetValues(model);
 
             await context.SaveChangesAsync();
 

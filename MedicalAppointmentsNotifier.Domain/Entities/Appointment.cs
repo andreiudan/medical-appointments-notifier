@@ -1,15 +1,10 @@
 ﻿using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalAppointmentsNotifier.Domain.Entities
 {
-    public class Appointment
+    public class Appointment : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
-
         [Required]
         public MedicalSpecialty? MedicalSpecialty { get; set; }
 

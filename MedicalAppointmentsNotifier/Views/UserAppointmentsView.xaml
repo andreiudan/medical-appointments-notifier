@@ -161,7 +161,8 @@
             BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}" 
             Grid.Row="4"
             CornerRadius="{StaticResource ControlCornerRadius}"
-            ItemsSource="{x:Bind ViewModel.Appointments}">
+            ItemsSource="{x:Bind ViewModel.Appointments}"
+            Loaded="lvAppointments_Loaded">
             <ListView.HeaderTemplate>
                 <DataTemplate>
                     <Grid
@@ -214,19 +215,13 @@
                         <TextBlock Text="{Binding MedicalSpecialty}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding IntervalDays}" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-                        <ComboBox 
+                        <ComboBox
                             ItemsSource="{Binding DataContext.AppointmentStatuses, ElementName=RootPage}"
                             SelectedItem="{Binding Status, Mode=TwoWay}"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Grid.Column="4">
-                            <interactivity:Interaction.Behaviors>
-                                <interactivity:EventTriggerBehavior EventName="SelectionChanged">
-                                    <interactivity:InvokeCommandAction
-                                        Command="{Binding DataContext.UpdateAppointmentCommand, ElementName=RootPage}"
-                                        CommandParameter="{Binding}"/>
-                                </interactivity:EventTriggerBehavior>
-                            </interactivity:Interaction.Behaviors>
+                            Grid.Column="4"
+                            SelectionChanged="ComboBox_SelectionChanged">
                         </ComboBox>
                         <TextBlock Text="{Binding LatestDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding NextDate, Converter={StaticResource DateOnlyConverter}}" Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>

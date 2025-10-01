@@ -8,6 +8,8 @@ namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UserAppointmentsView : Page
     {
+        private bool IsLoaded { get; set; } = false;
+
         public UserAppointmentsView()
         {
             InitializeComponent();
@@ -53,6 +55,34 @@ namespace MedicalAppointmentsNotifier.Views
         private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(!IsLoaded)
+            {
+                return;
+            }
+
+            if (e.AddedItems.Count == 0)
+            {
+                return;
+            }
+
+            if (e.RemovedItems.Count > 0 && e.AddedItems[0].Equals(e.RemovedItems[0]))
+            {
+                return;
+            }
+
+            if (sender is ComboBox comboBox && comboBox.DataContext is AppointmentModel appointment)
+            {
+                ViewModel.UpdateAppointmentCommand.ExecuteAsync(appointment);
+            }
+        }
+
+        private void lvAppointments_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            IsLoaded = true;
         }
     }
 }

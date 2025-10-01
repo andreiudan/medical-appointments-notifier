@@ -47,11 +47,6 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     private async Task UpdateAppointmentAsync(AppointmentModel appointment)
     {
-        if(!isLoaded || appointment is null)
-        {
-            return;
-        }
-
         IRepository<Appointment> appointmentRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
 

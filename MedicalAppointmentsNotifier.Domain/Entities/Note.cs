@@ -1,14 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalAppointmentsNotifier.Domain.Entities
 {
-    public class Note
+    public class Note : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
-
         [Required]
         public string Description { get; set; }
 
