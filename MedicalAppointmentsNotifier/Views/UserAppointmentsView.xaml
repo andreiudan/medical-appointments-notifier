@@ -42,7 +42,7 @@
                     <TextBlock Text="Inapoi" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <TextBlock 
+            <TextBlock
                 Text="{x:Bind ViewModel.UserName}"
                 Grid.Column="1"
                 FontSize="32" 
@@ -50,7 +50,6 @@
                 HorizontalAlignment="Center"
                 Style="{StaticResource TitleTextBlockStyle}"/>
         </Grid>
-        
 
         <Grid 
             Grid.Row="1"
@@ -101,7 +100,7 @@
             BorderThickness="1"
             CornerRadius="{StaticResource ControlCornerRadius}"
             BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}" 
-            ItemsSource="{x:Bind ViewModel.Notes}">
+            ItemsSource="{x:Bind ViewModel.Notes, Mode=TwoWay}">
             <ListView.HeaderTemplate>
                 <DataTemplate>
                     <Grid 
@@ -121,7 +120,7 @@
                             <behaviors:StickyHeaderBehavior/>
                         </interactivity:Interaction.Behaviors>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalTextAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <SymbolIcon Symbol="Delete" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         <TextBlock Text="Descriere" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Din Data" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Pana in Data" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
@@ -145,14 +144,15 @@
                         </Grid.ColumnDefinitions>
 
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Description}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-                        <TextBlock Text="{Binding From, Converter={StaticResource DateOnlyConverter}}" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}}" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Description, Mode=TwoWay}" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding From, Converter={StaticResource DateOnlyConverter}, Mode=TwoWay}" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}, Mode=TwoWay}" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <Button
                             Grid.Column="4"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            x:Name="btnNoteEdit">
+                            x:Name="btnNoteEdit"
+                            Click="btnNoteEdit_Click">
                             <SymbolIcon Symbol="Edit"/>
                         </Button>
                     </Grid>
@@ -229,7 +229,7 @@
                             <behaviors:StickyHeaderBehavior/>
                         </interactivity:Interaction.Behaviors>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <SymbolIcon Symbol="Delete" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         <TextBlock Text="Specialitate" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Interval" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Zile ramase" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
@@ -276,7 +276,8 @@
                             x:Name="btnAppointmentEdit"
                             Grid.Column="7"
                             HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
+                            VerticalAlignment="Center"
+                            Click="btnAppointmentEdit_Click">
                             <SymbolIcon Symbol="Edit"/>
                         </Button>
                     </Grid>

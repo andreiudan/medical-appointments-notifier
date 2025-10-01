@@ -7,6 +7,7 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Views;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -62,21 +63,18 @@ namespace MedicalAppointmentsNotifier
             var services = new ServiceCollection();
             string databasePath = GetDatabasePath();
 
-            services.AddDbContext<MedicalAppointmentsContext>(options =>
-            {
-                options.UseSqlite($"Data Source={databasePath}");
-            });
+            services.AddDbContext<MedicalAppointmentsContext>(options => options.UseSqlite($"Data Source={databasePath}"));
 
-            services.AddScoped<IRepository<User>, Repository<User>>();
-            services.AddScoped<IRepository<Appointment>, Repository<Appointment>>();
-            services.AddScoped<IRepository<Note>, Repository<Note>>();
-            services.AddScoped<IEntityToModelMapper, EntityToModelMapper>();
+            services.AddTransient<IRepository<User>, Repository<User>>();
+            services.AddTransient<IRepository<Appointment>, Repository<Appointment>>();
+            services.AddTransient<IRepository<Note>, Repository<Note>>();
+            services.AddTransient<IEntityToModelMapper, EntityToModelMapper>();
 
-            services.AddTransient<UsersViewModel>();
+            services.AddScoped<UsersViewModel>();
             services.AddTransient<UserAppointmentsViewModel>();
             services.AddTransient<AddUserViewModel>();
-            services.AddTransient<AddNoteViewModel>();
-            services.AddTransient<AddAppointmentViewModel>();
+            services.AddTransient<UpsertNoteViewModel>();
+            services.AddTransient<UpsertAppointmentViewModel>();
 
             return services.BuildServiceProvider();
         }

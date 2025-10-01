@@ -11,7 +11,8 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>, IRecipient<AppointmentAddedMessage>
+public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>, 
+    IRecipient<AppointmentAddedMessage>, IRecipient<NoteUpdatedMessage>, IRecipient<AppointmentUpdatedMessage>
 {
     public Guid UserId { get; private set; } = Guid.Empty;
 
@@ -33,7 +34,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
-    private bool isLoaded = false;
+    [ObservableProperty]
+    private bool isEditing = false;
 
     public UserAppointmentsViewModel()
     {
@@ -62,8 +64,6 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         UserId = userId;
         UserName = username;
         LoadCollectionsCommand.Execute(null);
-
-        isLoaded = true;
     }
 
     private async Task LoadCollectionsAsync()
@@ -94,18 +94,6 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         {
             Appointments.Add(Mapper.Map(appointment));
         }
-    }
-
-    public void Receive(NoteAddedMessage message)
-    {
-        Notes.Add(Mapper.Map(message.note));
-        IsActive = true;
-    }
-
-    public void Receive(AppointmentAddedMessage message)
-    {
-        Appointments.Add(Mapper.Map(message.appointment));
-        IsActive = true;
     }
 
     private async Task DeleteNotesAsync()
@@ -145,5 +133,33 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         }
 
         return deletedEntries;
+    }
+
+    public void Receive(NoteAddedMessage message)
+    {
+        Notes.Add(message.note);
+    }
+
+    public void Receive(AppointmentAddedMessage message)
+    {
+        Appointments.Add(message.appointment);
+    }
+
+    public void Receive(NoteUpdatedMessage message)
+    {
+        NoteModel updatedNote = message.note;
+        NoteModel originalNote = Notes.First(n => n.Id.Equals(updatedNote.Id));
+
+        int index = Notes.IndexOf(originalNote);
+        Notes[index] = updatedNote;
+    }
+
+    public void Receive(AppointmentUpdatedMessage message)
+    {
+        AppointmentModel updatedAppointment = message.appointment;
+        AppointmentModel originalAppointment = Appointments.First(a => a.Id.Equals(updatedAppointment.Id));
+
+        int index = Appointments.IndexOf(originalAppointment);
+        Appointments[index] = updatedAppointment;
     }
 }

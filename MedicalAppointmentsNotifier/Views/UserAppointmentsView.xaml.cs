@@ -84,5 +84,33 @@ namespace MedicalAppointmentsNotifier.Views
         {
             IsLoaded = true;
         }
+
+        private void btnNoteEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if(sender is null || sender is not Button)
+            {
+                return;
+            }
+
+            if(sender is Button button && button.DataContext is NoteModel note)
+            {
+                AddNoteView addNoteView = new AddNoteView(ViewModel.UserId, note);
+                addNoteView.Activate();
+            }
+        }
+
+        private void btnAppointmentEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (sender is null || sender is not Button)
+            {
+                return;
+            }
+
+            if (sender is Button button && button.DataContext is AppointmentModel appointment)
+            {
+                AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.UserId, appointment);
+                addAppointmentView.Activate();
+            }
+        }
     }
 }

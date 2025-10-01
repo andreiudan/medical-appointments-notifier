@@ -39,5 +39,10 @@ namespace MedicalAppointmentsNotifier.Views
         {
             return;
         }
+
+        private void btnEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+
+        }
     }
 }

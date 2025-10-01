@@ -3,6 +3,7 @@
     x:Class="MedicalAppointmentsNotifier.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:MedicalAppointmentsNotifier.Converters"
     xmlns:local="using:MedicalAppointmentsNotifier">
     <Application.Resources>
         <ResourceDictionary>
@@ -11,6 +12,8 @@
                 <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
+            <c:BooleanToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
+            <c:BooleanToVisibilityConverter x:Key="FalseToVisibiliryConverter" IsReversed="True"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -89,7 +89,9 @@ public partial class AddUserViewModel : ObservableValidator
 
         User addedUser = await repository.AddAsync(user);
 
-        WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(user));
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(mapper.Map(user)));
 
         OnUserAdded?.Invoke(this, EventArgs.Empty);
     }

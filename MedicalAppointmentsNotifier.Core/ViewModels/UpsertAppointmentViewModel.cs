@@ -7,12 +7,12 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
+using MedicalAppointmentsNotifier.Domain.Models;
 using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class AddAppointmentViewModel : ObservableValidator
+public partial class UpsertAppointmentViewModel : ObservableValidator
 {
     public event EventHandler OnAppointmentAdded;
 
@@ -32,7 +32,7 @@ public partial class AddAppointmentViewModel : ObservableValidator
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? latestDate = DateTimeOffset .UtcNow;
+    private DateTimeOffset? latestDate = DateTimeOffset.UtcNow;
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
@@ -41,15 +41,39 @@ public partial class AddAppointmentViewModel : ObservableValidator
 
     public DateTimeOffset Today { get; } = DateTimeOffset.Now;
 
+    [ObservableProperty]
+    private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
+
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
     private Guid UserId { get; set; }
+    private Guid AppointmentId { get; set; } = Guid.Empty;
 
-    public IAsyncRelayCommand AddAppointmentCommand { get; }
+    public string Title { get; set; } = "Adauga Scrisoare Medicala";
+    public string UpsertButtonText = "Adauga";
 
-    public AddAppointmentViewModel()
+    public IAsyncRelayCommand UpsertAppointmentCommand { get; }
+
+    public UpsertAppointmentViewModel()
     {
-        AddAppointmentCommand = new AsyncRelayCommand(AddAsync);
+        UpsertAppointmentCommand = new AsyncRelayCommand(UpsertAsync);
+    }
+
+    public void LoadAppointment(AppointmentModel appointment)
+    {
+        if(appointment == null)
+        {
+            return;
+        }
+
+        AppointmentId = appointment.Id;
+        Specialty = appointment.MedicalSpecialty ?? 0;
+        DaysInterval = appointment.IntervalDays;
+        LatestDate = appointment.LatestDate;
+        NextDate = appointment.NextDate;
+
+        Title = "Modifica Scrisoarea Medicala";
+        UpsertButtonText = "Modifica";
     }
 
     partial void OnDaysIntervalChanged(int value)
@@ -61,6 +85,11 @@ public partial class AddAppointmentViewModel : ObservableValidator
     {
         ValidateProperty(value, nameof(LatestDate));
         ValidateDates();
+
+        if(LatestDate != null)
+        {
+            MinNextDate = LatestDate.Value.AddDays(1);
+        }
     }
 
     partial void OnNextDateChanged(DateTimeOffset? value)
@@ -115,7 +144,7 @@ public partial class AddAppointmentViewModel : ObservableValidator
         return true;
     }
 
-    private async Task AddAsync()
+    private async Task UpsertAsync()
     {
         if(!Validate())
         {
@@ -123,7 +152,6 @@ public partial class AddAppointmentViewModel : ObservableValidator
         }
 
         IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-
         User user = await userRepository.FindAsync(u => u.Id == UserId);
 
         Appointment appointment = new Appointment
@@ -137,12 +165,41 @@ public partial class AddAppointmentViewModel : ObservableValidator
             User = user,
         };
 
-        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
-
-        Appointment addedAppointment =  await appointmentsRepository.AddAsync(appointment);
-
-        WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(addedAppointment));
+        if(AppointmentId.Equals(Guid.Empty))
+        {
+            await InsertAsync(appointment);
+        }
+        else
+        {
+            appointment.Id = AppointmentId;
+            await UpdateAsync(appointment);
+        }
 
         OnAppointmentAdded?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async Task InsertAsync(Appointment appointment)
+    {
+        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
+        Appointment addedAppointment = await appointmentsRepository.AddAsync(appointment);
+
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(mapper.Map(addedAppointment)));
+    }
+
+    private async Task UpdateAsync(Appointment appointment)
+    {
+        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
+        bool updated = await appointmentsRepository.UpdateAsync(appointment);
+
+        if (!updated)
+        {
+            return;
+        }
+
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        WeakReferenceMessenger.Default.Send<AppointmentUpdatedMessage>(new AppointmentUpdatedMessage(mapper.Map(appointment)));
     }
 }

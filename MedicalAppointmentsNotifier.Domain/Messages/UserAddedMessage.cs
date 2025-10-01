@@ -1,12 +1,12 @@
-﻿using MedicalAppointmentsNotifier.Domain.Entities;
+﻿using MedicalAppointmentsNotifier.Domain.Models;
 
 namespace MedicalAppointmentsNotifier.Domain.Messages
 {
     public class UserAddedMessage
     {
-        public readonly User user;
+        public readonly UserModel user;
 
-        public UserAddedMessage(User user)
+        public UserAddedMessage(UserModel user)
         {
             this.user = user ?? throw new ArgumentNullException(nameof(user));
         }

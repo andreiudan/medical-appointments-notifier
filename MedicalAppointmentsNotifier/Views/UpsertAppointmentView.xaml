@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock 
-            Text="Adauga Scrisoare Medicala" 
+            Text="{x:Bind ViewModel.Title}" 
             FontSize="28" 
             Style="{StaticResource TitleTextBlockStyle}"
             Grid.Row="0"
@@ -73,17 +73,20 @@
 
                 <CalendarDatePicker 
                     PlaceholderText="Alege o data" 
-                    Header="Din data" Grid.Column="0" 
+                    Header="Din data" 
+                    Grid.Column="0" 
                     Date="{x:Bind ViewModel.LatestDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     DateFormat="{}{day.integer}/{month.integer}/{year.full}"
                     HorizontalAlignment="Stretch"
                     MinDate="{x:Bind ViewModel.Today}"/>
                 <CalendarDatePicker 
                     PlaceholderText="Alege o data" 
-                    Header="Pana in data" Grid.Column="1" 
+                    Header="Pana in data" 
+                    Grid.Column="1" 
                     HorizontalAlignment="Stretch"
                     Date="{x:Bind ViewModel.NextDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    DateFormat="{}{day.integer}/{month.integer}/{year.full}"/>
+                    DateFormat="{}{day.integer}/{month.integer}/{year.full}"
+                    MinDate="{x:Bind ViewModel.MinNextDate, Mode=OneWay}"/>
             </Grid>
             
             <TextBlock
@@ -111,11 +114,11 @@
                 VerticalAlignment="Center"
                 Click="btnClose_Click"/>
             <Button 
-                Content="Adauga" 
+                Content="{x:Bind ViewModel.UpsertButtonText}" 
                 Grid.Column="1" 
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
-                Command="{x:Bind ViewModel.AddAppointmentCommand}"/>
+                Command="{x:Bind ViewModel.UpsertAppointmentCommand}"/>
         </Grid>
     </Grid>
 </Window>
