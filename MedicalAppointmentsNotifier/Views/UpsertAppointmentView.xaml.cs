@@ -1,4 +1,5 @@
 using MedicalAppointmentsNotifier.Core.ViewModels;
+using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
@@ -12,20 +13,21 @@ namespace MedicalAppointmentsNotifier.Views;
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class AddAppointmentView : Window
+public sealed partial class UpsertAppointmentView : Window
 {
     private readonly SizeInt32 startSize = new(530, 425);
 
-    public AddAppointmentView(Guid userId)
+    public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null)
     {
         AppWindow.Resize(startSize);
         InitializeComponent();
-        RootGrid.DataContext = ((App)App.Current).Services.GetService<AddAppointmentViewModel>();
+        RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertAppointmentViewModel>();
         ViewModel.OnAppointmentAdded += CloseWindow;
         ViewModel.LoadUserId(userId);
+        ViewModel.LoadAppointment(appointment);
     }
 
-    public AddAppointmentViewModel ViewModel => (AddAppointmentViewModel)RootGrid.DataContext;
+    public UpsertAppointmentViewModel ViewModel => (UpsertAppointmentViewModel)RootGrid.DataContext;
 
     private void CloseWindow(object? sender, EventArgs e)
     {

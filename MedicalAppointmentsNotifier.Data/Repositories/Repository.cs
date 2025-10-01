@@ -1,10 +1,11 @@
-﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
+﻿using MedicalAppointmentsNotifier.Domain.Entities;
+using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace MedicalAppointmentsNotifier.Data.Repositories
 {
-    public class Repository<TModel> : IRepository<TModel> where TModel : class
+    public class Repository<TModel> : IRepository<TModel> where TModel : BaseEntity
     {
         protected readonly DbContext context;
 
@@ -15,10 +16,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<TModel> AddAsync(TModel model)
         {
-            if (model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
             var entry = await context.Set<TModel>().AddAsync(model);
             TModel addedModel = entry.Entity;
@@ -30,10 +28,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<bool> DeleteAsync(TModel model)
         {
-            if (model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
             await Task.Run(() => context.Set<TModel>().Remove(model));
 
@@ -44,10 +39,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<bool> DeleteAsync(Guid modelId)
         {
-            if (modelId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(modelId));
-            }
+            ArgumentNullException.ThrowIfNull(modelId);
 
             TModel model = await context.Set<TModel>().FindAsync(modelId);
 
@@ -70,44 +62,30 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate)
         {
-            if(predicate == null)
-            {
-                throw new ArgumentException("The id cannot be empty.", nameof(predicate));
-            }
+            ArgumentNullException.ThrowIfNull(predicate);
 
             return await context.Set<TModel>().FirstOrDefaultAsync(predicate);
         }
 
         public async Task<IEnumerable<TModel>> FindAllAsync(Expression<Func<TModel, bool>> predicate)
         {
-            if (predicate == null)
-            {
-                throw new ArgumentException("The id cannot be empty.", nameof(predicate));
-            }
+            ArgumentNullException.ThrowIfNull(predicate);
 
             return await context.Set<TModel>().Where(predicate).ToListAsync();
         }
 
         public async Task<bool> UpdateAsync(TModel model)
         {
-            if(model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
-            try
-            {
-                if(context.Entry(model).State == EntityState.Detached)
-                {
-                    context.Set<TModel>().Attach(model);
-                }
+            TModel originalModel = await context.Set<TModel>().FindAsync(model.Id);
 
-                context.Entry(model).State = EntityState.Modified;
-            }
-            catch (Exception ex)
+            if (originalModel == null)
             {
                 return false;
             }
+
+            context.Entry(originalModel).CurrentValues.SetValues(model);
 
             await context.SaveChangesAsync();
 

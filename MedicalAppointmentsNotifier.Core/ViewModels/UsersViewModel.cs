@@ -10,13 +10,12 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>
+public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<UserUpdatedMessage>
 {
     [ObservableProperty]
     private ObservableCollection<UserModel> users = new();
 
     private IRepository<User> UsersRepository { get; } = Ioc.Default.GetRequiredService<IRepository<User>>();
-    private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
     public IAsyncRelayCommand DeleteSelectedUsersCommand { get; }
@@ -32,13 +31,19 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     private async Task LoadUsersAsync()
     {
-        var _users = await UsersRepository.GetAllAsync();
+        List<User> _users = await UsersRepository.GetAllAsync();
+
+        if(_users.Count == 0)
+        {
+            return;
+        }
+
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         Users.Clear();
-
         foreach (var user in _users)
         {
-            Users.Add(Mapper.Map(user));
+            Users.Add(mapper.Map(user));
         }
     }
 
@@ -58,7 +63,16 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     public void Receive(UserAddedMessage message)
     {
-        Users.Add(Mapper.Map(message.user));
+        Users.Add(message.user);
         IsActive = true;
+    }
+
+    public void Receive(UserUpdatedMessage message)
+    {
+        UserModel updatedUser = message.user;
+        UserModel originalUser = Users.First(u => u.Id.Equals(updatedUser.Id));
+
+        int index = Users.IndexOf(originalUser);
+        Users[index] = updatedUser;
     }
 }

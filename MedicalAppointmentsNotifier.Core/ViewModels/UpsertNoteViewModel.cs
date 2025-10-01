@@ -6,11 +6,12 @@ using MedicalAppointmentsNotifier.Domain;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
+using MedicalAppointmentsNotifier.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class AddNoteViewModel : ObservableValidator
+public partial class UpsertNoteViewModel : ObservableValidator
 {
     public event EventHandler OnNoteAdded;
 
@@ -23,21 +24,49 @@ public partial class AddNoteViewModel : ObservableValidator
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? dateFrom = DateTimeOffset.UtcNow;
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? dateTo = DateTimeOffset.UtcNow.AddDays(1);
+
+    public string Title { get; set; } = "Adauga Mentiune";
+
+    public string UpsertButtonText { get; set; } = "Adauga";
+
+    public DateTimeOffset Today { get; } = DateTimeOffset.Now;
+
+    [ObservableProperty]
+    private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
 
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
-    public IAsyncRelayCommand AddNoteCommand;
+    public IAsyncRelayCommand UpsertNoteCommand;
 
     private Guid UserId { get; set; }
+    private Guid NoteId { get; set; } = Guid.Empty;
 
-    public AddNoteViewModel()
+    public UpsertNoteViewModel()
     {
-        AddNoteCommand = new AsyncRelayCommand(AddNoteAsync);
+        UpsertNoteCommand = new AsyncRelayCommand(UpsertAsync);
+    }
+
+    public void LoadNote(NoteModel note)
+    {
+        if(note == null)
+        {
+            return;
+        }
+
+        NoteId = note.Id;
+        Description = note.Description;
+        DateFrom = note.From;
+        DateTo = note.Until;
+
+        Title = "Modifica Mentiunea";
+        UpsertButtonText = "Modifica";
     }
 
     public void LoadUserId(Guid userId)
@@ -52,21 +81,31 @@ public partial class AddNoteViewModel : ObservableValidator
 
     partial void OnDateFromChanged(DateTimeOffset? value)
     {
+        ValidateProperty(value, nameof(DateFrom));
         ValidateDates();
+
+        if(DateFrom != null)
+        {
+            MinNextDate = DateFrom.Value.AddDays(1);
+        }
     }
 
     partial void OnDateToChanged(DateTimeOffset? value)
     {
+        ValidateProperty(value, nameof(DateTo));
         ValidateDates();
     }
 
     private bool ValidateDates()
     {
-        ClearErrors(nameof(DateFrom));
-        ClearErrors(nameof(DateTo));
-        DateIntervalErrorMessage = string.Empty;
+        DateIntervalErrorMessage = GetErrors(nameof(DateFrom)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(DateTo)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-        if (DateFrom.HasValue && DateTo.HasValue && DateFrom.Value >= DateTo.Value)
+        if (!string.IsNullOrEmpty(DateIntervalErrorMessage))
+        {
+            return false;
+        }
+
+        if (DateFrom.Value > DateTo.Value)
         {
             DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
             return false;
@@ -99,7 +138,7 @@ public partial class AddNoteViewModel : ObservableValidator
         return true;
     }
 
-    private async Task AddNoteAsync()
+    private async Task UpsertAsync()
     {
         if (!Validate())
         {
@@ -107,13 +146,7 @@ public partial class AddNoteViewModel : ObservableValidator
         }
 
         IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-
         User user = await userRepository.FindAsync(u => u.Id == UserId);
-
-        if(user == null)
-        {
-            return;
-        }
 
         Note note = new Note
         {
@@ -124,12 +157,41 @@ public partial class AddNoteViewModel : ObservableValidator
             User = user,
         };
 
-        IRepository<Note> noteRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
-
-        Note addedNote = await noteRepository.AddAsync(note);
-
-        WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(note));
+        if(NoteId.Equals(Guid.Empty))
+        {
+            await InsertAsync(note);
+        }
+        else
+        {
+            note.Id = NoteId;
+            await UpdateAsync(note);
+        }
 
         OnNoteAdded?.Invoke(this, EventArgs.Empty);
+    }
+
+    private async Task InsertAsync(Note note)
+    {
+        IRepository<Note> noteRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
+        _ = await noteRepository.AddAsync(note);
+
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(mapper.Map(note)));
+    }
+
+    private async Task UpdateAsync(Note note)
+    {
+        IRepository<Note> noteRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
+        bool updated = await noteRepository.UpdateAsync(note);
+
+        if (!updated)
+        {
+            return;
+        }
+
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        WeakReferenceMessenger.Default.Send<NoteUpdatedMessage>(new NoteUpdatedMessage(mapper.Map(note)));
     }
 }

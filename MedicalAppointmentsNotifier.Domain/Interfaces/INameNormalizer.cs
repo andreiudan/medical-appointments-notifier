@@ -2,6 +2,6 @@
 {
     public interface INameNormalizer
     {
-        public string Normalize(string firstName, string lastName);
+        public string Normalize(string name);
     }
 }

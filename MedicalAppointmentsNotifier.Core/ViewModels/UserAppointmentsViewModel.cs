@@ -11,7 +11,8 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>, IRecipient<AppointmentAddedMessage>
+public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>, 
+    IRecipient<AppointmentAddedMessage>, IRecipient<NoteUpdatedMessage>, IRecipient<AppointmentUpdatedMessage>
 {
     public Guid UserId { get; private set; } = Guid.Empty;
 
@@ -33,7 +34,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
-    private bool isLoaded = false;
+    [ObservableProperty]
+    private bool isEditing = false;
 
     public UserAppointmentsViewModel()
     {
@@ -47,11 +49,6 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     private async Task UpdateAppointmentAsync(AppointmentModel appointment)
     {
-        if(!isLoaded || appointment is null)
-        {
-            return;
-        }
-
         IRepository<Appointment> appointmentRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
 
@@ -62,13 +59,11 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         await appointmentRepository.UpdateAsync(updateAppointment);
     }
 
-    public void LoadUser(Guid userId, string username)
+    public void LoadUser(Guid userId, string firstName, string lastName)
     {
         UserId = userId;
-        UserName = username;
+        UserName = string.Format("{0} {1}", firstName, lastName);
         LoadCollectionsCommand.Execute(null);
-
-        isLoaded = true;
     }
 
     private async Task LoadCollectionsAsync()
@@ -99,18 +94,6 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         {
             Appointments.Add(Mapper.Map(appointment));
         }
-    }
-
-    public void Receive(NoteAddedMessage message)
-    {
-        Notes.Add(Mapper.Map(message.note));
-        IsActive = true;
-    }
-
-    public void Receive(AppointmentAddedMessage message)
-    {
-        Appointments.Add(Mapper.Map(message.appointment));
-        IsActive = true;
     }
 
     private async Task DeleteNotesAsync()
@@ -150,5 +133,33 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         }
 
         return deletedEntries;
+    }
+
+    public void Receive(NoteAddedMessage message)
+    {
+        Notes.Add(message.note);
+    }
+
+    public void Receive(AppointmentAddedMessage message)
+    {
+        Appointments.Add(message.appointment);
+    }
+
+    public void Receive(NoteUpdatedMessage message)
+    {
+        NoteModel updatedNote = message.note;
+        NoteModel originalNote = Notes.First(n => n.Id.Equals(updatedNote.Id));
+
+        int index = Notes.IndexOf(originalNote);
+        Notes[index] = updatedNote;
+    }
+
+    public void Receive(AppointmentUpdatedMessage message)
+    {
+        AppointmentModel updatedAppointment = message.appointment;
+        AppointmentModel originalAppointment = Appointments.First(a => a.Id.Equals(updatedAppointment.Id));
+
+        int index = Appointments.IndexOf(originalAppointment);
+        Appointments[index] = updatedAppointment;
     }
 }

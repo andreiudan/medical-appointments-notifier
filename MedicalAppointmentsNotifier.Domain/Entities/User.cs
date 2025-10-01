@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalAppointmentsNotifier.Domain.Entities
 {
-    public class User
+    public class User : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        [Required]
+        public string FirstName { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string LastName { get; set; }
 
         public List<Appointment> Appointments { get; set; } = new List<Appointment>();
 
@@ -34,14 +32,15 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         private bool Equals(User obj)
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
-                this.Name == obj.Name &&
+                this.FirstName == obj.FirstName &&
+                this.LastName == obj.LastName &&
                 this.Appointments.Equals(obj.Appointments) &&
                 this.Notes.Equals(obj.Notes);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Name, Appointments, Notes);
+            return HashCode.Combine(Id, FirstName, LastName, Appointments, Notes);
         }
     }
 }

@@ -8,6 +8,8 @@ namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UserAppointmentsView : Page
     {
+        private bool IsLoaded { get; set; } = false;
+
         public UserAppointmentsView()
         {
             InitializeComponent();
@@ -24,7 +26,7 @@ namespace MedicalAppointmentsNotifier.Views
             {
                 UserModel user = e.Parameter as UserModel;
 
-                ViewModel.LoadUser(user.Id, user.Name);
+                ViewModel.LoadUser(user.Id, user.FirstName, user.LastName);
             }
         }
 
@@ -40,19 +42,75 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddNoteView addNoteView = new AddNoteView(ViewModel.UserId);
+            UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.UserId);
             addNoteView.Activate();
         }
 
         private void btnAddAppointment_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            AddAppointmentView addAppointmentView = new AddAppointmentView(ViewModel.UserId);
+            UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.UserId);
             addAppointmentView.Activate();
         }
 
         private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            
+            return;
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(!IsLoaded)
+            {
+                return;
+            }
+
+            if (e.AddedItems.Count == 0)
+            {
+                return;
+            }
+
+            if (e.RemovedItems.Count > 0 && e.AddedItems[0].Equals(e.RemovedItems[0]))
+            {
+                return;
+            }
+
+            if (sender is ComboBox comboBox && comboBox.DataContext is AppointmentModel appointment)
+            {
+                ViewModel.UpdateAppointmentCommand.ExecuteAsync(appointment);
+            }
+        }
+
+        private void lvAppointments_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            IsLoaded = true;
+        }
+
+        private void btnNoteEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if(sender is null || sender is not Button)
+            {
+                return;
+            }
+
+            if(sender is Button button && button.DataContext is NoteModel note)
+            {
+                UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.UserId, note);
+                addNoteView.Activate();
+            }
+        }
+
+        private void btnAppointmentEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (sender is null || sender is not Button)
+            {
+                return;
+            }
+
+            if (sender is Button button && button.DataContext is AppointmentModel appointment)
+            {
+                UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.UserId, appointment);
+                addAppointmentView.Activate();
+            }
         }
     }
 }

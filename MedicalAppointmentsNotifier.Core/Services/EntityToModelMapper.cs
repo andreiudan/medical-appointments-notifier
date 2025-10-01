@@ -82,7 +82,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
             UserModel userModel = new UserModel
             {
                 Id = user.Id,
-                Name = user.Name,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 DaysUntilNextAppointment = CalculateDaysUntilNextAppointment(user.Id).Result,
                 Status = string.Empty,
                 IsSelected = false
@@ -98,7 +99,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
             User user = new User
             {
                 Id = userModel.Id,
-                Name = userModel.Name,
+                FirstName= userModel.FirstName,
+                LastName = userModel.LastName,
             };
 
             return user;

@@ -37,8 +37,26 @@
                 Orientation="Horizontal" 
                 HorizontalAlignment="Right"
                 Spacing="8">
-                <Button x:Name="btnAdd" Content="Adauga" Click="btnAdd_Click"/>
-                <Button Content="Sterge" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
+                <Button 
+                    x:Name="btnAdd"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                     Click="btnAdd_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Add" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Adauga" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Delete" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Sterge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
             </StackPanel>
         </Grid>
 
@@ -65,16 +83,18 @@
                             <ColumnDefinition Width="40*"/>
                             <ColumnDefinition Width="35*"/>
                             <ColumnDefinition Width="25*"/>
+                            <ColumnDefinition Width="8*"/>
                         </Grid.ColumnDefinitions>
 
                         <interactivity:Interaction.Behaviors>
                             <behaviors:StickyHeaderBehavior/>
                         </interactivity:Interaction.Behaviors>
 
-                        <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <SymbolIcon Symbol="Delete" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Urmatoarea programare (zile)" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Modifica" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
@@ -90,6 +110,7 @@
                             <ColumnDefinition Width="40*"/>
                             <ColumnDefinition Width="35*"/>
                             <ColumnDefinition Width="25*"/>
+                            <ColumnDefinition Width="8*"/>
                         </Grid.ColumnDefinitions>
 
                         <CheckBox 
@@ -98,9 +119,22 @@
                             VerticalAlignment="Center" 
                             Grid.Column="0" 
                             Click="CheckBox_Click"/>
-                        <TextBlock Text="{Binding Name}" Grid.Column="1" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <TextBlock 
+                            Text="{Binding Converter={StaticResource UserFullNameConverter}}" 
+                            Grid.Column="1" 
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" 
+                            Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="2" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
                         <TextBlock Text="{Binding Status}" Grid.Column="3" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                        <Button
+                            x:Name="btnEdit"
+                            Grid.Column="4"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Click="btnEdit_Click">
+                            <SymbolIcon Symbol="Edit"/>
+                        </Button>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
