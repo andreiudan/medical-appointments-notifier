@@ -54,7 +54,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void CheckBox_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            
+            return;
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

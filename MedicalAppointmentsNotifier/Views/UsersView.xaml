@@ -37,8 +37,26 @@
                 Orientation="Horizontal" 
                 HorizontalAlignment="Right"
                 Spacing="8">
-                <Button x:Name="btnAdd" Content="Adauga" Click="btnAdd_Click"/>
-                <Button Content="Sterge" Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}"/>
+                <Button 
+                    x:Name="btnAdd"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                     Click="btnAdd_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Add" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Adauga" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Delete" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Sterge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
             </StackPanel>
         </Grid>
 
@@ -73,7 +91,7 @@
 
                         <TextBlock Text="DEL" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Urmatoarea programare" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBlock Text="Urmatoarea programare (zile)" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                         <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                     </Grid>
                 </DataTemplate>

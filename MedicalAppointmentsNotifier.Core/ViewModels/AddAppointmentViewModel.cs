@@ -8,6 +8,7 @@ using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
 using System.ComponentModel.DataAnnotations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
@@ -30,11 +31,15 @@ public partial class AddAppointmentViewModel : ObservableValidator
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? latestDate = DateTimeOffset .UtcNow;
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? nextDate = DateTimeOffset.UtcNow.AddDays(1);
+
+    public DateTimeOffset Today { get; } = DateTimeOffset.Now;
 
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
@@ -54,21 +59,26 @@ public partial class AddAppointmentViewModel : ObservableValidator
 
     partial void OnLatestDateChanged(DateTimeOffset? value)
     {
+        ValidateProperty(value, nameof(LatestDate));
         ValidateDates();
     }
 
     partial void OnNextDateChanged(DateTimeOffset? value)
     {
+        ValidateProperty(value, nameof(NextDate));
         ValidateDates();
     }
 
     private bool ValidateDates()
     {
-        ClearErrors(nameof(LatestDate));
-        ClearErrors(nameof(NextDate));
-        DateIntervalErrorMessage = string.Empty;
+        DateIntervalErrorMessage = GetErrors(nameof(LatestDate)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(NextDate)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-        if (LatestDate.HasValue && NextDate.HasValue && LatestDate.Value >= NextDate.Value)
+        if(!string.IsNullOrEmpty(DateIntervalErrorMessage))
+        {
+            return false;
+        }
+
+        if (LatestDate.Value >= NextDate.Value)
         {
             DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
             return false;

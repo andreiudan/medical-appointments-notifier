@@ -16,10 +16,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<TModel> AddAsync(TModel model)
         {
-            if (model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
             var entry = await context.Set<TModel>().AddAsync(model);
             TModel addedModel = entry.Entity;
@@ -31,10 +28,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<bool> DeleteAsync(TModel model)
         {
-            if (model == null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
             await Task.Run(() => context.Set<TModel>().Remove(model));
 
@@ -45,10 +39,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<bool> DeleteAsync(Guid modelId)
         {
-            if (modelId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(modelId));
-            }
+            ArgumentNullException.ThrowIfNull(modelId);
 
             TModel model = await context.Set<TModel>().FindAsync(modelId);
 
@@ -71,20 +62,14 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate)
         {
-            if(predicate == null)
-            {
-                throw new ArgumentException("The id cannot be empty.", nameof(predicate));
-            }
+            ArgumentNullException.ThrowIfNull(predicate);
 
             return await context.Set<TModel>().FirstOrDefaultAsync(predicate);
         }
 
         public async Task<IEnumerable<TModel>> FindAllAsync(Expression<Func<TModel, bool>> predicate)
         {
-            if (predicate == null)
-            {
-                throw new ArgumentException("The id cannot be empty.", nameof(predicate));
-            }
+            ArgumentNullException.ThrowIfNull(predicate);
 
             return await context.Set<TModel>().Where(predicate).ToListAsync();
         }

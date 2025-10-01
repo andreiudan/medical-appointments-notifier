@@ -23,11 +23,15 @@ public partial class AddNoteViewModel : ObservableValidator
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? dateFrom = DateTimeOffset.UtcNow;
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
     [ObservableProperty]
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? dateTo = DateTimeOffset.UtcNow.AddDays(1);
+
+    public DateTimeOffset Today { get; } = DateTimeOffset.Now;
 
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
@@ -52,21 +56,26 @@ public partial class AddNoteViewModel : ObservableValidator
 
     partial void OnDateFromChanged(DateTimeOffset? value)
     {
+        ValidateProperty(value, nameof(DateFrom));
         ValidateDates();
     }
 
     partial void OnDateToChanged(DateTimeOffset? value)
     {
+        ValidateProperty(value, nameof(DateTo));
         ValidateDates();
     }
 
     private bool ValidateDates()
     {
-        ClearErrors(nameof(DateFrom));
-        ClearErrors(nameof(DateTo));
-        DateIntervalErrorMessage = string.Empty;
+        DateIntervalErrorMessage = GetErrors(nameof(DateFrom)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(DateTo)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-        if (DateFrom.HasValue && DateTo.HasValue && DateFrom.Value >= DateTo.Value)
+        if (!string.IsNullOrEmpty(DateIntervalErrorMessage))
+        {
+            return false;
+        }
+
+        if (DateFrom.Value > DateTo.Value)
         {
             DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
             return false;

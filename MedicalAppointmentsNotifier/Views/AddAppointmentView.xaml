@@ -76,8 +76,8 @@
                     Header="Din data" Grid.Column="0" 
                     Date="{x:Bind ViewModel.LatestDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     DateFormat="{}{day.integer}/{month.integer}/{year.full}"
-                    HorizontalAlignment="Stretch"/>
-
+                    HorizontalAlignment="Stretch"
+                    MinDate="{x:Bind ViewModel.Today}"/>
                 <CalendarDatePicker 
                     PlaceholderText="Alege o data" 
                     Header="Pana in data" Grid.Column="1" 
