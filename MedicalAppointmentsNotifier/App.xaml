@@ -15,6 +15,7 @@
             <c:BooleanToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
             <c:BooleanToVisibilityConverter x:Key="FalseToVisibiliryConverter" IsReversed="True"/>
             <c:UserFullNameConverter x:Key="UserFullNameConverter"/>
+            <c:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

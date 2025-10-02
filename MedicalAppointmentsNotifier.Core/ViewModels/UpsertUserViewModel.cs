@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using MedicalAppointmentsNotifier.Core.Services;
-using MedicalAppointmentsNotifier.Data.Repositories;
 using MedicalAppointmentsNotifier.Domain;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
@@ -76,7 +75,10 @@ public partial class UpsertUserViewModel : ObservableValidator
         {
             ValidateAllProperties();
 
-            if(HasErrors)
+            OnPropertyChanged(nameof(FirstNameErrorMessage));
+            OnPropertyChanged(nameof(LastNameErrorMessage));
+
+            if (HasErrors)
             {
                 return false;
             }

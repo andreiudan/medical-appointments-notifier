@@ -15,7 +15,7 @@ namespace MedicalAppointmentsNotifier.Views;
 /// </summary>
 public sealed partial class UpsertAppointmentView : Window
 {
-    private readonly SizeInt32 startSize = new(530, 425);
+    private readonly SizeInt32 startSize = new(600, 470);
 
     public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null)
     {

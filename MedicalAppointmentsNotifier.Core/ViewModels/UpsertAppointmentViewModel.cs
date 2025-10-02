@@ -39,12 +39,12 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? nextDate = DateTimeOffset.UtcNow.AddDays(1);
 
+    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
+
     public DateTimeOffset Today { get; } = DateTimeOffset.Now;
 
     [ObservableProperty]
     private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
-
-    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
     private Guid UserId { get; set; }
     private Guid AppointmentId { get; set; } = Guid.Empty;
@@ -130,6 +130,9 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             {
                 return false;
             }
+
+            OnPropertyChanged(nameof(DateIntervalErrorMessage));
+            OnPropertyChanged(nameof(DaysIntervalErrorMessage));
 
             if (HasErrors)
             {

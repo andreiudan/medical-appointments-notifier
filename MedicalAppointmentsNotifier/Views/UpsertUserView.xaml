@@ -18,6 +18,7 @@
         x:Name="RootGrid"
         HorizontalAlignment="Stretch" 
         VerticalAlignment="Stretch">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
@@ -33,22 +34,36 @@
             HorizontalAlignment="Center"
             Padding="32, 32, 32, 24"/>
 
-        <StackPanel Grid.Row="1" Padding="32, 0, 32, 16">
+        <StackPanel 
+            Grid.Row="1"
+            Spacing="6"
+            Padding="32, 0, 32, 16">
+            
             <TextBox 
                 Header="Prenume"  
                 Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            
             <TextBlock
                 Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
-                Text="{x:Bind ViewModel.FirstNameErrorMessage, Mode=OneWay}"/>
+                Text="{x:Bind ViewModel.FirstNameErrorMessage, Mode=OneWay}"
+                Visibility="{Binding FirstNameErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+            
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Padding="32, 0, 32, 24">
+        <StackPanel 
+            Grid.Row="2"
+            Spacing="6"
+            Padding="32, 0, 32, 24">
+            
             <TextBox 
                 Header="Nume de familie"
                 Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            
             <TextBlock
                 Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
-                Text="{x:Bind ViewModel.LastNameErrorMessage, Mode=OneWay}"/>
+                Text="{x:Bind ViewModel.LastNameErrorMessage, Mode=OneWay}"
+                Visibility="Visible"/>
+            
         </StackPanel>
 
         <Grid 
@@ -58,6 +73,7 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
                 <ColumnDefinition Width="50*"/>
@@ -70,6 +86,7 @@
                 Grid.Column="0" 
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Center"/>
+            
             <Button 
                 Content="{x:Bind ViewModel.UpsertButtonText}" 
                 Command="{x:Bind ViewModel.AddUserCommand}" 

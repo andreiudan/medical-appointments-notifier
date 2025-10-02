@@ -41,7 +41,8 @@
                 Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock
                 Foreground="{ThemeResource SystemErrorTextColor}"
-                Text="{x:Bind ViewModel.DescriptionErrorMessage, Mode=OneWay}"/>
+                Text="{x:Bind ViewModel.DescriptionErrorMessage, Mode=OneWay}"
+                Visibility="{Binding DescriptionErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
         </StackPanel>
 
         <StackPanel 
@@ -74,7 +75,8 @@
 
             <TextBlock
                 Foreground="{ThemeResource SystemErrorTextColor}"
-                Text="{x:Bind ViewModel.DateIntervalErrorMessage, Mode=OneWay}"/>
+                Text="{x:Bind ViewModel.DateIntervalErrorMessage, Mode=OneWay}"
+                Visibility="{Binding DateIntervalErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
         </StackPanel>
 
         <Grid 

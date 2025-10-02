@@ -32,16 +32,16 @@ public partial class UpsertNoteViewModel : ObservableValidator
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
     private DateTimeOffset? dateTo = DateTimeOffset.UtcNow.AddDays(1);
 
-    public string Title { get; set; } = "Adauga Mentiune";
-
-    public string UpsertButtonText { get; set; } = "Adauga";
+    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
 
     public DateTimeOffset Today { get; } = DateTimeOffset.Now;
 
     [ObservableProperty]
     private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
 
-    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
+    public string Title { get; set; } = "Adauga Mentiune";
+
+    public string UpsertButtonText { get; set; } = "Adauga";
 
     public IAsyncRelayCommand UpsertNoteCommand;
 
@@ -124,6 +124,9 @@ public partial class UpsertNoteViewModel : ObservableValidator
             {
                 return false;
             }
+
+            OnPropertyChanged(nameof(DateIntervalErrorMessage));
+            OnPropertyChanged(nameof(DescriptionErrorMessage));
 
             if (HasErrors)
             {
