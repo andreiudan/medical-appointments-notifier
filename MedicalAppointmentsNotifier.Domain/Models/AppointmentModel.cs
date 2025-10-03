@@ -35,7 +35,7 @@ namespace MedicalAppointmentsNotifier.Domain.Models
 
         private bool Equals(AppointmentModel obj)
         {
-            return this.Id.Equals(obj.Id) &&
+            return this.Id.CompareTo(obj.Id) == 0 &&
                 this.MedicalSpecialty == obj.MedicalSpecialty &&
                 this.IntervalDays == obj.IntervalDays &&
                 this.Status == obj.Status &&

@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using MedicalAppointmentsNotifier.Domain.Entities;
+﻿using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Models;
 
@@ -7,6 +6,13 @@ namespace MedicalAppointmentsNotifier.Core.Services
 {
     public class EntityToModelMapper : IEntityToModelMapper
     {
+        private readonly IAppointmentCalculator appointmentCalculator;
+
+        public EntityToModelMapper(IAppointmentCalculator appointmentCalculator)
+        {
+            this.appointmentCalculator = appointmentCalculator ?? throw new ArgumentNullException(nameof(appointmentCalculator));
+        }
+
         public AppointmentModel Map(Appointment appointment)
         {
             ArgumentNullException.ThrowIfNull(appointment);
@@ -17,7 +23,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 MedicalSpecialty = appointment.MedicalSpecialty,
                 IntervalDays = appointment.IntervalDays,
                 Status = appointment.Status,
-                DaysUntilNextAppointment = CalculateRemainingDays(appointment.NextDate),
+                DaysUntilNextAppointment = appointmentCalculator.CalculateRemainingDays(appointment.NextDate),
                 LatestDate = appointment.LatestDate,
                 NextDate = appointment.NextDate,
                 IsSelected = false
@@ -84,7 +90,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                DaysUntilNextAppointment = CalculateDaysUntilNextAppointment(user.Id).Result,
+                DaysUntilNextAppointment = appointmentCalculator.CalculateDaysUntilNextAppointmentAsync(user.Id).Result,
                 Status = string.Empty,
                 IsSelected = false
             };
@@ -104,33 +110,6 @@ namespace MedicalAppointmentsNotifier.Core.Services
             };
 
             return user;
-        }
-
-        private int CalculateRemainingDays(DateTimeOffset? nextDate)
-        {
-            if (!nextDate.HasValue)
-            {
-                return 0;
-            }
-
-            int remainingDays = (nextDate.Value - DateTimeOffset.Now).Days;
-
-            return remainingDays < 0 ? 0 : remainingDays;
-        }
-
-        private async Task<int> CalculateDaysUntilNextAppointment(Guid userId)
-        {
-            IRepository<Appointment> appointmentRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
-
-            IEnumerable<Appointment> appointments = await appointmentRepository.FindAllAsync(a => a.User.Id == userId);
-
-            DateTimeOffset? nextAppointment = appointments.OrderByDescending(a => a.NextDate).FirstOrDefault()?.NextDate;
-
-            int daysUntilNextAppointment = nextAppointment.HasValue
-                ? (nextAppointment.Value - DateTimeOffset.Now).Days
-                : 0;
-
-            return daysUntilNextAppointment;
         }
     }
 }

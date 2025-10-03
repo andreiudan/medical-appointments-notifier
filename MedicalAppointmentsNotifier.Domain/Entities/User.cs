@@ -34,8 +34,8 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.FirstName == obj.FirstName &&
                 this.LastName == obj.LastName &&
-                this.Appointments.Equals(obj.Appointments) &&
-                this.Notes.Equals(obj.Notes);
+                this.Appointments.SequenceEqual(obj.Appointments) &&
+                this.Notes.SequenceEqual(obj.Notes);
         }
 
         public override int GetHashCode()
