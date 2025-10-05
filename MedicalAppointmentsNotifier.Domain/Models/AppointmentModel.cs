@@ -26,10 +26,12 @@ namespace MedicalAppointmentsNotifier.Domain.Models
             {
                 return false;
             }
+
             if (obj is not AppointmentModel)
             {
                 return false;
             }
+
             return Equals(obj as AppointmentModel);
         }
 
