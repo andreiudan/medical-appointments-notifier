@@ -18,12 +18,11 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            var entry = await context.Set<TModel>().AddAsync(model);
-            TModel addedModel = entry.Entity;
+            await context.Set<TModel>().AddAsync(model);
 
             await context.SaveChangesAsync();
 
-            return addedModel;
+            return model;
         }
 
         public async Task<bool> DeleteAsync(TModel model)
@@ -79,7 +78,6 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
             ArgumentNullException.ThrowIfNull(model);
 
             TModel originalModel = await context.Set<TModel>().FindAsync(model.Id);
-
             if (originalModel == null)
             {
                 return false;

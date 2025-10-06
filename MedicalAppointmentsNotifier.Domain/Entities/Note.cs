@@ -36,13 +36,12 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
-                this.Until == obj.Until &&
-                this.User.Equals(obj.User);
+                this.Until == obj.Until;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Description, From, Until, User);
+            return HashCode.Combine(Id, Description, From, Until);
         }
     }
 }

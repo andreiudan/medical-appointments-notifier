@@ -26,16 +26,18 @@ namespace MedicalAppointmentsNotifier.Domain.Models
             {
                 return false;
             }
+
             if (obj is not AppointmentModel)
             {
                 return false;
             }
+
             return Equals(obj as AppointmentModel);
         }
 
         private bool Equals(AppointmentModel obj)
         {
-            return this.Id.Equals(obj.Id) &&
+            return this.Id.CompareTo(obj.Id) == 0 &&
                 this.MedicalSpecialty == obj.MedicalSpecialty &&
                 this.IntervalDays == obj.IntervalDays &&
                 this.Status == obj.Status &&

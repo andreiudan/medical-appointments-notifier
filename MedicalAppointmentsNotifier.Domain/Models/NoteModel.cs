@@ -29,7 +29,7 @@
 
         private bool Equals(NoteModel obj)
         {
-            return this.Id.Equals(obj.Id) &&
+            return this.Id.CompareTo(obj.Id) == 0 &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
                 this.Until == obj.Until &&

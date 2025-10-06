@@ -3,7 +3,7 @@ using System.Text;
 
 namespace MedicalAppointmentsNotifier.Core.Services
 {
-    internal class NameNormalizer : INameNormalizer
+    public class NameNormalizer : INameNormalizer
     {
         public string Normalize(string name)
         {

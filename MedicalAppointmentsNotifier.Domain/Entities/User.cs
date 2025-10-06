@@ -33,14 +33,12 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.FirstName == obj.FirstName &&
-                this.LastName == obj.LastName &&
-                this.Appointments.Equals(obj.Appointments) &&
-                this.Notes.Equals(obj.Notes);
+                this.LastName == obj.LastName;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, FirstName, LastName, Appointments, Notes);
+            return HashCode.Combine(Id, FirstName, LastName);
         }
     }
 }

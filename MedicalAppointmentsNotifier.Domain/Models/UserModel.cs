@@ -31,7 +31,7 @@
 
         private bool Equals(UserModel obj)
         {
-            return this.Id.Equals(obj.Id) &&
+            return this.Id.CompareTo(obj.Id) == 0 &&
                 this.FirstName == obj.FirstName &&
                 this.LastName == obj.LastName &&
                 this.DaysUntilNextAppointment == obj.DaysUntilNextAppointment &&

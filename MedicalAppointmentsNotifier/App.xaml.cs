@@ -69,6 +69,7 @@ namespace MedicalAppointmentsNotifier
             services.AddTransient<IRepository<Appointment>, Repository<Appointment>>();
             services.AddTransient<IRepository<Note>, Repository<Note>>();
             services.AddTransient<IEntityToModelMapper, EntityToModelMapper>();
+            services.AddTransient<IAppointmentCalculator, AppointmentCalculator>();
 
             services.AddScoped<UsersViewModel>();
             services.AddTransient<UserAppointmentsViewModel>();

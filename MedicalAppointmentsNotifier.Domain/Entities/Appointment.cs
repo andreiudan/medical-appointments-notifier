@@ -45,12 +45,11 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
                 this.IntervalDays == obj.IntervalDays &&
                 this.Status == obj.Status &&
                 this.LatestDate == obj.LatestDate &&
-                this.NextDate == obj.NextDate &&
-                this.User.Equals(obj.User);
+                this.NextDate == obj.NextDate;
         }
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, LatestDate, NextDate, User);
+            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, LatestDate, NextDate);
         }
     }
 }
