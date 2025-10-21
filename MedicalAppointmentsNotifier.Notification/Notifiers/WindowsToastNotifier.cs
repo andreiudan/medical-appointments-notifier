@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
 {
-    internal class WindowsToastNotificator : INotifier
+    internal class WindowsToastNotifier : INotifier
     {
         public Task Notify(string message)
         {
@@ -36,12 +36,10 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
                     .AddText(message)
                     .SetToastScenario(ToastScenario.Reminder)
                     .AddButton(new ToastButton()
-                        .SetContent("Close")
+                        .SetContent("Inchide")
+                        .SetDismissActivation()
                         .SetBackgroundActivation())
-                    .Show(toast =>
-                    {
-                        //toast.Activated += (e, s) => { e.Cl}
-                    });
+                    .Show();
 
                 return Task.CompletedTask;
             }

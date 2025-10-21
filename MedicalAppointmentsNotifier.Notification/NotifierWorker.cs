@@ -1,4 +1,5 @@
-﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
+﻿using MedicalAppointmentsNotifier.Core.Notificators;
+using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.ReminderJob.Notifiers;
 
 namespace MedicalAppointmentsNotifier.ReminderJob
@@ -21,7 +22,9 @@ namespace MedicalAppointmentsNotifier.ReminderJob
                 return;
             }
 
-            var notifier = new WindowsToastNotificator();
+            var notifier = new TelegramNotifierDecorator(
+                                new EmailNotifierDecorator(
+                                    new WindowsToastNotifier()));
             await notifier.Notify(message);
         }
     }
