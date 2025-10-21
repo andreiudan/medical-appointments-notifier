@@ -32,14 +32,16 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
                 message = stringBuilder.ToString();
 
                 new ToastContentBuilder()
-                    .AddHeader("AppointmentsNotifier", "Urmatoarele scrisori medicale expira in curand", "")
-                    .AddText(message)
-                    .SetToastScenario(ToastScenario.Reminder)
-                    .AddButton(new ToastButton()
+                   .AddText("Urmatoarele scrisori medicale expira in curand",
+                            hintStyle: AdaptiveTextStyle.Title)
+                   .AddText(message,
+                            hintStyle: AdaptiveTextStyle.Body)
+                   .SetToastScenario(ToastScenario.Reminder)
+                   .AddButton(new ToastButton()
                         .SetContent("Inchide")
                         .SetDismissActivation()
                         .SetBackgroundActivation())
-                    .Show();
+                   .Show();
 
                 return Task.CompletedTask;
             }

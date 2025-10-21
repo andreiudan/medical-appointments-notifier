@@ -1,6 +1,5 @@
 ﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.ReminderJob.Notifiers;
-using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace MedicalAppointmentsNotifier.Core.Notificators
 {
@@ -10,21 +9,9 @@ namespace MedicalAppointmentsNotifier.Core.Notificators
         {
         }
 
-        public override Task Notify(string message)
+        public override async Task Notify(string message)
         {
-            base.Notify(message);
-
-            new ToastContentBuilder()
-                    .AddHeader("AppointmentsNotifier", "Urmatoarele scrisori medicale expira in curand", "")
-                    .AddText("Telegram")
-                    .SetToastScenario(ToastScenario.Reminder)
-                    .AddButton(new ToastButton()
-                        .SetContent("Inchide")
-                        .SetDismissActivation()
-                        .SetBackgroundActivation())
-                    .Show();
-
-            return Task.CompletedTask;
+            await base.Notify(message);
         }
     }
 }
