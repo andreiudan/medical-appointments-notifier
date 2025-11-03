@@ -10,26 +10,7 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
         {
             try
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                string[] appointments = message.Trim().Split("\n");
-
-                if(appointments.Length > 6)
-                {
-                    for(int i = 0; i < 5; i++)
-                    {
-                        stringBuilder.Append(appointments[i]);
-                    }
-                    stringBuilder.Append(string.Format("+{0} scrisori medicale care urmeaza sa expire", (appointments.Length - 5)));
-                }
-                else
-                {
-                    for (int i = 0; i < appointments.Length; i++)
-                    {
-                        stringBuilder.Append(appointments[i]);
-                    }
-                }
-
-                message = stringBuilder.ToString();
+                message = TrimMessageLength(message);
 
                 new ToastContentBuilder()
                    .AddText("Urmatoarele scrisori medicale expira in curand",
@@ -49,6 +30,30 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
             {
                 throw;
             }
+        }
+
+        private string TrimMessageLength(string message)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            string[] appointments = message.Trim().Split("\n");
+
+            if (appointments.Length > 6)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    stringBuilder.Append(appointments[i]);
+                }
+                stringBuilder.Append(string.Format("+{0} scrisori medicale care urmeaza sa expire", (appointments.Length - 5)));
+            }
+            else
+            {
+                for (int i = 0; i < appointments.Length; i++)
+                {
+                    stringBuilder.Append(appointments[i]);
+                }
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }
