@@ -29,12 +29,13 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void CloseWindow(object? sender, EventArgs e)
         {
+            ViewModel.OnUserAdded -= CloseWindow;
             this.Close();
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            this.CloseWindow(sender, EventArgs.Empty);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Status = appointmentModel.Status,
                 LatestDate = appointmentModel.LatestDate,
                 NextDate = appointmentModel.NextDate,
-                User = user
+                UserId = user.Id,
             };
 
             return appointment;
@@ -75,7 +75,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Description = noteModel.Description,
                 From = noteModel.From,
                 Until = noteModel.Until,
-                User = user
+                UserId = user.Id
             };
 
             return note;

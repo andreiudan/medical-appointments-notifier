@@ -10,12 +10,13 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<UserUpdatedMessage>
+public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<UserUpdatedMessage>, IDisposable
 {
     [ObservableProperty]
     private ObservableCollection<UserModel> users = new();
 
     private IRepository<User> UsersRepository { get; } = Ioc.Default.GetRequiredService<IRepository<User>>();
+    private IEntityToModelMapper mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
     public IAsyncRelayCommand DeleteSelectedUsersCommand { get; }
@@ -37,8 +38,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         {
             return;
         }
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         Users.Clear();
         foreach (var user in _users)
@@ -74,5 +73,29 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         int index = Users.IndexOf(originalUser);
         Users[index] = updatedUser;
+    }
+
+    public async Task RefreshUser(Guid userId)
+    {
+        User originalUser = await UsersRepository.FindAsync(u => u.Id.Equals(userId));
+        UserModel originalUserModel = Users.First(u => u.Id.Equals(userId));
+
+        int index = Users.IndexOf(originalUserModel);
+        Users[index] = mapper.Map(originalUser);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            IsActive = false;
+            Users.Clear();
+        }
     }
 }

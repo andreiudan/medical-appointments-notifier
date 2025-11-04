@@ -178,7 +178,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Status = appointmentModelFake.Status,
                 LatestDate = appointmentModelFake.LatestDate,
                 NextDate = appointmentModelFake.NextDate,
-                User = userFake
+                UserId = userFake.Id
             };
 
             //Act
@@ -217,7 +217,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Description = noteModelFake.Description,
                 From = noteModelFake.From,
                 Until = noteModelFake.Until,
-                User = userFake
+                UserId = userFake.Id
             };
 
             //Act

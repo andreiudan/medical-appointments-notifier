@@ -8,7 +8,7 @@ namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UserAppointmentsView : Page
     {
-        private bool IsLoaded { get; set; } = false;
+        private bool ListViewLoaded { get; set; } = false;
 
         public UserAppointmentsView()
         {
@@ -36,8 +36,24 @@ namespace MedicalAppointmentsNotifier.Views
 
             if (rootFrame.CanGoBack)
             {
+                ViewModel?.Dispose();
+                DataContext = null;
+
                 rootFrame.GoBack();
+
+                if (rootFrame.BackStackDepth > 0)
+                {
+                    rootFrame.BackStack.RemoveAt(rootFrame.BackStackDepth - 1);
+                }
             }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            ViewModel?.Dispose();
+            DataContext = null;
+
+            base.OnNavigatedFrom(e);
         }
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -59,7 +75,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(!IsLoaded)
+            if(!ListViewLoaded)
             {
                 return;
             }
@@ -82,7 +98,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void lvAppointments_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            IsLoaded = true;
+            ListViewLoaded = true;
         }
 
         private void btnNoteEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

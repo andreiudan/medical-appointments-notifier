@@ -18,9 +18,9 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            await context.Set<TModel>().AddAsync(model);
+            await context.Set<TModel>().AddAsync(model).ConfigureAwait(false);
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
 
             return model;
         }
@@ -30,63 +30,58 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
             ArgumentNullException.ThrowIfNull(model);
 
             await Task.Run(() => context.Set<TModel>().Remove(model));
-
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
 
             return true;
         }
 
         public async Task<bool> DeleteAsync(Guid modelId)
         {
-            ArgumentNullException.ThrowIfNull(modelId);
-
-            TModel model = await context.Set<TModel>().FindAsync(modelId);
-
-            if(model == null)
+            var model = await context.Set<TModel>().FindAsync(modelId).ConfigureAwait(false);
+            if (model == null)
             {
                 return false;
             }
 
-            await Task.Run(() => context.Set<TModel>().Remove(model));
-
-            await context.SaveChangesAsync();
+            context.Set<TModel>().Remove(model);
+            await context.SaveChangesAsync().ConfigureAwait(false);
 
             return true;
         }
 
         public async Task<List<TModel>> GetAllAsync()
         {
-            return await Task.Run(() => context.Set<TModel>().IgnoreAutoIncludes().ToList());
+            return await Task.Run(() => context.Set<TModel>().AsNoTracking().IgnoreAutoIncludes().ToList()).ConfigureAwait(false);
         }
 
         public async Task<TModel> FindAsync(Expression<Func<TModel, bool>> predicate)
         {
             ArgumentNullException.ThrowIfNull(predicate);
 
-            return await context.Set<TModel>().FirstOrDefaultAsync(predicate);
+            return await context.Set<TModel>().AsNoTracking().FirstOrDefaultAsync(predicate).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<TModel>> FindAllAsync(Expression<Func<TModel, bool>> predicate)
         {
             ArgumentNullException.ThrowIfNull(predicate);
 
-            return await context.Set<TModel>().Where(predicate).ToListAsync();
+            return await context.Set<TModel>().AsNoTracking().Where(predicate).ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<bool> UpdateAsync(TModel model)
         {
             ArgumentNullException.ThrowIfNull(model);
 
-            TModel originalModel = await context.Set<TModel>().FindAsync(model.Id);
-            if (originalModel == null)
+            var original = await context.Set<TModel>().FindAsync(model.Id).ConfigureAwait(false);
+            if (original == null)
             {
                 return false;
             }
 
-            context.Entry(originalModel).CurrentValues.SetValues(model);
+            context.Entry(original).CurrentValues.SetValues(model);
 
-            await context.SaveChangesAsync();
-
+            await context.SaveChangesAsync().ConfigureAwait(false);
+            
             return true;
         }
     }

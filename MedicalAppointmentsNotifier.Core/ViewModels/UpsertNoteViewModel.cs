@@ -148,16 +148,13 @@ public partial class UpsertNoteViewModel : ObservableValidator
             return;
         }
 
-        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-        User user = await userRepository.FindAsync(u => u.Id == UserId);
-
         Note note = new Note
         {
             Id = Guid.NewGuid(),
             Description = Description,
             From = DateFrom,
             Until = DateTo,
-            User = user,
+            UserId = UserId,
         };
 
         if(NoteId.Equals(Guid.Empty))

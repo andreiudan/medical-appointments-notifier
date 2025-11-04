@@ -140,7 +140,7 @@ public partial class UpsertUserViewModel : ObservableValidator
         }
 
         IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
-
+        
         WeakReferenceMessenger.Default.Send<UserUpdatedMessage>(new UserUpdatedMessage(mapper.Map(user)));
     }
 }

@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
 public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient<NoteAddedMessage>, 
-    IRecipient<AppointmentAddedMessage>, IRecipient<NoteUpdatedMessage>, IRecipient<AppointmentUpdatedMessage>
+    IRecipient<AppointmentAddedMessage>, IRecipient<NoteUpdatedMessage>, IRecipient<AppointmentUpdatedMessage>, IDisposable
 {
     public Guid UserId { get; private set; } = Guid.Empty;
 
@@ -20,10 +20,10 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     public string userName = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<NoteModel> notes = new();
+    private ObservableCollection<NoteModel> notes;
 
     [ObservableProperty]
-    private ObservableCollection<AppointmentModel> appointments = new();
+    private ObservableCollection<AppointmentModel> appointments;
 
     public AppointmentStatus[] AppointmentStatuses { get; } = (AppointmentStatus[])Enum.GetValues(typeof(AppointmentStatus));
 
@@ -77,7 +77,7 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         IRepository<Note> notesRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
         IEnumerable<Note> notes = await notesRepository.FindAllAsync(n => n.User.Id == UserId);
 
-        Notes.Clear();
+        Notes = new ObservableCollection<NoteModel>();
         foreach (Note note in notes)
         {
             Notes.Add(Mapper.Map(note));
@@ -89,7 +89,7 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         IRepository<Appointment> repository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         IEnumerable<Appointment> appointments = await repository.FindAllAsync(a => a.User.Id == UserId);
 
-        Appointments.Clear();
+        Appointments = new ObservableCollection<AppointmentModel>();
         foreach (Appointment appointment in appointments)
         {
             Appointments.Add(Mapper.Map(appointment));
@@ -138,11 +138,13 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     public void Receive(NoteAddedMessage message)
     {
         Notes.Add(message.note);
+        IsActive = true;
     }
 
     public void Receive(AppointmentAddedMessage message)
     {
         Appointments.Add(message.appointment);
+        IsActive = true;
     }
 
     public void Receive(NoteUpdatedMessage message)
@@ -152,6 +154,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
         int index = Notes.IndexOf(originalNote);
         Notes[index] = updatedNote;
+
+        IsActive = true;
     }
 
     public void Receive(AppointmentUpdatedMessage message)
@@ -161,5 +165,27 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
         int index = Appointments.IndexOf(originalAppointment);
         Appointments[index] = updatedAppointment;
+
+        IsActive = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            IsActive = false;
+            
+            Notes?.Clear();
+            Notes = null;
+            
+            Appointments?.Clear();
+            Appointments = null;
+        }
     }
 }

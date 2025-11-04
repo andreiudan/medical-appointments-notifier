@@ -1,5 +1,6 @@
 ﻿using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalAppointmentsNotifier.Domain.Entities
 {
@@ -19,6 +20,10 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
 
         [Required]
         public DateTimeOffset? NextDate { get; set; }
+
+        [Required]
+        [ForeignKey("User")]
+        public Guid UserId { get; set; }
 
         [Required]
         public User? User { get; set; }
@@ -45,11 +50,12 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
                 this.IntervalDays == obj.IntervalDays &&
                 this.Status == obj.Status &&
                 this.LatestDate == obj.LatestDate &&
-                this.NextDate == obj.NextDate;
+                this.NextDate == obj.NextDate &&
+                this.UserId.CompareTo(obj.UserId) == 0;
         }
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, LatestDate, NextDate);
+            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, LatestDate, NextDate, UserId);
         }
     }
 }

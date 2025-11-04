@@ -48,6 +48,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     private Guid UserId { get; set; }
     private Guid AppointmentId { get; set; } = Guid.Empty;
+    private AppointmentStatus Status { get; set; } = 0;
 
     public string Title { get; set; } = "Adauga Scrisoare Medicala";
     public string UpsertButtonText = "Adauga";
@@ -68,6 +69,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
         AppointmentId = appointment.Id;
         Specialty = appointment.MedicalSpecialty ?? 0;
+        Status = appointment.Status;
         DaysInterval = appointment.IntervalDays;
         LatestDate = appointment.LatestDate;
         NextDate = appointment.NextDate;
@@ -154,18 +156,15 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             return;
         }
 
-        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-        User user = await userRepository.FindAsync(u => u.Id == UserId);
-
         Appointment appointment = new Appointment
         {
             Id = Guid.NewGuid(),
             MedicalSpecialty = Specialty,
-            Status = 0,
+            Status = Status,
             IntervalDays = DaysInterval,
             NextDate = NextDate,
             LatestDate = LatestDate,
-            User = user,
+            UserId = UserId,
         };
 
         if(AppointmentId.Equals(Guid.Empty))

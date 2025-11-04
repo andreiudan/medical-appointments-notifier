@@ -3,14 +3,19 @@ using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
+using System;
 
 namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UsersView : Page
     {
+        private Guid? ClickedUserId = Guid.Empty;
+
         public UsersView()
         {
             InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
             this.DataContext = ((App)App.Current).Services.GetService<UsersViewModel>();
         }
 
@@ -23,10 +28,25 @@ namespace MedicalAppointmentsNotifier.Views
                 return;
             }
 
-            UserModel clickedUser = e.ClickedItem as UserModel;
+            UserModel ClickedUser = e.ClickedItem as UserModel;
+            this.ClickedUserId = ClickedUser.Id;
 
             var rootFrame = ((App)App.Current).RootFrame;
-            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+            rootFrame.Navigate(typeof(UserAppointmentsView), ClickedUser, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if(ClickedUserId is not null && !ClickedUserId.Equals(Guid.Empty))
+            {
+                ViewModel.RefreshUser(ClickedUserId.Value);
+                ClickedUserId = null;
+            }
+
+            ((App)App.Current).RootFrame.BackStack.Clear();
+            GC.Collect();
+
+            base.OnNavigatedTo(e);
         }
 
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

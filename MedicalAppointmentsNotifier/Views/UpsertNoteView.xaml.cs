@@ -31,11 +31,12 @@ public sealed partial class UpsertNoteView : Window
 
     private void CloseWindow(object? sender, EventArgs e)
     {
+        ViewModel.OnNoteAdded -= CloseWindow;
         this.Close();
     }
 
     public void btnClose_Click(object sender, RoutedEventArgs e)
     {
-        this.Close();
+        this.CloseWindow(sender, EventArgs.Empty);
     }
 }

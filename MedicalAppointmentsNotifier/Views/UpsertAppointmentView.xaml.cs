@@ -31,11 +31,12 @@ public sealed partial class UpsertAppointmentView : Window
 
     private void CloseWindow(object? sender, EventArgs e)
     {
+        ViewModel.OnAppointmentAdded -= CloseWindow;
         this.Close();
     }
 
     public void btnClose_Click(object sender, RoutedEventArgs e)
     {
-        this.Close();
+        this.CloseWindow(sender, EventArgs.Empty);
     }
 }
