@@ -32,7 +32,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
             return appointmentModel;
         }
 
-        public Appointment Map(AppointmentModel appointmentModel, User user)
+        public Appointment Map(AppointmentModel appointmentModel, Guid userId)
         {
             ArgumentNullException.ThrowIfNull(appointmentModel);
 
@@ -44,7 +44,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Status = appointmentModel.Status,
                 LatestDate = appointmentModel.LatestDate,
                 NextDate = appointmentModel.NextDate,
-                UserId = user.Id,
+                UserId = userId,
             };
 
             return appointment;
@@ -65,7 +65,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
             return noteModel;
         }
 
-        public Note Map(NoteModel noteModel, User user)
+        public Note Map(NoteModel noteModel, Guid userId)
         {
             ArgumentNullException.ThrowIfNull(noteModel);
 
@@ -75,7 +75,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Description = noteModel.Description,
                 From = noteModel.From,
                 Until = noteModel.Until,
-                UserId = user.Id
+                UserId = userId
             };
 
             return note;

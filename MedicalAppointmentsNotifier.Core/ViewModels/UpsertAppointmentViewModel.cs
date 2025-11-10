@@ -55,8 +55,14 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     public IAsyncRelayCommand UpsertAppointmentCommand { get; }
 
-    public UpsertAppointmentViewModel()
+    private readonly IRepository<Appointment> appointmentsRepository;
+    private readonly IEntityToModelMapper mapper;
+
+    public UpsertAppointmentViewModel(IRepository<Appointment> appointmentsRepository, IEntityToModelMapper mapper)
     {
+        this.appointmentsRepository = appointmentsRepository ?? throw new ArgumentNullException(nameof(appointmentsRepository));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         UpsertAppointmentCommand = new AsyncRelayCommand(UpsertAsync);
     }
 
@@ -182,25 +188,19 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     private async Task InsertAsync(Appointment appointment)
     {
-        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         Appointment addedAppointment = await appointmentsRepository.AddAsync(appointment);
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(mapper.Map(addedAppointment)));
     }
 
     private async Task UpdateAsync(Appointment appointment)
     {
-        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         bool updated = await appointmentsRepository.UpdateAsync(appointment);
 
         if (!updated)
         {
             return;
         }
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<AppointmentUpdatedMessage>(new AppointmentUpdatedMessage(mapper.Map(appointment)));
     }

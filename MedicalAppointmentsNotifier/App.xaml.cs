@@ -45,9 +45,12 @@ namespace MedicalAppointmentsNotifier
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            DbContext dbContext = Services.GetRequiredService<MedicalAppointmentsContext>();
-
-            dbContext.Database.Migrate();
+            // Use a scope for DB migration so DbContext is not captured by the root provider
+            using (var scope = Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<MedicalAppointmentsContext>();
+                dbContext.Database.Migrate();
+            }
 
             _window = new MainWindow();
             
@@ -72,7 +75,7 @@ namespace MedicalAppointmentsNotifier
             services.AddScoped<IAppointmentCalculator, AppointmentCalculator>();
 
             services.AddScoped<UsersViewModel>();
-            services.AddScoped<UserAppointmentsViewModel>();
+            services.AddTransient<UserAppointmentsViewModel>();
             services.AddTransient<UpsertUserViewModel>();
             services.AddTransient<UpsertNoteViewModel>();
             services.AddTransient<UpsertAppointmentViewModel>();

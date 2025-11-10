@@ -32,13 +32,21 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     public IAsyncRelayCommand UpdateAppointmentCommand { get; }
     private IAsyncRelayCommand LoadCollectionsCommand { get; }
 
-    private IEntityToModelMapper Mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+    private readonly IRepository<Note> notesRepository;
+    private readonly IRepository<Appointment> appointmentRepository;
+    private readonly IEntityToModelMapper mapper;
 
     [ObservableProperty]
     private bool isEditing = false;
 
-    public UserAppointmentsViewModel()
+    private bool isEdited = false;
+
+    public UserAppointmentsViewModel(IRepository<Note> notesRepository, IRepository<Appointment> appointmentRepository, IEntityToModelMapper mapper)
     {
+        this.notesRepository = notesRepository ?? throw new ArgumentNullException(nameof(notesRepository));
+        this.appointmentRepository = appointmentRepository ?? throw new ArgumentNullException(nameof(appointmentRepository));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         DeleteNotesCommand = new AsyncRelayCommand(DeleteNotesAsync);
         DeleteAppointmentsCommand = new AsyncRelayCommand(DeleteAppointmentsAsync);
         LoadCollectionsCommand = new AsyncRelayCommand(LoadCollectionsAsync);
@@ -47,16 +55,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         IsActive = true;
     }
 
-    private async Task UpdateAppointmentAsync(AppointmentModel appointment)
+    public UserAppointmentsViewModel()
     {
-        IRepository<Appointment> appointmentRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
-        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-
-        User user = await userRepository.FindAsync(u => u.Id == UserId);
-
-        Appointment updateAppointment = Mapper.Map(appointment, user);
-
-        await appointmentRepository.UpdateAsync(updateAppointment);
     }
 
     public void LoadUser(Guid userId, string firstName, string lastName)
@@ -74,26 +74,32 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     private async Task LoadNotesAsync()
     {
-        IRepository<Note> notesRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
         IEnumerable<Note> notes = await notesRepository.FindAllAsync(n => n.User.Id == UserId);
 
         Notes = new ObservableCollection<NoteModel>();
         foreach (Note note in notes)
         {
-            Notes.Add(Mapper.Map(note));
+            Notes.Add(mapper.Map(note));
         }
     }
 
     private async Task LoadAppointmentsAsync()
     {
-        IRepository<Appointment> repository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
-        IEnumerable<Appointment> appointments = await repository.FindAllAsync(a => a.User.Id == UserId);
+        IEnumerable<Appointment> appointments = await appointmentRepository.FindAllAsync(a => a.User.Id == UserId);
 
         Appointments = new ObservableCollection<AppointmentModel>();
         foreach (Appointment appointment in appointments)
         {
-            Appointments.Add(Mapper.Map(appointment));
+            Appointments.Add(mapper.Map(appointment));
         }
+    }
+
+    private async Task UpdateAppointmentAsync(AppointmentModel appointment)
+    {
+        Appointment updateAppointment = mapper.Map(appointment, UserId);
+
+        await appointmentRepository.UpdateAsync(updateAppointment);
+        isEdited = true;
     }
 
     private async Task DeleteNotesAsync()
@@ -132,6 +138,11 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
             }
         }
 
+        if(deletedEntries.Count > 0)
+        {
+            isEdited = true;
+        }
+        
         return deletedEntries;
     }
 
@@ -139,12 +150,14 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     {
         Notes.Add(message.note);
         IsActive = true;
+        isEdited = true;
     }
 
     public void Receive(AppointmentAddedMessage message)
     {
         Appointments.Add(message.appointment);
         IsActive = true;
+        isEdited = true;
     }
 
     public void Receive(NoteUpdatedMessage message)
@@ -156,6 +169,7 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         Notes[index] = updatedNote;
 
         IsActive = true;
+        isEdited = true;
     }
 
     public void Receive(AppointmentUpdatedMessage message)
@@ -167,6 +181,7 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         Appointments[index] = updatedAppointment;
 
         IsActive = true;
+        isEdited = true;
     }
 
     public void Dispose()
@@ -179,8 +194,14 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     {
         if (disposing)
         {
-            IsActive = false;
+            if (isEdited)
+            {
+                WeakReferenceMessenger.Default.Send<RefreshUserMessage>(new RefreshUserMessage(UserId));
+            }
             
+            IsActive = false;
+            WeakReferenceMessenger.Default.UnregisterAll(this);
+
             Notes?.Clear();
             Notes = null;
             

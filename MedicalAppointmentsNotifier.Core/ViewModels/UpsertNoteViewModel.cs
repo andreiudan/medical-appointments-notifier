@@ -48,8 +48,14 @@ public partial class UpsertNoteViewModel : ObservableValidator
     private Guid UserId { get; set; }
     private Guid NoteId { get; set; } = Guid.Empty;
 
-    public UpsertNoteViewModel()
+    private readonly IRepository<Note> noteRepository;
+    private readonly IEntityToModelMapper mapper;
+
+    public UpsertNoteViewModel(IRepository<Note> noteRepository, IEntityToModelMapper mapper)
     {
+        this.noteRepository = noteRepository ?? throw new ArgumentNullException(nameof(noteRepository));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         UpsertNoteCommand = new AsyncRelayCommand(UpsertAsync);
     }
 
@@ -172,25 +178,19 @@ public partial class UpsertNoteViewModel : ObservableValidator
 
     private async Task InsertAsync(Note note)
     {
-        IRepository<Note> noteRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
         _ = await noteRepository.AddAsync(note);
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(mapper.Map(note)));
     }
 
     private async Task UpdateAsync(Note note)
     {
-        IRepository<Note> noteRepository = Ioc.Default.GetRequiredService<IRepository<Note>>();
         bool updated = await noteRepository.UpdateAsync(note);
 
         if (!updated)
         {
             return;
         }
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<NoteUpdatedMessage>(new NoteUpdatedMessage(mapper.Map(note)));
     }

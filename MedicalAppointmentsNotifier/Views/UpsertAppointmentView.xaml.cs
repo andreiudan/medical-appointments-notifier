@@ -20,8 +20,10 @@ public sealed partial class UpsertAppointmentView : Window
     public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null)
     {
         AppWindow.Resize(startSize);
+
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertAppointmentViewModel>();
+
         ViewModel.OnAppointmentAdded += CloseWindow;
         ViewModel.LoadUserId(userId);
         ViewModel.LoadAppointment(appointment);
@@ -32,6 +34,10 @@ public sealed partial class UpsertAppointmentView : Window
     private void CloseWindow(object? sender, EventArgs e)
     {
         ViewModel.OnAppointmentAdded -= CloseWindow;
+
+        this.Bindings.StopTracking();
+        RootGrid.DataContext = null;
+
         this.Close();
     }
 

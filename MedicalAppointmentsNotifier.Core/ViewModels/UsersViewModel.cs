@@ -10,13 +10,11 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<UserUpdatedMessage>, IDisposable
+public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, 
+    IRecipient<UserUpdatedMessage>, IRecipient<RefreshUserMessage>, IDisposable
 {
     [ObservableProperty]
     private ObservableCollection<UserModel> users = new();
-
-    private IRepository<User> UsersRepository { get; } = Ioc.Default.GetRequiredService<IRepository<User>>();
-    private IEntityToModelMapper mapper { get; } = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
     public IAsyncRelayCommand DeleteSelectedUsersCommand { get; }
@@ -32,7 +30,9 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     private async Task LoadUsersAsync()
     {
-        List<User> _users = await UsersRepository.GetAllAsync();
+        IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+        List<User> _users = await usersRepository.GetAllAsync();
 
         if(_users.Count == 0)
         {
@@ -48,11 +48,12 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     private async Task DeleteSelectedUsersAsync()
     {
+        IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
         List<UserModel> usersToDelete = Users.Where(u => u.IsSelected).ToList();
 
         foreach (UserModel entry in usersToDelete)
         {
-            bool deleted = await UsersRepository.DeleteAsync(entry.Id);
+            bool deleted = await usersRepository.DeleteAsync(entry.Id);
             if (deleted)
             {
                 Users.Remove(Users.First(u => u.Id == entry.Id));
@@ -68,19 +69,18 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     public void Receive(UserUpdatedMessage message)
     {
-        UserModel updatedUser = message.user;
-        UserModel originalUser = Users.First(u => u.Id.Equals(updatedUser.Id));
-
-        int index = Users.IndexOf(originalUser);
-        Users[index] = updatedUser;
+        int index = Users.IndexOf(Users.First(u => u.Id.Equals(message.user.Id)));
+        Users[index] = message.user;
     }
 
-    public async Task RefreshUser(Guid userId)
+    public async void Receive(RefreshUserMessage message)
     {
-        User originalUser = await UsersRepository.FindAsync(u => u.Id.Equals(userId));
-        UserModel originalUserModel = Users.First(u => u.Id.Equals(userId));
+        IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
+        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+        
+        User originalUser = await usersRepository.FindAsync(u => u.Id.Equals(message.userId));
 
-        int index = Users.IndexOf(originalUserModel);
+        int index = Users.IndexOf(Users.First(u => u.Id.Equals(message.userId)));
         Users[index] = mapper.Map(originalUser);
     }
 
@@ -95,7 +95,10 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         if (disposing)
         {
             IsActive = false;
+            WeakReferenceMessenger.Default.UnregisterAll(this);
+
             Users.Clear();
+            Users = null;
         }
     }
 }

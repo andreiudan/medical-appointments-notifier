@@ -151,7 +151,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             AppointmentModel model = null;
 
             //Assert
-            Assert.Throws<ArgumentNullException>(() => mapper.Map(model, userFake));
+            Assert.Throws<ArgumentNullException>(() => mapper.Map(model, userFake.Id));
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             };
 
             //Act
-            var result = mapper.Map(appointmentModelFake, userFake);
+            var result = mapper.Map(appointmentModelFake, userFake.Id);
 
             //Assert
             Assert.That(result, Is.EqualTo(expectedResult));
@@ -195,7 +195,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             NoteModel model = null;
 
             //Assert
-            Assert.Throws<ArgumentNullException>(() => mapper.Map(model, userFake));
+            Assert.Throws<ArgumentNullException>(() => mapper.Map(model, userFake.Id));
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             };
 
             //Act
-            var result = mapper.Map(noteModelFake, userFake);
+            var result = mapper.Map(noteModelFake, userFake.Id);
 
             //Assert
             Assert.That(result, Is.EqualTo(expectedResult));

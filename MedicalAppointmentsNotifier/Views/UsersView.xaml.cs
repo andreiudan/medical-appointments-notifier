@@ -10,13 +10,12 @@ namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UsersView : Page
     {
-        private Guid? ClickedUserId = Guid.Empty;
-
         public UsersView()
         {
             InitializeComponent();
             NavigationCacheMode = NavigationCacheMode.Enabled;
-            this.DataContext = ((App)App.Current).Services.GetService<UsersViewModel>();
+
+            this.DataContext = ((App)App.Current).Services.GetRequiredService<UsersViewModel>();
         }
 
         public UsersViewModel ViewModel => (UsersViewModel)DataContext;
@@ -28,24 +27,12 @@ namespace MedicalAppointmentsNotifier.Views
                 return;
             }
 
-            UserModel ClickedUser = e.ClickedItem as UserModel;
-            this.ClickedUserId = ClickedUser.Id;
-
             var rootFrame = ((App)App.Current).RootFrame;
-            rootFrame.Navigate(typeof(UserAppointmentsView), ClickedUser, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+            rootFrame.Navigate(typeof(UserAppointmentsView), e.ClickedItem as UserModel, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if(ClickedUserId is not null && !ClickedUserId.Equals(Guid.Empty))
-            {
-                ViewModel.RefreshUser(ClickedUserId.Value);
-                ClickedUserId = null;
-            }
-
-            ((App)App.Current).RootFrame.BackStack.Clear();
-            GC.Collect();
-
             base.OnNavigatedTo(e);
         }
 
@@ -72,6 +59,26 @@ namespace MedicalAppointmentsNotifier.Views
                 UpsertUserView addUserView = new UpsertUserView(userModel);
                 addUserView.Activate();
             }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+        }
+
+        ~UsersView()
+        {
+            try
+            {
+                if (ViewModel is not null)
+                {
+                    ViewModel.Dispose();
+                }
+
+                this.Bindings.StopTracking();
+                DataContext = null;
+            }
+            catch { }
         }
     }
 }
