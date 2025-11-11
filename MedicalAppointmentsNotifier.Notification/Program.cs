@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace MedicalAppointmentsNotifier.ReminderJob
 {
@@ -30,11 +29,7 @@ namespace MedicalAppointmentsNotifier.ReminderJob
 
                     services.AddScoped<NotifierWorker>();
 
-                    services.AddLogging(builder =>
-                    {
-                        builder.AddConsole();
-                        builder.SetMinimumLevel(LogLevel.Information);
-                    });
+                    services.AddLoggingService();
                 })
                 .Build();
 
@@ -46,10 +41,8 @@ namespace MedicalAppointmentsNotifier.ReminderJob
 
                 var dbContext = host.Services.GetRequiredService<MedicalAppointmentsContext>();
                 var appointmentsRepo = host.Services.GetRequiredService<IAppointmentsRepository>();
-                var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
                 await dbContext.Database.MigrateAsync();
-                logger.LogInformation("Database migration completed");
 
                 NotifierWorker notifierWorker = host.Services.GetRequiredService<NotifierWorker>();
                 await notifierWorker.RunAsync();

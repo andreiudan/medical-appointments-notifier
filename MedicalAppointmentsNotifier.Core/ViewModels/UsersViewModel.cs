@@ -6,6 +6,7 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
 using MedicalAppointmentsNotifier.Domain.Models;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
@@ -19,8 +20,12 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     public IAsyncRelayCommand LoadUsersCommand { get; }
     public IAsyncRelayCommand DeleteSelectedUsersCommand { get; }
 
-    public UsersViewModel()
+    private readonly ILogger<UsersViewModel> logger;
+
+    public UsersViewModel(ILogger<UsersViewModel> logger)
     {
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
         DeleteSelectedUsersCommand = new AsyncRelayCommand(DeleteSelectedUsersAsync);
         LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
         LoadUsersCommand.Execute(null);
@@ -28,10 +33,16 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         IsActive = true;
     }
 
+    public UsersViewModel()
+    {
+    }
+
     private async Task LoadUsersAsync()
     {
         IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
         IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
+
+        logger.LogInformation("Loading users from the database.");
         List<User> _users = await usersRepository.GetAllAsync();
 
         if(_users.Count == 0)
@@ -44,6 +55,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         {
             Users.Add(mapper.Map(user));
         }
+
+        logger.LogInformation("Loaded {UserCount} users from the database.", Users.Count);
     }
 
     private async Task DeleteSelectedUsersAsync()

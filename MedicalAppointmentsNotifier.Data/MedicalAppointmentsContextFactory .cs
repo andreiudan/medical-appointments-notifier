@@ -9,7 +9,6 @@ namespace MedicalAppointmentsNotifier.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<MedicalAppointmentsContext>();
 
-            // Use a folder relative to the factory assembly location
             var projectFolder = Path.GetDirectoryName(typeof(MedicalAppointmentsContextFactory).Assembly.Location);
             string dbFolder = Path.Combine(projectFolder, "Database");
 
