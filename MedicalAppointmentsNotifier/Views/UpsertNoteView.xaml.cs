@@ -19,9 +19,11 @@ public sealed partial class UpsertNoteView : Window
 
     public UpsertNoteView(Guid userId, NoteModel noteModel = null)
     {
+        AppWindow.Resize(startSize);
+
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertNoteViewModel>();
-        AppWindow.Resize(startSize);
+        
         ViewModel.OnNoteAdded += CloseWindow;
         ViewModel.LoadUserId(userId);
         ViewModel.LoadNote(noteModel);
@@ -31,11 +33,16 @@ public sealed partial class UpsertNoteView : Window
 
     private void CloseWindow(object? sender, EventArgs e)
     {
+        ViewModel.OnNoteAdded -= CloseWindow;
+
+        this.Bindings.StopTracking();
+        RootGrid.DataContext = null;
+        
         this.Close();
     }
 
     public void btnClose_Click(object sender, RoutedEventArgs e)
     {
-        this.Close();
+        this.CloseWindow(sender, EventArgs.Empty);
     }
 }

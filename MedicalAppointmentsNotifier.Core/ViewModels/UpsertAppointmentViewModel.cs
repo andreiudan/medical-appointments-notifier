@@ -48,14 +48,21 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     private Guid UserId { get; set; }
     private Guid AppointmentId { get; set; } = Guid.Empty;
+    private AppointmentStatus Status { get; set; } = 0;
 
     public string Title { get; set; } = "Adauga Scrisoare Medicala";
     public string UpsertButtonText = "Adauga";
 
     public IAsyncRelayCommand UpsertAppointmentCommand { get; }
 
-    public UpsertAppointmentViewModel()
+    private readonly IRepository<Appointment> appointmentsRepository;
+    private readonly IEntityToModelMapper mapper;
+
+    public UpsertAppointmentViewModel(IRepository<Appointment> appointmentsRepository, IEntityToModelMapper mapper)
     {
+        this.appointmentsRepository = appointmentsRepository ?? throw new ArgumentNullException(nameof(appointmentsRepository));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         UpsertAppointmentCommand = new AsyncRelayCommand(UpsertAsync);
     }
 
@@ -68,6 +75,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
         AppointmentId = appointment.Id;
         Specialty = appointment.MedicalSpecialty ?? 0;
+        Status = appointment.Status;
         DaysInterval = appointment.IntervalDays;
         LatestDate = appointment.LatestDate;
         NextDate = appointment.NextDate;
@@ -154,18 +162,15 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             return;
         }
 
-        IRepository<User> userRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-        User user = await userRepository.FindAsync(u => u.Id == UserId);
-
         Appointment appointment = new Appointment
         {
             Id = Guid.NewGuid(),
             MedicalSpecialty = Specialty,
-            Status = 0,
+            Status = Status,
             IntervalDays = DaysInterval,
             NextDate = NextDate,
             LatestDate = LatestDate,
-            User = user,
+            UserId = UserId,
         };
 
         if(AppointmentId.Equals(Guid.Empty))
@@ -183,25 +188,19 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     private async Task InsertAsync(Appointment appointment)
     {
-        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         Appointment addedAppointment = await appointmentsRepository.AddAsync(appointment);
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(mapper.Map(addedAppointment)));
     }
 
     private async Task UpdateAsync(Appointment appointment)
     {
-        IRepository<Appointment> appointmentsRepository = Ioc.Default.GetRequiredService<IRepository<Appointment>>();
         bool updated = await appointmentsRepository.UpdateAsync(appointment);
 
         if (!updated)
         {
             return;
         }
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<AppointmentUpdatedMessage>(new AppointmentUpdatedMessage(mapper.Map(appointment)));
     }

@@ -39,8 +39,14 @@ public partial class UpsertUserViewModel : ObservableValidator
 
     public IAsyncRelayCommand AddUserCommand { get; }
 
-    public UpsertUserViewModel()
+    private readonly IRepository<User> repository;
+    private readonly IEntityToModelMapper mapper;
+
+    public UpsertUserViewModel(IRepository<User> repository, IEntityToModelMapper mapper)
     {
+        this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
         AddUserCommand = new AsyncRelayCommand(AddAsync);
     }
 
@@ -121,25 +127,19 @@ public partial class UpsertUserViewModel : ObservableValidator
 
     private async Task InsertAsync(User user)
     {
-        IRepository<User> repository = Ioc.Default.GetRequiredService<IRepository<User>>();
         _ = await repository.AddAsync(user);
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(mapper.Map(user)));
     }
 
     private async Task UpdateAsync(User user)
     {
-        IRepository<User> repository = Ioc.Default.GetRequiredService<IRepository<User>>();
         bool updated = await repository.UpdateAsync(user);
 
         if (!updated)
         {
             return;
         }
-
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         WeakReferenceMessenger.Default.Send<UserUpdatedMessage>(new UserUpdatedMessage(mapper.Map(user)));
     }

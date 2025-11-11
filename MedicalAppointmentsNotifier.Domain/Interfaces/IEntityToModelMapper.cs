@@ -13,8 +13,8 @@ namespace MedicalAppointmentsNotifier.Domain.Interfaces
 
         public User Map(UserModel userModel);
 
-        public Note Map(NoteModel noteModel, User user);
+        public Note Map(NoteModel noteModel, Guid user);
 
-        public Appointment Map(AppointmentModel appointmentModel, User user);
+        public Appointment Map(AppointmentModel appointmentModel, Guid user);
     }
 }
