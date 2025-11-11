@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicalAppointmentsNotifier.Domain.Entities
 {
@@ -12,6 +13,10 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
 
         [Required]
         public DateTimeOffset? Until { get; set; }
+
+        [Required]
+        [ForeignKey("User")]
+        public Guid UserId { get; set; }
 
         [Required]
         public User? User { get; set; }
@@ -36,12 +41,13 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
-                this.Until == obj.Until;
+                this.Until == obj.Until &&
+                this.UserId.CompareTo(obj.UserId) == 0;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Description, From, Until);
+            return HashCode.Combine(Id, Description, From, Until, UserId);
         }
     }
 }

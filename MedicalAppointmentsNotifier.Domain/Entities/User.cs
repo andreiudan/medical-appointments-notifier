@@ -5,14 +5,14 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
     public class User : BaseEntity
     {
         [Required]
-        public string FirstName { get; set; }
+        public required string FirstName { get; set; }
 
         [Required]
-        public string LastName { get; set; }
+        public required string LastName { get; set; }
 
-        public List<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public ICollection<Appointment> Appointments { get; set; } = [];
 
-        public List<Note> Notes { get; set; } = new List<Note>();
+        public ICollection<Note> Notes { get; set; } = [];
 
         public override bool Equals(object? obj)
         {

@@ -3,6 +3,8 @@ using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
+using System;
 
 namespace MedicalAppointmentsNotifier.Views
 {
@@ -11,7 +13,9 @@ namespace MedicalAppointmentsNotifier.Views
         public UsersView()
         {
             InitializeComponent();
-            this.DataContext = ((App)App.Current).Services.GetService<UsersViewModel>();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
+
+            this.DataContext = ((App)App.Current).Services.GetRequiredService<UsersViewModel>();
         }
 
         public UsersViewModel ViewModel => (UsersViewModel)DataContext;
@@ -23,10 +27,13 @@ namespace MedicalAppointmentsNotifier.Views
                 return;
             }
 
-            UserModel clickedUser = e.ClickedItem as UserModel;
-
             var rootFrame = ((App)App.Current).RootFrame;
-            rootFrame.Navigate(typeof(UserAppointmentsView), clickedUser, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+            rootFrame.Navigate(typeof(UserAppointmentsView), e.ClickedItem as UserModel, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
         }
 
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -52,6 +59,26 @@ namespace MedicalAppointmentsNotifier.Views
                 UpsertUserView addUserView = new UpsertUserView(userModel);
                 addUserView.Activate();
             }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+        }
+
+        ~UsersView()
+        {
+            try
+            {
+                if (ViewModel is not null)
+                {
+                    ViewModel.Dispose();
+                }
+
+                this.Bindings.StopTracking();
+                DataContext = null;
+            }
+            catch { }
         }
     }
 }

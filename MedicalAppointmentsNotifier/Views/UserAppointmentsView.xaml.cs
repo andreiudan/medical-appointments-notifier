@@ -1,6 +1,7 @@
 using MedicalAppointmentsNotifier.Core.ViewModels;
 using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -8,22 +9,28 @@ namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UserAppointmentsView : Page
     {
-        private bool IsLoaded { get; set; } = false;
+        private bool ListViewLoaded { get; set; } = false;
+        private IServiceScope _scope;
 
         public UserAppointmentsView()
         {
             InitializeComponent();
-            this.DataContext = ((App)App.Current).Services.GetService<UserAppointmentsViewModel>();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
+            this.DataContextChanged += OnDataContextChanged;
         }
 
-        public UserAppointmentsViewModel ViewModel => (UserAppointmentsViewModel)DataContext;
+        public UserAppointmentsViewModel ViewModel { get; private set; }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            if(e.Parameter is not null && e.Parameter is UserModel)
+            if (e.Parameter is not null && e.Parameter is UserModel)
             {
+                _scope = ((App)App.Current).Services.CreateScope();
+
+                this.DataContext = _scope.ServiceProvider.GetRequiredService<UserAppointmentsViewModel>();
+
                 UserModel user = e.Parameter as UserModel;
 
                 ViewModel.LoadUser(user.Id, user.FirstName, user.LastName);
@@ -38,6 +45,30 @@ namespace MedicalAppointmentsNotifier.Views
             {
                 rootFrame.GoBack();
             }
+        }
+
+        private void OnDataContextChanged(FrameworkElement e, DataContextChangedEventArgs args)
+        {
+            if (args.NewValue is null)
+            {
+                this.Bindings.StopTracking();
+                return;
+            }
+
+            ViewModel = (UserAppointmentsViewModel)this.DataContext;
+            this.Bindings.Update();
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            ListViewLoaded = false;
+
+            DataContext = null;
+
+            _scope?.Dispose();
+            _scope = null;
+
+            base.OnNavigatedFrom(e);
         }
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -59,7 +90,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(!IsLoaded)
+            if (!ListViewLoaded)
             {
                 return;
             }
@@ -82,17 +113,17 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void lvAppointments_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            IsLoaded = true;
+            ListViewLoaded = true;
         }
 
         private void btnNoteEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            if(sender is null || sender is not Button)
+            if (sender is null || sender is not Button)
             {
                 return;
             }
 
-            if(sender is Button button && button.DataContext is NoteModel note)
+            if (sender is Button button && button.DataContext is NoteModel note)
             {
                 UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.UserId, note);
                 addNoteView.Activate();
@@ -111,6 +142,16 @@ namespace MedicalAppointmentsNotifier.Views
                 UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.UserId, appointment);
                 addAppointmentView.Activate();
             }
+        }
+
+        ~UserAppointmentsView()
+        {
+            DataContextChanged -= OnDataContextChanged;
+            ViewModel?.Dispose();
+            ViewModel = null;
+            DataContext = null;
+            _scope?.Dispose();
+            _scope = null;
         }
     }
 }

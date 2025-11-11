@@ -4,9 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace MedicalAppointmentsNotifier.Views
 {
     /// <summary>
@@ -20,7 +17,10 @@ namespace MedicalAppointmentsNotifier.Views
         {
             AppWindow.Resize(startSize);
             InitializeComponent();
-            RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertUserViewModel>();
+
+            RootGrid.DataContext = ((App)App.Current).Services.GetRequiredService<UpsertUserViewModel>();
+
+            this.Closed += UpsertUserView_Closed;
             ViewModel.OnUserAdded += CloseWindow;
             ViewModel.LoadUser(userModel);
         }
@@ -29,12 +29,33 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void CloseWindow(object? sender, EventArgs e)
         {
+            ViewModel.OnUserAdded -= CloseWindow;
             this.Close();
+        }
+
+        private void UpsertUserView_Closed(object? sender, WindowEventArgs e)
+        {
+            try
+            {
+                if (ViewModel is not null)
+                {
+                    ViewModel.OnUserAdded -= CloseWindow;
+
+                    if (ViewModel is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }
+            }
+            catch { }
+
+            this.Bindings.StopTracking();
+            RootGrid.DataContext = null;
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            this.CloseWindow(sender, EventArgs.Empty);
         }
     }
 }
