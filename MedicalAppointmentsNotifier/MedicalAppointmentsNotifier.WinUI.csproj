@@ -54,11 +54,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.10" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Core\MedicalAppointmentsNotifier.Core.csproj" />
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Data\MedicalAppointmentsNotifier.Data.csproj" />
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Domain\MedicalAppointmentsNotifier.Domain.csproj" />
+    <ProjectReference Include="..\MedicalAppointmentsNotifier.Infrastructure\MedicalAppointmentsNotifier.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\UpsertAppointmentView.xaml">

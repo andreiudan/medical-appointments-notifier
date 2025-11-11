@@ -1,18 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
-using MedicalAppointmentsNotifier.Core.Services;
-using MedicalAppointmentsNotifier.Core.ViewModels;
 using MedicalAppointmentsNotifier.Data;
-using MedicalAppointmentsNotifier.Data.Repositories;
-using MedicalAppointmentsNotifier.Domain.Entities;
-using MedicalAppointmentsNotifier.Domain.Interfaces;
+using MedicalAppointmentsNotifier.Infrastructure.DependencyInjection;
 using MedicalAppointmentsNotifier.Views;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.IO;
+using System.Configuration;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -49,7 +44,7 @@ namespace MedicalAppointmentsNotifier
             using (var scope = Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<MedicalAppointmentsContext>();
-                dbContext.Database.Migrate();
+                dbContext.Database.MigrateAsync();
             }
 
             _window = new MainWindow();
@@ -64,46 +59,13 @@ namespace MedicalAppointmentsNotifier
         private static IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
-            string databasePath = GetDatabasePath();
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
-            services.AddDbContext<MedicalAppointmentsContext>(options => options.UseSqlite($"Data Source={databasePath}"));
+            services.AddMedicalAppointmentsServices(connectionString);
 
-            services.AddTransient<IRepository<User>, Repository<User>>();
-            services.AddTransient<IRepository<Appointment>, Repository<Appointment>>();
-            services.AddTransient<IRepository<Note>, Repository<Note>>();
-            services.AddScoped<IEntityToModelMapper, EntityToModelMapper>();
-            services.AddScoped<IAppointmentCalculator, AppointmentCalculator>();
-
-            services.AddScoped<UsersViewModel>();
-            services.AddTransient<UserAppointmentsViewModel>();
-            services.AddTransient<UpsertUserViewModel>();
-            services.AddTransient<UpsertNoteViewModel>();
-            services.AddTransient<UpsertAppointmentViewModel>();
+            services.AddViewModels();
 
             return services.BuildServiceProvider();
-        }
-
-        private static string GetDatabasePath()
-        {
-            var baseDir = AppContext.BaseDirectory;
-            var repoRoot = Directory.GetParent(baseDir)
-                ?.Parent
-                ?.Parent
-                ?.Parent
-                ?.Parent
-                ?.Parent
-                ?.Parent
-                ?.Parent
-                ?.FullName ?? throw new InvalidOperationException("Cannot find repo root");
-
-            string dbFolder = Path.Combine(repoRoot, @"MedicalAppointmentsNotifier.Data\Database");
-
-            if (!Directory.Exists(dbFolder))
-            {
-                Directory.CreateDirectory(dbFolder);
-            }
-
-            return Path.Combine(dbFolder, "MedicalAppointments.db");
         }
     }
 }
