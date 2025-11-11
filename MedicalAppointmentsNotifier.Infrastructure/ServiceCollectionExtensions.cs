@@ -31,9 +31,9 @@ namespace MedicalAppointmentsNotifier.Infrastructure.DependencyInjection
             services.AddTransient<IAppointmentsRepository, AppointmentsRepository>();
             services.AddTransient<IRepository<Note>, Repository<Note>>();
 
-            services.AddTransient<IAppointmentCalculator, AppointmentCalculator>();
+            services.AddScoped<IAppointmentCalculator, AppointmentCalculator>();
             services.AddScoped<IAppointmentScanner, AppointmentScanner>();
-            services.AddTransient<IEntityToModelMapper, EntityToModelMapper>();
+            services.AddScoped<IEntityToModelMapper, EntityToModelMapper>();
 
             return services;
         }
