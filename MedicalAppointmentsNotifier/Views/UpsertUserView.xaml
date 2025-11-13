@@ -88,6 +88,7 @@
                 VerticalAlignment="Center"/>
             
             <Button 
+                Style="{StaticResource AccentButtonStyle}"
                 Content="{x:Bind ViewModel.UpsertButtonText}" 
                 Command="{x:Bind ViewModel.AddUserCommand}" 
                 Grid.Column="1" 
