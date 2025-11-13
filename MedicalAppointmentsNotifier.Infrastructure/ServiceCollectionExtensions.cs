@@ -6,11 +6,35 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using System;
 
 namespace MedicalAppointmentsNotifier.Infrastructure.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddLoggingService(this IServiceCollection services)
+        {
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string loggingPath = appDataPath + "\\MedicalAppointmentsNotifier\\Logging";
+
+            if(!Directory.Exists(loggingPath))
+            {
+                Directory.CreateDirectory(loggingPath);
+            }
+
+            services.AddLogging(builder =>
+            {
+                builder.AddSerilog(new Serilog.LoggerConfiguration()
+                    .MinimumLevel.Information()
+                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
+                    .WriteTo.File(Path.Combine(loggingPath, "log.txt"), rollingInterval: RollingInterval.Day)
+                    .CreateLogger());
+            });
+
+            return services;
+        }
+
         public static IServiceCollection AddMedicalAppointmentsServices(this IServiceCollection services, string connectionString)
         {
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

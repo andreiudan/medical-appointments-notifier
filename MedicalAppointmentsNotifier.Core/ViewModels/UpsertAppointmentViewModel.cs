@@ -8,6 +8,7 @@ using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
 using MedicalAppointmentsNotifier.Domain.Models;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
@@ -57,11 +58,13 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     private readonly IRepository<Appointment> appointmentsRepository;
     private readonly IEntityToModelMapper mapper;
+    private readonly ILogger<UpsertAppointmentViewModel> logger;
 
-    public UpsertAppointmentViewModel(IRepository<Appointment> appointmentsRepository, IEntityToModelMapper mapper)
+    public UpsertAppointmentViewModel(IRepository<Appointment> appointmentsRepository, IEntityToModelMapper mapper, ILogger<UpsertAppointmentViewModel> logger)
     {
         this.appointmentsRepository = appointmentsRepository ?? throw new ArgumentNullException(nameof(appointmentsRepository));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         UpsertAppointmentCommand = new AsyncRelayCommand(UpsertAsync);
     }
@@ -70,6 +73,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     {
         if(appointment == null)
         {
+            logger.LogWarning("LoadAppointment called with null appointment");
             return;
         }
 
@@ -82,6 +86,13 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
         Title = "Modifica Scrisoarea Medicala";
         UpsertButtonText = "Modifica";
+
+        logger.LogInformation("Loaded appointment with Id: {AppointmentId}", AppointmentId);
+    }
+
+    public void LoadUserId(Guid userId)
+    {
+        UserId = userId;
     }
 
     partial void OnDaysIntervalChanged(int value)
@@ -124,11 +135,6 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         return true;
     }
 
-    public void LoadUserId(Guid userId)
-    {
-        UserId = userId;
-    }
-
     public bool Validate()
     {
         try
@@ -159,6 +165,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     {
         if(!Validate())
         {
+            logger.LogInformation("Validation failed for appointment ID:{AppointmentId}", AppointmentId);
             return;
         }
 
@@ -190,6 +197,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     {
         Appointment addedAppointment = await appointmentsRepository.AddAsync(appointment);
 
+        logger.LogInformation("Inserted new appointment with ID {AppointmentId}", appointment.Id);
         WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(mapper.Map(addedAppointment)));
     }
 
@@ -199,9 +207,11 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
         if (!updated)
         {
+            logger.LogWarning("Failed to update appointment with ID {AppointmentId}", appointment.Id);
             return;
         }
 
+        logger.LogInformation("Updated appointment with ID {AppointmentId}", appointment.Id);
         WeakReferenceMessenger.Default.Send<AppointmentUpdatedMessage>(new AppointmentUpdatedMessage(mapper.Map(appointment)));
     }
 }

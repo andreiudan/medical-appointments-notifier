@@ -7,6 +7,7 @@ using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
 using MedicalAppointmentsNotifier.Domain.Models;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
@@ -35,17 +36,20 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
     private readonly IRepository<Note> notesRepository;
     private readonly IRepository<Appointment> appointmentRepository;
     private readonly IEntityToModelMapper mapper;
+    private readonly ILogger<UserAppointmentsViewModel> logger;
 
     [ObservableProperty]
     private bool isEditing = false;
 
     private bool isEdited = false;
 
-    public UserAppointmentsViewModel(IRepository<Note> notesRepository, IRepository<Appointment> appointmentRepository, IEntityToModelMapper mapper)
+    public UserAppointmentsViewModel(IRepository<Note> notesRepository, IRepository<Appointment> appointmentRepository, 
+        IEntityToModelMapper mapper, ILogger<UserAppointmentsViewModel> logger)
     {
         this.notesRepository = notesRepository ?? throw new ArgumentNullException(nameof(notesRepository));
         this.appointmentRepository = appointmentRepository ?? throw new ArgumentNullException(nameof(appointmentRepository));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         DeleteNotesCommand = new AsyncRelayCommand(DeleteNotesAsync);
         DeleteAppointmentsCommand = new AsyncRelayCommand(DeleteAppointmentsAsync);
@@ -61,9 +65,17 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
     public void LoadUser(Guid userId, string firstName, string lastName)
     {
+        if(userId == Guid.Empty || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+        {
+            logger.LogWarning("LoadUser called with invalid parameters.");
+            return;
+        }
+
         UserId = userId;
         UserName = string.Format("{0} {1}", firstName, lastName);
         LoadCollectionsCommand.Execute(null);
+
+        logger.LogInformation("Loaded user with Id: {UserId}", UserId);
     }
 
     private async Task LoadCollectionsAsync()
@@ -81,6 +93,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         {
             Notes.Add(mapper.Map(note));
         }
+
+        logger.LogInformation("Loaded {NoteCount} notes for user with Id: {UserId}", Notes.Count, UserId);
     }
 
     private async Task LoadAppointmentsAsync()
@@ -92,6 +106,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
         {
             Appointments.Add(mapper.Map(appointment));
         }
+
+        logger.LogInformation("Loaded {AppointmentCount} appointments for user with Id: {UserId}", Appointments.Count, UserId);
     }
 
     private async Task UpdateAppointmentAsync(AppointmentModel appointment)
@@ -100,6 +116,8 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
 
         await appointmentRepository.UpdateAsync(updateAppointment);
         isEdited = true;
+
+        logger.LogInformation("Updated appointment with Id: {AppointmentId} for user with Id: {UserId}", appointment.Id, UserId);
     }
 
     private async Task DeleteNotesAsync()
@@ -138,11 +156,13 @@ public partial class UserAppointmentsViewModel : ObservableRecipient, IRecipient
             }
         }
 
-        if(deletedEntries.Count > 0)
+        if (deletedEntries.Count > 0)
         {
             isEdited = true;
+            logger.LogInformation("Deleted {DeletedEntryCount} entries from {RepositoryType} for user with Id: {UserId}",
+            deletedEntries.Count, typeof(TRepository).Name, UserId);
         }
-        
+
         return deletedEntries;
     }
 

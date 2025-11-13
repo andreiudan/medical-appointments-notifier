@@ -1,6 +1,7 @@
 ﻿using MedicalAppointmentsNotifier.Core.Services;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Linq.Expressions;
 
@@ -10,13 +11,15 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
     public class AppointmentCalculatorTests
     {
         private Mock<IRepository<Appointment>> repositoryMock;
+        private Mock<ILogger<AppointmentCalculator>> loggerMock;
         private AppointmentCalculator appointmentCalculator;
 
         [SetUp]
         public void SetUp()
         {
             repositoryMock = new Mock<IRepository<Appointment>>();
-            appointmentCalculator = new AppointmentCalculator(repositoryMock.Object);
+            loggerMock = new Mock<ILogger<AppointmentCalculator>>();
+            appointmentCalculator = new AppointmentCalculator(repositoryMock.Object, loggerMock.Object);
         }
 
         [Test]

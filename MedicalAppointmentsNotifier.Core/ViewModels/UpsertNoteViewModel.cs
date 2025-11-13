@@ -7,6 +7,7 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using MedicalAppointmentsNotifier.Domain.Messages;
 using MedicalAppointmentsNotifier.Domain.Models;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
@@ -50,11 +51,13 @@ public partial class UpsertNoteViewModel : ObservableValidator
 
     private readonly IRepository<Note> noteRepository;
     private readonly IEntityToModelMapper mapper;
+    private readonly ILogger<UpsertNoteViewModel> logger;
 
-    public UpsertNoteViewModel(IRepository<Note> noteRepository, IEntityToModelMapper mapper)
+    public UpsertNoteViewModel(IRepository<Note> noteRepository, IEntityToModelMapper mapper, ILogger<UpsertNoteViewModel> logger)
     {
         this.noteRepository = noteRepository ?? throw new ArgumentNullException(nameof(noteRepository));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         UpsertNoteCommand = new AsyncRelayCommand(UpsertAsync);
     }
@@ -63,6 +66,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
     {
         if(note == null)
         {
+            logger.LogWarning("LoadNote called with null note");
             return;
         }
 
@@ -73,6 +77,8 @@ public partial class UpsertNoteViewModel : ObservableValidator
 
         Title = "Modifica Mentiunea";
         UpsertButtonText = "Modifica";
+
+        logger.LogInformation("Loaded note with Id: {NoteId}", NoteId);
     }
 
     public void LoadUserId(Guid userId)
@@ -151,6 +157,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
     {
         if (!Validate())
         {
+            logger.LogInformation("Validation failed on note ID:{NoteId}", NoteId);
             return;
         }
 
@@ -180,6 +187,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
     {
         _ = await noteRepository.AddAsync(note);
 
+        logger.LogInformation("Inserted new note with Id: {NoteId}", note.Id);
         WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(mapper.Map(note)));
     }
 
@@ -189,9 +197,11 @@ public partial class UpsertNoteViewModel : ObservableValidator
 
         if (!updated)
         {
+            logger.LogWarning("Failed to update note with Id: {NoteId}", note.Id);
             return;
         }
 
+        logger.LogInformation("Updated note with Id: {NoteId}", note.Id);
         WeakReferenceMessenger.Default.Send<NoteUpdatedMessage>(new NoteUpdatedMessage(mapper.Map(note)));
     }
 }

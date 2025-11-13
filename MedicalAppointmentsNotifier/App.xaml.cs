@@ -61,8 +61,8 @@ namespace MedicalAppointmentsNotifier
             var services = new ServiceCollection();
             string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
 
+            services.AddLoggingService();
             services.AddMedicalAppointmentsServices(connectionString);
-
             services.AddViewModels();
 
             return services.BuildServiceProvider();
