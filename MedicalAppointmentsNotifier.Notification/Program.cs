@@ -5,21 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace MedicalAppointmentsNotifier.ReminderJob
 {
     internal class Program
     {
-        //[DllImport("kernel32.dll")]
-        //static extern IntPtr GetConsoleWindow();
-
-        //[DllImport("user32.dll")]
-        //static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        //const int SW_HIDE = 0;
-
         static async Task Main(string[] args)
         {
+            ToastNotificationManagerCompat.OnActivated += toastArgs =>
+            {
+                Environment.Exit(0);
+            };
+
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) =>
                 {
@@ -33,32 +32,36 @@ namespace MedicalAppointmentsNotifier.ReminderJob
                 })
                 .Build();
 
+            await host.StartAsync();
+
+            using var scope = host.Services.CreateScope();
+            ILogger<Program> logger = host.Services.GetRequiredService<ILogger<Program>>();
+
             try
             {
-                Console.WriteLine("Medical Appointments Notifier - Scheduled Task");
-                Console.WriteLine($"Started at: {DateTime.Now}");
-                Console.WriteLine();
+                IAppointmentsRepository appointmentsRepo = host.Services.GetRequiredService<IAppointmentsRepository>();
 
-                var dbContext = host.Services.GetRequiredService<MedicalAppointmentsContext>();
-                var appointmentsRepo = host.Services.GetRequiredService<IAppointmentsRepository>();
+                logger.LogInformation("Medical Appointments Notifier - Scheduled Task started at {StartTime}", DateTime.Now);
 
-                await dbContext.Database.MigrateAsync();
+                using (var dbMigrationScope = host.Services.CreateScope())
+                {
+                    MedicalAppointmentsContext scopedDbContext = dbMigrationScope.ServiceProvider.GetRequiredService<MedicalAppointmentsContext>();
+                    await scopedDbContext.Database.MigrateAsync();
+                }
 
+                logger.LogInformation("Starting Notifier Worker...");
                 NotifierWorker notifierWorker = host.Services.GetRequiredService<NotifierWorker>();
                 await notifierWorker.RunAsync();
-
-                Console.WriteLine();
-                Console.WriteLine("Task completed successfully");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
+                logger.LogError(ex, "An error occurred while running the Notifier Worker.");
                 Environment.Exit(1);
             }
 
-            //nint handle = GetConsoleWindow();
-            //ShowWindow(handle, SW_HIDE);
+            logger.LogInformation("Notifier Worker completed successfully.");
+            await host.StopAsync();
+            host.Dispose();
         }
     }
 }

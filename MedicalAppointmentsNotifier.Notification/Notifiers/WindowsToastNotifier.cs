@@ -1,6 +1,5 @@
 ﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.Toolkit.Uwp.Notifications;
-using System.Reflection;
 using System.Text;
 
 namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
@@ -19,10 +18,10 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
                    .AddText(message,
                             hintStyle: AdaptiveTextStyle.Body)
                    .SetToastScenario(ToastScenario.Reminder)
+                   .AddToastActivationInfo("closeApp", ToastActivationType.Background)
                    .AddButton(new ToastButton()
                         .SetContent("Inchide")
-                        .SetDismissActivation()
-                        .SetBackgroundActivation())
+                        .SetDismissActivation())
                    .Show();
 
                 return Task.CompletedTask;
