@@ -116,6 +116,7 @@
                 VerticalAlignment="Center"
                 Click="btnClose_Click"/>
             <Button 
+                Style="{StaticResource AccentButtonStyle}"
                 Content="{x:Bind ViewModel.UpsertButtonText}" 
                 Grid.Column="1" 
                 HorizontalAlignment="Stretch"

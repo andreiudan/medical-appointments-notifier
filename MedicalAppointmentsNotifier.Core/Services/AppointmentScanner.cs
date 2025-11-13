@@ -51,7 +51,6 @@ namespace MedicalAppointmentsNotifier.Core.Services
             }
 
             logger.LogInformation("{Count} expiring appointments found", appointments.Count());
-            throw new ArgumentNullException("test");
             return message.ToString();
         }
     }

@@ -7,7 +7,6 @@ namespace MedicalAppointmentsNotifier.Data
     {
         public MedicalAppointmentsContext(DbContextOptions options) : base(options)
         {
-            
         }
 
         public DbSet<User> Users { get; set; }

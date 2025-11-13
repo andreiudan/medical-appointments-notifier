@@ -7,7 +7,6 @@ using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using System;
 
 namespace MedicalAppointmentsNotifier.Infrastructure.DependencyInjection
 {

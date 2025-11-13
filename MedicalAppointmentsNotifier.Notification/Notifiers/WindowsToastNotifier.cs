@@ -18,10 +18,10 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
                    .AddText(message,
                             hintStyle: AdaptiveTextStyle.Body)
                    .SetToastScenario(ToastScenario.Reminder)
+                   .AddToastActivationInfo("closeApp", ToastActivationType.Background)
                    .AddButton(new ToastButton()
                         .SetContent("Inchide")
-                        .SetDismissActivation()
-                        .SetBackgroundActivation())
+                        .SetDismissActivation())
                    .Show();
 
                 return Task.CompletedTask;

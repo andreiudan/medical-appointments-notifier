@@ -39,6 +39,7 @@
                 Spacing="8">
                 <Button 
                     x:Name="btnAdd"
+                    Style="{StaticResource AccentButtonStyle}"
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center" 
                      Click="btnAdd_Click">
