@@ -47,6 +47,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         if(_users.Count == 0)
         {
+            logger.LogInformation("No users found in the database.");
             return;
         }
 
@@ -72,6 +73,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
                 Users.Remove(Users.First(u => u.Id == entry.Id));
             }
         }
+
+        logger.LogInformation("Deleted {DeletedUserCount} users.", usersToDelete.Count);
     }
 
     public void Receive(UserAddedMessage message)
@@ -95,6 +98,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         int index = Users.IndexOf(Users.First(u => u.Id.Equals(message.userId)));
         Users[index] = mapper.Map(originalUser);
+
+        logger.LogInformation("Refreshed user with ID {UserId}", message.userId);
     }
 
     public void Dispose()

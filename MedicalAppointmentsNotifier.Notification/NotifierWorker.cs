@@ -18,23 +18,30 @@ namespace MedicalAppointmentsNotifier.ReminderJob
 
         public async Task RunAsync()
         {
-            logger.LogInformation("Starting appointment scan for expired appointments.");
-
-            string message = await appointmentScanner.GetExpiredAppointmentsMessage();
-
-            if (string.IsNullOrEmpty(message))
+            try
             {
-                return;
+                logger.LogInformation("Starting appointment scan for expired appointments.");
+
+                string message = await appointmentScanner.GetExpiredAppointmentsMessage();
+
+                if (string.IsNullOrEmpty(message))
+                {
+                    return;
+                }
+
+                logger.LogInformation("Sending expired appointments notification.");
+
+                var notifier = new TelegramNotifierDecorator(
+                                    new EmailNotifierDecorator(
+                                        new WindowsToastNotifier()));
+                await notifier.Notify(message);
+
+                logger.LogInformation("Expired appointments notification sent.");
             }
-
-            logger.LogInformation("Sending expired appointments notification.");
-
-            var notifier = new TelegramNotifierDecorator(
-                                new EmailNotifierDecorator(
-                                    new WindowsToastNotifier()));
-            await notifier.Notify(message);
-
-            logger.LogInformation("Expired appointments notification sent.");
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while running the expired appointments notifier worker.");
+            }
         }
     }
 }

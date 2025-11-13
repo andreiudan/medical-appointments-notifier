@@ -1,5 +1,6 @@
 ﻿using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 using System.Text;
 
 namespace MedicalAppointmentsNotifier.Core.Services
@@ -7,10 +8,12 @@ namespace MedicalAppointmentsNotifier.Core.Services
     public class AppointmentScanner : IAppointmentScanner
     {
         private readonly IAppointmentsRepository repository;
+        private readonly ILogger<AppointmentScanner> logger;
 
-        public AppointmentScanner(IAppointmentsRepository repository)
+        public AppointmentScanner(IAppointmentsRepository repository, ILogger<AppointmentScanner> logger)
         {
             this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<string> GetExpiredAppointmentsMessage()
@@ -19,6 +22,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
 
             if (string.IsNullOrEmpty(message))
             {
+                logger.LogInformation("No expiring appointments found.");
                 return string.Empty;
             }
 
@@ -46,6 +50,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
                     (appointments[i].NextDate - DateTime.Now).Value.Days));
             }
 
+            logger.LogInformation("{Count} expiring appointments found", appointments.Count());
+            throw new ArgumentNullException("test");
             return message.ToString();
         }
     }
