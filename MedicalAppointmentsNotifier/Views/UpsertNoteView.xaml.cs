@@ -5,13 +5,10 @@ using Microsoft.UI.Xaml;
 using System;
 using Windows.Graphics;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace MedicalAppointmentsNotifier.Views;
 
 /// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
+/// A window that can be used to update an existing Appointment or add a new one.
 /// </summary>
 public sealed partial class UpsertNoteView : Window
 {
@@ -20,6 +17,7 @@ public sealed partial class UpsertNoteView : Window
     public UpsertNoteView(Guid userId, NoteModel noteModel = null)
     {
         AppWindow.Resize(startSize);
+        AppWindow.SetIcon("Assets/Square44x44Logo.targetsize-16.ico");
 
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertNoteViewModel>();

@@ -1,5 +1,6 @@
 ﻿using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.Toolkit.Uwp.Notifications;
+using System.Reflection;
 using System.Text;
 
 namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers

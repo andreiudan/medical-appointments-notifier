@@ -4,13 +4,11 @@ using MedicalAppointmentsNotifier.Infrastructure.DependencyInjection;
 using MedicalAppointmentsNotifier.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Configuration;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace MedicalAppointmentsNotifier
 {
@@ -38,17 +36,16 @@ namespace MedicalAppointmentsNotifier
         /// Invoked when the application is launched.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            // Use a scope for DB migration so DbContext is not captured by the root provider
             using (var scope = Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<MedicalAppointmentsContext>();
-                dbContext.Database.MigrateAsync();
+                await dbContext.Database.MigrateAsync();
             }
 
             _window = new MainWindow();
-            
+
             RootFrame = new Frame();
             RootFrame.Navigate(typeof(UsersView), args.Arguments);
 

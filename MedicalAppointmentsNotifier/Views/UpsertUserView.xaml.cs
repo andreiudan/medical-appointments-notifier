@@ -7,7 +7,7 @@ using System;
 namespace MedicalAppointmentsNotifier.Views
 {
     /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
+    /// A window that can be used to update an existing User or add a new one.
     /// </summary>
     public sealed partial class UpsertUserView : Window
     {
@@ -16,6 +16,8 @@ namespace MedicalAppointmentsNotifier.Views
         public UpsertUserView(UserModel userModel = null)
         {
             AppWindow.Resize(startSize);
+            AppWindow.SetIcon("Assets/Square44x44Logo.targetsize-16.ico");
+
             InitializeComponent();
 
             RootGrid.DataContext = ((App)App.Current).Services.GetRequiredService<UpsertUserViewModel>();

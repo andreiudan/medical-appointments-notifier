@@ -45,7 +45,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("MedicalAppointmentsNotifier.Domain.Entities.Note", b =>
@@ -71,7 +71,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notes");
+                    b.ToTable("Notes", (string)null);
                 });
 
             modelBuilder.Entity("MedicalAppointmentsNotifier.Domain.Entities.User", b =>
@@ -90,7 +90,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MedicalAppointmentsNotifier.Domain.Entities.Appointment", b =>
