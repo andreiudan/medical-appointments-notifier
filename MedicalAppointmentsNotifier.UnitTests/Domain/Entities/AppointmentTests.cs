@@ -19,10 +19,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Entities
             {
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
-                IntervalDays = 30,
+                MonthsInterval = 30,
                 Status = 0,
-                LatestDate = DateTimeOffset.Now,
-                NextDate = DateTimeOffset.Now.AddDays(10),
+                IssuedOn = DateTimeOffset.Now,
                 User = user
             };
 
@@ -30,10 +29,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Entities
             {
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
-                IntervalDays = 60,
+                MonthsInterval = 60,
                 Status = 0,
-                LatestDate = DateTimeOffset.Now.AddDays(-30),
-                NextDate = DateTimeOffset.Now,
+                IssuedOn = DateTimeOffset.Now.AddDays(-30),
                 User = new User { Id = Guid.NewGuid(), FirstName = "Alex", LastName = "Bean" }
             };
 
@@ -41,10 +39,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Entities
             {
                 Id = appointmentFake.Id,
                 MedicalSpecialty = 0,
-                IntervalDays = 30,
+                MonthsInterval = 30,
                 Status = 0,
-                LatestDate = appointmentFake.LatestDate,
-                NextDate = appointmentFake.NextDate,
+                IssuedOn = appointmentFake.IssuedOn,
                 User = user
             };
         }

@@ -31,12 +31,12 @@ namespace MedicalAppointmentsNotifier.Core.Services
 
         private async Task<string> GetNotificationMessage()
         {
-            List<Appointment> appointments = await repository.GetExpiringAppointments();
+            List<Appointment> appointments = await repository.GetAllExpiringAppointments();
             if (!appointments.Any())
             {
                 return string.Empty;
             }
-            appointments = appointments.OrderBy(a => a.NextDate).ToList();
+            appointments = appointments.OrderBy(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval)).ToList();
 
             StringBuilder message = new StringBuilder();
 
@@ -47,7 +47,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                     appointments[i].User.LastName,
                     appointments[i].User.FirstName,
                     appointments[i].MedicalSpecialty,
-                    (appointments[i].NextDate - DateTime.Now).Value.Days));
+                    appointments[i].IssuedOn.Value.AddMonths(appointments[i].MonthsInterval).Subtract(DateTimeOffset.Now).Days));
             }
 
             logger.LogInformation("{Count} expiring appointments found", appointments.Count());

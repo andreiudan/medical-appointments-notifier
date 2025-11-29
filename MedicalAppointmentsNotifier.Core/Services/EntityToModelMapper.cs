@@ -21,11 +21,11 @@ namespace MedicalAppointmentsNotifier.Core.Services
             {
                 Id = appointment.Id,
                 MedicalSpecialty = appointment.MedicalSpecialty,
-                IntervalDays = appointment.IntervalDays,
+                MonthsInterval = appointment.MonthsInterval,
                 Status = appointment.Status,
-                DaysUntilNextAppointment = appointmentCalculator.CalculateRemainingDays(appointment.NextDate),
-                LatestDate = appointment.LatestDate,
-                NextDate = appointment.NextDate,
+                IssuedOn = appointment.IssuedOn,
+                ScheduledOn = appointment.ScheduledOn,
+                ScheduledLocation = appointment.ScheduledLocation,
                 IsSelected = false
             };
 
@@ -40,10 +40,11 @@ namespace MedicalAppointmentsNotifier.Core.Services
             {
                 Id = appointmentModel.Id,
                 MedicalSpecialty = appointmentModel.MedicalSpecialty,
-                IntervalDays = appointmentModel.IntervalDays,
+                MonthsInterval = appointmentModel.MonthsInterval,
                 Status = appointmentModel.Status,
-                LatestDate = appointmentModel.LatestDate,
-                NextDate = appointmentModel.NextDate,
+                IssuedOn = appointmentModel.IssuedOn,
+                ScheduledOn = appointmentModel.ScheduledOn,
+                ScheduledLocation = appointmentModel.ScheduledLocation,
                 UserId = userId,
             };
 
@@ -59,7 +60,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = note.Id,
                 Description = note.Description,
                 From = note.From,
-                Until = note.Until,
+                DaysPeriod = note.DaysPeriod,
             };
 
             return noteModel;
@@ -74,7 +75,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = noteModel.Id,
                 Description = noteModel.Description,
                 From = noteModel.From,
-                Until = noteModel.Until,
+                DaysPeriod = noteModel.DaysPeriod,
                 UserId = userId
             };
 
@@ -90,7 +91,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                DaysUntilNextAppointment = appointmentCalculator.CalculateDaysUntilNextAppointmentAsync(user.Id).Result,
+                DaysUntilNextAppointment = 0,
                 Status = string.Empty,
                 IsSelected = false
             };

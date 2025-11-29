@@ -16,10 +16,8 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
                 Status = 0,
-                DaysUntilNextAppointment = 30,
-                IntervalDays = 30,
-                LatestDate = DateTime.Now,
-                NextDate = DateTime.Now.AddDays(30),
+                MonthsInterval = 30,
+                IssuedOn = DateTime.Now,
                 IsSelected = true,
             };
         }

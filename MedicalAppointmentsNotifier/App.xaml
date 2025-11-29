@@ -9,13 +9,116 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+
+            <!-- Theme-specific color definitions. The system theme (Light/Dark) selects the appropriate dictionary. -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <!-- Light mode colors -->
+                    <Color x:Key="DangerBackgroundColor">#E53935</Color>
+                    <!-- Red 600 -->
+                    <Color x:Key="DangerForegroundColor">#FFFFFFFF</Color>
+
+                    <!-- Hover / Pressed -->
+                    <Color x:Key="DangerBackgroundPointerOverColor">#D32F2F</Color>
+                    <!-- slightly darker -->
+                    <Color x:Key="DangerForegroundPointerOverColor">#FFFFFFFF</Color>
+                    <Color x:Key="DangerBackgroundPressedColor">#C62828</Color>
+                    <!-- pressed -->
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <!-- Dark mode colors (adjusted for contrast in dark backgrounds) -->
+                    <Color x:Key="DangerBackgroundColor">#B71C1C</Color>
+                    <Color x:Key="DangerForegroundColor">#FFFFFFFF</Color>
+
+                    <!-- Hover / Pressed -->
+                    <Color x:Key="DangerBackgroundPointerOverColor">#C62828</Color>
+                    <Color x:Key="DangerForegroundPointerOverColor">#FFFFFFFF</Color>
+                    <Color x:Key="DangerBackgroundPressedColor">#D32F2F</Color>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Default">
+                    <!-- Fallback -->
+                    <Color x:Key="DangerBackgroundColor">#E53935</Color>
+                    <Color x:Key="DangerForegroundColor">#FFFFFFFF</Color>
+
+                    <Color x:Key="DangerBackgroundPointerOverColor">#D32F2F</Color>
+                    <Color x:Key="DangerForegroundPointerOverColor">#FFFFFFFF</Color>
+                    <Color x:Key="DangerBackgroundPressedColor">#C62828</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <!-- Brushes use ThemeResource so they update automatically with the active theme -->
+            <SolidColorBrush x:Key="DangerBackground" Color="{ThemeResource DangerBackgroundColor}" />
+            <SolidColorBrush x:Key="DangerForeground" Color="{ThemeResource DangerForegroundColor}" />
+
+            <SolidColorBrush x:Key="DangerBackgroundPointerOver" Color="{ThemeResource DangerBackgroundPointerOverColor}" />
+            <SolidColorBrush x:Key="DangerForegroundPointerOver" Color="{ThemeResource DangerForegroundPointerOverColor}" />
+            <SolidColorBrush x:Key="DangerBackgroundPressed" Color="{ThemeResource DangerBackgroundPressedColor}" />
+
+            <!-- Converters and other app resources -->
             <c:BooleanToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
             <c:BooleanToVisibilityConverter x:Key="FalseToVisibiliryConverter" IsReversed="True"/>
             <c:UserFullNameConverter x:Key="UserFullNameConverter"/>
             <c:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+
+            <!-- Style for Dangerous Buttons with PointerOver / Pressed visual states -->
+            <Style x:Key="DangerButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{ThemeResource DangerBackground}" />
+                <Setter Property="Foreground" Value="{ThemeResource DangerForeground}" />
+                <Setter Property="Padding" Value="12,6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootBorder" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource DangerBackgroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource DangerForegroundPointerOver}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootBorder" Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource DangerBackgroundPressed}" />
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Disabled">
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0" To="0.5" Storyboard.TargetName="RootBorder" Storyboard.TargetProperty="Opacity" />
+                                                <DoubleAnimation Duration="0" To="0.5" Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Opacity" />
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Border x:Name="RootBorder"
+                                        Background="{TemplateBinding Background}"
+                                        CornerRadius="4"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter x:Name="ContentPresenter"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Content="{TemplateBinding Content}"
+                                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                      Foreground="{TemplateBinding Foreground}" />
+                                </Border>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

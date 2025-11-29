@@ -79,20 +79,18 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 {
                     Id = Guid.NewGuid(),
                     MedicalSpecialty = 0,
-                    IntervalDays = 30,
+                    MonthsInterval = 30,
                     Status = 0,
-                    LatestDate = DateTimeOffset.Now,
-                    NextDate = DateTimeOffset.Now.AddDays(5),
+                    IssuedOn = DateTimeOffset.Now,
                     User = userFake
                 },
                 new()
                 {
                     Id = Guid.NewGuid(),
                     MedicalSpecialty = 0,
-                    IntervalDays = 30,
+                    MonthsInterval = 30,
                     Status = 0,
-                    LatestDate = DateTimeOffset.Now,
-                    NextDate = DateTimeOffset.Now.AddDays(30),
+                    IssuedOn = DateTimeOffset.Now,
                     User = userFake
                 }
             };

@@ -8,15 +8,15 @@ namespace MedicalAppointmentsNotifier.Domain.Models
 
         public MedicalSpecialty? MedicalSpecialty { get; set; }
 
-        public int IntervalDays { get; set; }
+        public int MonthsInterval { get; set; }
 
         public AppointmentStatus Status { get; set; }
 
-        public int DaysUntilNextAppointment { get; set; }
+        public DateTimeOffset? IssuedOn { get; set; }
 
-        public DateTimeOffset? LatestDate { get; set; }
+        public DateTimeOffset? ScheduledOn { get; set; }
 
-        public DateTimeOffset? NextDate { get; set; }
+        public string ScheduledLocation { get; set; }
 
         public bool IsSelected { get; set; } = false;
 
@@ -39,17 +39,19 @@ namespace MedicalAppointmentsNotifier.Domain.Models
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.MedicalSpecialty == obj.MedicalSpecialty &&
-                this.IntervalDays == obj.IntervalDays &&
+                this.MonthsInterval == obj.MonthsInterval &&
                 this.Status == obj.Status &&
-                this.DaysUntilNextAppointment == obj.DaysUntilNextAppointment &&
-                this.LatestDate == obj.LatestDate &&
-                this.NextDate == obj.NextDate &&
+                this.IssuedOn == obj.IssuedOn &&
+                this.ScheduledOn == obj.ScheduledOn &&
+                this.ScheduledLocation == obj.ScheduledLocation &&
                 this.IsSelected == obj.IsSelected;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, DaysUntilNextAppointment, LatestDate, NextDate, IsSelected);
+
+
+            return HashCode.Combine(Id, MedicalSpecialty, MonthsInterval, Status, IssuedOn, ScheduledOn, ScheduledLocation, IsSelected);
         }
     }
 }

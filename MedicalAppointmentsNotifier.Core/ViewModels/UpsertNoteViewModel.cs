@@ -72,7 +72,6 @@ public partial class UpsertNoteViewModel : ObservableValidator
         NoteId = note.Id;
         Description = note.Description;
         DateFrom = note.From;
-        DateTo = note.Until;
 
         Title = "Modifica Mentiunea";
         UpsertButtonText = "Modifica";
@@ -165,7 +164,6 @@ public partial class UpsertNoteViewModel : ObservableValidator
             Id = Guid.NewGuid(),
             Description = Description,
             From = DateFrom,
-            Until = DateTo,
             UserId = UserId,
         };
 

@@ -72,7 +72,9 @@
             Padding="32, 24, 32, 24"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+            Background="{ThemeResource LayerFillColorDefaultBrush}" 
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+            BorderThickness="0,1,0,0">
             
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>

@@ -4,11 +4,13 @@
     {
         public Guid Id { get; set; }
 
+        public string Title { get; set; }
+
         public string Description { get; set; }
 
         public DateTimeOffset? From { get; set; }
 
-        public DateTimeOffset? Until { get; set; }
+        public int DaysPeriod { get; set; }
 
         public bool IsSelected { get; set; } = false;
 
@@ -30,15 +32,16 @@
         private bool Equals(NoteModel obj)
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
+                this.Title == obj.Title &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
-                this.Until == obj.Until &&
+                this.DaysPeriod == obj.DaysPeriod &&
                 this.IsSelected == obj.IsSelected;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Description, From, Until, IsSelected);
+            return HashCode.Combine(Id, Title, Description, From, DaysPeriod, IsSelected);
         }
     }
 }

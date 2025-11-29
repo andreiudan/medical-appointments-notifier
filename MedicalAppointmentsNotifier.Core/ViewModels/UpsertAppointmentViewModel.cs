@@ -79,9 +79,8 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         AppointmentId = appointment.Id;
         Specialty = appointment.MedicalSpecialty ?? 0;
         Status = appointment.Status;
-        DaysInterval = appointment.IntervalDays;
-        LatestDate = appointment.LatestDate;
-        NextDate = appointment.NextDate;
+        DaysInterval = appointment.MonthsInterval;
+        LatestDate = appointment.IssuedOn;
 
         Title = "Modifica Scrisoarea Medicala";
         UpsertButtonText = "Modifica";
@@ -173,9 +172,8 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             Id = Guid.NewGuid(),
             MedicalSpecialty = Specialty,
             Status = Status,
-            IntervalDays = DaysInterval,
-            NextDate = NextDate,
-            LatestDate = LatestDate,
+            MonthsInterval = DaysInterval,
+            IssuedOn = LatestDate,
             UserId = UserId,
         };
 

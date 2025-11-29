@@ -15,18 +15,42 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     IRecipient<UserUpdatedMessage>, IRecipient<RefreshUserMessage>, IDisposable
 {
     [ObservableProperty]
-    private ObservableCollection<UserModel> users = new();
+    private ObservableCollection<UserModel> shownUsers = new();
+
+    [ObservableProperty]
+    private string searchText = string.Empty;
+
+    [ObservableProperty]
+    private UserModel selectedUser = new();
+
+    [ObservableProperty]
+    private ObservableCollection<AppointmentModel> scheduledAppointments = new();
+
+    [ObservableProperty]
+    private ObservableCollection<AppointmentModel> expiringAppointments = new();
+
+    [ObservableProperty]
+    private ObservableCollection<AppointmentModel> pastAppointments = new();
+
+    [ObservableProperty]
+    private ObservableCollection<NoteModel> notes = new();
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
-    public IAsyncRelayCommand DeleteSelectedUsersCommand { get; }
 
+    private List<UserModel> Users { get; set; } = new();
+
+    private readonly IAppointmentsRepository appointmentsRepository;
+    private readonly IRepository<Note> notesRepository;
     private readonly ILogger<UsersViewModel> logger;
+    private readonly IEntityToModelMapper mapper;
 
-    public UsersViewModel(ILogger<UsersViewModel> logger)
+    public UsersViewModel(IAppointmentsRepository appointmentsRepository, IRepository<Note> notesRepository, ILogger<UsersViewModel> logger, IEntityToModelMapper mapper)
     {
+        this.appointmentsRepository = appointmentsRepository ?? throw new ArgumentNullException(nameof(appointmentsRepository));
+        this.notesRepository = notesRepository ?? throw new ArgumentNullException(nameof(notesRepository));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
-        DeleteSelectedUsersCommand = new AsyncRelayCommand(DeleteSelectedUsersAsync);
         LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
         LoadUsersCommand.Execute(null);
 
@@ -40,7 +64,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     private async Task LoadUsersAsync()
     {
         IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-        IEntityToModelMapper mapper = Ioc.Default.GetRequiredService<IEntityToModelMapper>();
 
         logger.LogInformation("Loading users from the database.");
         List<User> _users = await usersRepository.GetAllAsync();
@@ -52,29 +75,50 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         }
 
         Users.Clear();
+        ShownUsers.Clear();
         foreach (var user in _users)
         {
             Users.Add(mapper.Map(user));
         }
 
+        ShownUsers = new ObservableCollection<UserModel>(Users);
+        SwitchSelectedUser(Users.FirstOrDefault().Id);
         logger.LogInformation("Loaded {UserCount} users from the database.", Users.Count);
     }
 
-    private async Task DeleteSelectedUsersAsync()
+    partial void OnSearchTextChanging(string value)
     {
-        IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
-        List<UserModel> usersToDelete = Users.Where(u => u.IsSelected).ToList();
-
-        foreach (UserModel entry in usersToDelete)
+        if (string.IsNullOrWhiteSpace(value))
         {
-            bool deleted = await usersRepository.DeleteAsync(entry.Id);
-            if (deleted)
-            {
-                Users.Remove(Users.First(u => u.Id == entry.Id));
-            }
+            ShownUsers = new ObservableCollection<UserModel>(Users);
+            return;
         }
 
-        logger.LogInformation("Deleted {DeletedUserCount} users.", usersToDelete.Count);
+        ShownUsers = new ObservableCollection<UserModel>(
+            Users.Where(u => u.FirstName.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+                             u.LastName.Contains(value, StringComparison.OrdinalIgnoreCase))
+        );
+    }
+
+    private async Task DeleteSelectedUser()
+    {
+        IRepository<User> usersRepository = Ioc.Default.GetRequiredService<IRepository<User>>();
+
+        bool deleted = await usersRepository.DeleteAsync(SelectedUser.Id);
+        if (!deleted)
+        {
+            logger.LogWarning("Deletion of user with Id: {userId} failed.", SelectedUser.Id);
+            return;
+        }
+
+        UserModel deletedUser = Users.First(u => u.Id.Equals(SelectedUser.Id));
+        Users.Remove(deletedUser);
+        if (ShownUsers.Contains(deletedUser))
+        {
+            ShownUsers.Remove(deletedUser);
+        }
+
+        logger.LogInformation("Deleted user with Id: {userId}.", SelectedUser.Id);
     }
 
     public void Receive(UserAddedMessage message)
@@ -100,6 +144,108 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         Users[index] = mapper.Map(originalUser);
 
         logger.LogInformation("Refreshed user with ID {UserId}", message.userId);
+    }
+
+    private async Task DeleteAppointment(AppointmentModel appointment)
+    {
+        bool deleted = await appointmentsRepository.DeleteAsync(appointment.Id);
+        if (deleted)
+        {
+            ScheduledAppointments.Remove(appointment);
+            ExpiringAppointments.Remove(appointment);
+            PastAppointments.Remove(appointment);
+            logger.LogInformation("Deleted appointment with Id: {appointmentId}.", appointment.Id);
+        }
+    }
+
+    private async Task DeleteNote(NoteModel note)
+    {
+        bool deleted = await notesRepository.DeleteAsync(note.Id);
+        if (deleted)
+        {
+            Notes.Remove(note);
+            logger.LogInformation("Deleted note with Id: {noteId}.", note.Id);
+        }
+    }
+
+    public async Task DeleteEntry(object sender)
+    {
+        if(sender is null)
+        {
+            return;
+        }
+
+        if (sender is AppointmentModel appointment)
+        {
+            DeleteAppointment(appointment);
+        }
+        else if (sender is NoteModel note)
+        {
+            DeleteNote(note);
+        }
+        else if(sender is UsersViewModel)
+        {
+            DeleteSelectedUser();
+        }
+    }
+
+    public async Task SwitchSelectedUser(Guid userId)
+    {
+        if (SelectedUser.Id.Equals(userId))
+        {
+            return;
+        }
+
+        SelectedUser = Users.FirstOrDefault(u => u.Id.Equals(userId));
+
+        LoadPastAppointments();
+        LoadExpiringAppointments();
+        LoadNotesAppointments();
+        LoadUpcomingAppointments();
+    }
+
+    private async Task LoadUpcomingAppointments()
+    {
+        List<Appointment> appointments = await appointmentsRepository.GetUpcomingAppointments(SelectedUser.Id);
+
+        ScheduledAppointments.Clear();
+        foreach (var appointment in appointments)
+        {
+            ScheduledAppointments.Add(mapper.Map(appointment));
+        }
+    }
+
+    private async Task LoadExpiringAppointments()
+    {
+        List<Appointment> appointments = await appointmentsRepository.GetExpiringAppointments(SelectedUser.Id);
+
+        ExpiringAppointments.Clear();
+        foreach (var appointment in appointments)
+        {
+            ExpiringAppointments.Add(mapper.Map(appointment));
+        }
+    }
+
+    private async Task LoadNotesAppointments()
+    {
+        IEnumerable<Note> notes = await notesRepository.FindAllAsync(n => n.UserId.Equals(SelectedUser.Id));
+
+        Notes.Clear();
+        foreach(Note note in notes)
+        {
+            Notes.Add(mapper.Map(note));
+        }
+    }
+
+    private async Task LoadPastAppointments()
+    {
+        List<Appointment> appointments = await appointmentsRepository.GetPastAppointments(SelectedUser.Id);
+
+        PastAppointments.Clear();
+        foreach (var appointment in appointments)
+        {
+            PastAppointments.Add(mapper.Map(appointment));
+        }
     }
 
     public void Dispose()

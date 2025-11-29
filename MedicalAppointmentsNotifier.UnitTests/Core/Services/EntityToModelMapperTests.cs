@@ -49,10 +49,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
-                IntervalDays = 30,
+                MonthsInterval = 30,
                 Status = 0,
-                LatestDate = DateTimeOffset.Now,
-                NextDate = DateTimeOffset.Now.AddDays(1),
+                IssuedOn = DateTimeOffset.Now,
                 User = userFake
             };
 
@@ -60,11 +59,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 Id = appointmentFake.Id,
                 MedicalSpecialty = appointmentFake.MedicalSpecialty,
-                IntervalDays = appointmentFake.IntervalDays,
+                MonthsInterval = appointmentFake.MonthsInterval,
                 Status = appointmentFake.Status,
-                DaysUntilNextAppointment = 0,
-                LatestDate = appointmentFake.LatestDate,
-                NextDate = appointmentFake.NextDate,
+                IssuedOn = appointmentFake.IssuedOn,
                 IsSelected = false
             };
 
@@ -94,7 +91,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Id = Guid.NewGuid(),
                 Description = "Description",
                 From = DateTimeOffset.Now,
-                Until = DateTimeOffset.Now.AddDays(1)
             };
 
             NoteModel expectedResult = new NoteModel
@@ -102,7 +98,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Id = noteFake.Id,
                 Description = noteFake.Description,
                 From = noteFake.From,
-                Until = noteFake.Until,
                 IsSelected = false
             };
 
@@ -162,11 +157,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
-                IntervalDays = 30,
+                MonthsInterval = 30,
                 Status = 0,
-                DaysUntilNextAppointment = 0,
-                LatestDate = DateTime.Now,
-                NextDate = DateTime.Now.AddDays(1),
+                IssuedOn = DateTime.Now,
                 IsSelected = false
             }; 
 
@@ -174,10 +167,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 Id = appointmentModelFake.Id,
                 MedicalSpecialty = appointmentModelFake.MedicalSpecialty,
-                IntervalDays = appointmentModelFake.IntervalDays,
+                MonthsInterval = appointmentModelFake.MonthsInterval,
                 Status = appointmentModelFake.Status,
-                LatestDate = appointmentModelFake.LatestDate,
-                NextDate = appointmentModelFake.NextDate,
+                IssuedOn = appointmentModelFake.IssuedOn,
                 UserId = userFake.Id
             };
 
@@ -207,7 +199,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Id = Guid.NewGuid(),
                 Description = "Description",
                 From = DateTime.Now,
-                Until = DateTime.Now.AddDays(1),
                 IsSelected = false
             };
 
@@ -216,7 +207,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Id = noteModelFake.Id,
                 Description = noteModelFake.Description,
                 From = noteModelFake.From,
-                Until = noteModelFake.Until,
+                DaysPeriod = noteModelFake.DaysPeriod,
                 UserId = userFake.Id
             };
 

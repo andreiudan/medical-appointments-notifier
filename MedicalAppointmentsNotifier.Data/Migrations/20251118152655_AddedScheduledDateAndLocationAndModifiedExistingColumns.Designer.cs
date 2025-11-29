@@ -3,6 +3,7 @@ using System;
 using MedicalAppointmentsNotifier.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedicalAppointmentsNotifier.Data.Migrations
 {
     [DbContext(typeof(MedicalAppointmentsContext))]
-    partial class MedicalAppointmentsContextModelSnapshot : ModelSnapshot
+    [Migration("20251118152655_AddedScheduledDateAndLocationAndModifiedExistingColumns")]
+    partial class AddedScheduledDateAndLocationAndModifiedExistingColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -58,9 +61,6 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("DaysPeriod")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -68,8 +68,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
                     b.Property<DateTimeOffset>("From")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
+                    b.Property<DateTimeOffset>("Until")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")

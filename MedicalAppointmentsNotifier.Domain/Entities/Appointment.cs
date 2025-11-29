@@ -10,16 +10,17 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         public MedicalSpecialty? MedicalSpecialty { get; set; }
 
         [Required]
-        public int IntervalDays { get; set; }
+        public int MonthsInterval { get; set; }
 
         [Required]
         public AppointmentStatus Status { get; set; }
 
         [Required]
-        public DateTimeOffset? LatestDate { get; set; }
+        public DateTimeOffset? IssuedOn { get; set; }
 
-        [Required]
-        public DateTimeOffset? NextDate { get; set; }
+        public DateTimeOffset? ScheduledOn { get; set; }
+
+        public string ScheduledLocation { get; set; } = string.Empty;
 
         [Required]
         [ForeignKey("User")]
@@ -47,15 +48,27 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.MedicalSpecialty == obj.MedicalSpecialty &&
-                this.IntervalDays == obj.IntervalDays &&
+                this.MonthsInterval == obj.MonthsInterval &&
                 this.Status == obj.Status &&
-                this.LatestDate == obj.LatestDate &&
-                this.NextDate == obj.NextDate &&
+                this.IssuedOn == obj.IssuedOn &&
+                this.ScheduledOn == obj.ScheduledOn &&
+                this.ScheduledLocation == obj.ScheduledLocation &&
                 this.UserId.CompareTo(obj.UserId) == 0;
         }
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, MedicalSpecialty, IntervalDays, Status, LatestDate, NextDate, UserId);
+            HashCode hash = new HashCode();
+
+            hash.Add(this.Id);
+            hash.Add(this.MedicalSpecialty);
+            hash.Add(this.MonthsInterval);
+            hash.Add(this.Status);
+            hash.Add(this.IssuedOn);
+            hash.Add(this.ScheduledOn);
+            hash.Add(this.ScheduledLocation);
+            hash.Add(this.UserId);
+
+            return hash.ToHashCode();
         }
     }
 }

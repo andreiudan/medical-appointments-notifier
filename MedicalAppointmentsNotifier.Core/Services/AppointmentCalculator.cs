@@ -30,11 +30,15 @@ namespace MedicalAppointmentsNotifier.Core.Services
         public async Task<int> CalculateDaysUntilNextAppointmentAsync(Guid userId)
         {
             IEnumerable<Appointment> appointments = await repository.FindAllAsync(a => a.User.Id == userId).ConfigureAwait(false);
-            DateTimeOffset? nextAppointment = appointments.OrderBy(a => a.NextDate).FirstOrDefault()?.NextDate;
+            Appointment? nextAppointment = appointments.OrderBy(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval)).FirstOrDefault();
 
-            int daysUntilNextAppointment = nextAppointment.HasValue
-                ? (nextAppointment.Value - DateTimeOffset.Now).Days
-                : 0;
+            if (nextAppointment == null)
+            {
+                logger.LogInformation("No appointments found for user with ID:{UserId}.", userId);
+                return 0;
+            }
+
+            int daysUntilNextAppointment = nextAppointment.IssuedOn.Value.AddMonths(nextAppointment.MonthsInterval).Subtract(DateTimeOffset.Now).Days;
 
             logger.LogInformation("User with ID:{UserId} has {DaysUntilNextAppointment} days until next appointment.", userId, daysUntilNextAppointment);
             return daysUntilNextAppointment;
