@@ -75,7 +75,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         logger.LogInformation("Loading users from the database.");
         List<User> _users = await usersRepository.GetAllAsync();
-        _users = _users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList();
 
         if (_users.Count == 0)
         {
@@ -89,6 +88,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         {
             Users.Add(mapper.Map(user));
         }
+        ReorderUsersCollection();
 
         ShownUsers = new ObservableCollection<UserModel>(Users);
         OnSelectedUserSwitched?.Invoke(this, 0);
@@ -112,14 +112,14 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     public void Receive(UserAddedMessage message)
     {
         Users.Add(message.user);
-        Users = Users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList();
+        ReorderUsersCollection();
         int index = Users.Count;
 
         if (message.user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
            message.user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
         {
             ShownUsers.Add(message.user);
-            ShownUsers = new ObservableCollection<UserModel>(ShownUsers.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList());
+            ReorderShownUsersCollection();
             index = ShownUsers.Count;
         }
 
@@ -257,6 +257,39 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         }
         Notes[index] = message.note;
         logger.LogInformation("Updated note with ID {AppointmentId}", message.note.Id);
+    }
+
+    private void ReorderShownUsersCollection()
+    {
+        if(ShownUsers is null || ShownUsers.Count <= 0)
+        {
+            return;
+        }
+
+        ShownUsers = new ObservableCollection<UserModel>(ShownUsers.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList());
+    }
+
+    private void ReorderUsersCollection()
+    {
+        if(Users is null || Users.Count <= 0)
+        {
+            return;
+        }
+
+        Users = Users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList();
+    }
+
+    private void AddUserToCollections(UserModel user)
+    {
+        Users.Add(user);
+        ReorderUsersCollection();
+
+        if (user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+           user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+        {
+            ShownUsers.Add(user);
+            ReorderShownUsersCollection()
+        }
     }
 
     private void ReorderScheduledAppointmentsCollection()
