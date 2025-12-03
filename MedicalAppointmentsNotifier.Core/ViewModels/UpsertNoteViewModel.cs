@@ -15,32 +15,36 @@ public partial class UpsertNoteViewModel : ObservableValidator
 {
     public event EventHandler OnNoteAdded;
 
-    [NotifyPropertyChangedFor(nameof(DescriptionErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(NoteTitleErrorMessage))]
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
+    private string noteTitle = string.Empty;
+
+    [ObservableProperty]
     private string description = string.Empty;
 
-    public string DescriptionErrorMessage => GetErrors(Description).FirstOrDefault()?.ErrorMessage ?? string.Empty;
-
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(ExpiringDate))]
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? dateFrom = DateTimeOffset.UtcNow;
+    private DateTimeOffset? from = DateTimeOffset.Now;
 
-    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(MonthsPeriodErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(ExpiringDate))]
     [ObservableProperty]
-    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? dateTo = DateTimeOffset.UtcNow.AddDays(1);
+    [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
+    [Range(0, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
+    private int monthsPeriod = 1;
+
+    public DateTimeOffset? ExpiringDate => From.HasValue ? From.Value.AddMonths(MonthsPeriod) : DateTimeOffset.Now;
 
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
+    public string MonthsPeriodErrorMessage => GetErrors(nameof(MonthsPeriod)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    public string NoteTitleErrorMessage => GetErrors(NoteTitle).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
     public DateTimeOffset Today { get; } = DateTimeOffset.Now;
 
-    [ObservableProperty]
-    private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
-
     public string Title { get; set; } = "Adauga Mentiune";
-
     public string UpsertButtonText { get; set; } = "Adauga";
 
     public IAsyncRelayCommand UpsertNoteCommand;
@@ -70,8 +74,10 @@ public partial class UpsertNoteViewModel : ObservableValidator
         }
 
         NoteId = note.Id;
+        NoteTitle = note.Title;
         Description = note.Description;
-        DateFrom = note.From;
+        MonthsPeriod = note.MonthsPeriod;
+        From = note.From;
 
         Title = "Modifica Mentiunea";
         UpsertButtonText = "Modifica";
@@ -84,40 +90,28 @@ public partial class UpsertNoteViewModel : ObservableValidator
         UserId = userId;
     }
 
-    partial void OnDescriptionChanged(string value)
+    partial void OnMonthsPeriodChanged(int value)
     {
-        ValidateProperty(value, nameof(Description));
+        ValidateProperty(value, nameof(MonthsPeriod));
     }
 
-    partial void OnDateFromChanged(DateTimeOffset? value)
+    partial void OnNoteTitleChanging(string value)
     {
-        ValidateProperty(value, nameof(DateFrom));
-        ValidateDates();
-
-        if(DateFrom != null)
-        {
-            MinNextDate = DateFrom.Value.AddDays(1);
-        }
+        ValidateProperty(value, nameof(NoteTitle));
     }
 
-    partial void OnDateToChanged(DateTimeOffset? value)
+    partial void OnFromChanged(DateTimeOffset? value)
     {
-        ValidateProperty(value, nameof(DateTo));
+        ValidateProperty(value, nameof(From));
         ValidateDates();
     }
 
     private bool ValidateDates()
     {
-        DateIntervalErrorMessage = GetErrors(nameof(DateFrom)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(DateTo)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+        DateIntervalErrorMessage = GetErrors(nameof(From)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
         if (!string.IsNullOrEmpty(DateIntervalErrorMessage))
         {
-            return false;
-        }
-
-        if (DateFrom.Value > DateTo.Value)
-        {
-            DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
             return false;
         }
 
@@ -136,7 +130,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
             }
 
             OnPropertyChanged(nameof(DateIntervalErrorMessage));
-            OnPropertyChanged(nameof(DescriptionErrorMessage));
+            OnPropertyChanged(nameof(NoteTitleErrorMessage));
 
             if (HasErrors)
             {
@@ -162,8 +156,10 @@ public partial class UpsertNoteViewModel : ObservableValidator
         Note note = new Note
         {
             Id = Guid.NewGuid(),
+            Title = NoteTitle,
             Description = Description,
-            From = DateFrom,
+            From = From,
+            MonthsPeriod = MonthsPeriod,
             UserId = UserId,
         };
 

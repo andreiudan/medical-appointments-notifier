@@ -14,7 +14,7 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         public DateTimeOffset? From { get; set; }
 
         [Required]
-        public int DaysPeriod { get; set; }
+        public int MonthsPeriod { get; set; }
 
         [Required]
         [ForeignKey("User")]
@@ -44,13 +44,13 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
                 this.Title == obj.Title &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
-                this.DaysPeriod == obj.DaysPeriod &&
+                this.MonthsPeriod == obj.MonthsPeriod &&
                 this.UserId.CompareTo(obj.UserId) == 0;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Title, Description, From, DaysPeriod, UserId);
+            return HashCode.Combine(Id, Title, Description, From, MonthsPeriod, UserId);
         }
     }
 }

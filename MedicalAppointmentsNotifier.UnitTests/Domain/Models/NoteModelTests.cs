@@ -33,7 +33,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
                 Id = noteFake.Id,
                 Description = "Follow-up visit",
                 From = noteFake.From,
-                DaysPeriod = noteFake.DaysPeriod,
+                MonthsPeriod = noteFake.MonthsPeriod,
                 IsSelected = true
             };
         }

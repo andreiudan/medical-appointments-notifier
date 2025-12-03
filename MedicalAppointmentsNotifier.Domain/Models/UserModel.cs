@@ -35,13 +35,12 @@
                 this.FirstName == obj.FirstName &&
                 this.LastName == obj.LastName &&
                 this.DaysUntilNextAppointment == obj.DaysUntilNextAppointment &&
-                this.Status == obj.Status &&
-                this.IsSelected == obj.IsSelected;
+                this.Status == obj.Status;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, FirstName, LastName, DaysUntilNextAppointment, Status, IsSelected);
+            return HashCode.Combine(Id, FirstName, LastName, DaysUntilNextAppointment, Status);
         }
     }
 }

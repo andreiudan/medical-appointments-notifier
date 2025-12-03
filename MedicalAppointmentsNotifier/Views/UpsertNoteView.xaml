@@ -20,6 +20,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock 
@@ -30,23 +32,49 @@
             HorizontalAlignment="Center"
             Padding="24, 32, 24, 24"/>
 
-        <StackPanel 
-            Grid.Row="1"
-            Padding="24, 0, 24, 16"
-            Spacing="12">
+        <StackPanel Grid.Row="1"
+                    Padding="24, 0, 24, 24"
+                    Spacing="12">
             <TextBox 
+                 HorizontalAlignment="Stretch" 
+                 VerticalAlignment="Stretch"
+                 Header="Titlu*"
+                 Text="{x:Bind ViewModel.NoteTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 TextWrapping="NoWrap"/>
+            <TextBlock
+                  Foreground="{ThemeResource SystemErrorTextColor}"
+                  Text="{x:Bind ViewModel.NoteTitleErrorMessage, Mode=OneWay}"
+                  Visibility="{Binding NoteTitleErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2"
+                    Padding="24, 0, 24, 0">
+            <TextBox
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch"
                 Header="Descriere"
-                Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock
-                Foreground="{ThemeResource SystemErrorTextColor}"
-                Text="{x:Bind ViewModel.DescriptionErrorMessage, Mode=OneWay}"
-                Visibility="{Binding DescriptionErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap"/>
         </StackPanel>
 
         <StackPanel 
-            Grid.Row="2"
+            Grid.Row="3"
+            Padding="24, 0, 24, 24"
+            Spacing="12">
+            <NumberBox 
+                Header="Interval Valabilitate Mentiune (luni)"
+                Text="{x:Bind ViewModel.MonthsPeriod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SpinButtonPlacementMode="Inline"
+                HorizontalAlignment="Stretch"
+                Minimum="0"/>
+            <TextBlock
+                Foreground="{ThemeResource SystemErrorTextColor}"
+                Text="{x:Bind ViewModel.MonthsPeriodErrorMessage, Mode=OneWay}"
+                Visibility="{Binding MonthsPeriodErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <StackPanel 
+            Grid.Row="4"
             Padding="24, 0, 24, 24"
             Spacing="12">
             <Grid ColumnSpacing="24">
@@ -60,7 +88,7 @@
                     Header="Din data" 
                     Grid.Column="0" 
                     HorizontalAlignment="Stretch"
-                    Date="{x:Bind ViewModel.DateFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Date="{x:Bind ViewModel.From, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     DateFormat="{}{day.integer}/{month.integer}/{year.full}"
                     MinDate="{x:Bind ViewModel.Today}"/>
                 <CalendarDatePicker 
@@ -68,9 +96,10 @@
                     Header="Pana in data" 
                     Grid.Column="1" 
                     HorizontalAlignment="Stretch"
-                    Date="{x:Bind ViewModel.DateTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Date="{x:Bind ViewModel.ExpiringDate, Mode=OneWay}"
                     DateFormat="{}{day.integer}/{month.integer}/{year.full}"
-                    MinDate="{x:Bind ViewModel.MinNextDate, Mode=OneWay}"/>
+                    IsEnabled="False"
+                    ToolTipService.ToolTip="Pentru a modifica data de expirare trebuie modificata data de inceput sau intervalul mentiunii."/>
             </Grid>
 
             <TextBlock
@@ -79,8 +108,9 @@
                 Visibility="{Binding DateIntervalErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
         </StackPanel>
 
+        <!-- Actions Grid -->
         <Grid 
-            Grid.Row="3" 
+            Grid.Row="5" 
             ColumnSpacing="8" 
             Padding="24"
             HorizontalAlignment="Stretch"

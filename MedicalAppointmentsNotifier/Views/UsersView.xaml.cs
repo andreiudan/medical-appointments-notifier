@@ -10,12 +10,14 @@ namespace MedicalAppointmentsNotifier.Views
 {
     public sealed partial class UsersView : Page
     {
+        private Window upsertView;
+
         public UsersView()
         {
-            InitializeComponent();
-            NavigationCacheMode = NavigationCacheMode.Enabled;
-
             this.DataContext = ((App)App.Current).Services.GetRequiredService<UsersViewModel>();
+            ViewModel.OnSelectedUserSwitched += SelectedUserChanged;
+
+            InitializeComponent();
         }
 
         public UsersViewModel ViewModel => (UsersViewModel)DataContext;
@@ -27,8 +29,7 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            UpsertUserView addUserView = new UpsertUserView();
-            addUserView.Activate();
+            ActivateNewUpsertView(new UpsertUserView());
         }
 
         private void btnEdit_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -38,16 +39,35 @@ namespace MedicalAppointmentsNotifier.Views
                 return;
             }
 
-            if(sender is Button button && button.DataContext is UserModel userModel)
+            if(sender is Button button && button.DataContext is UsersViewModel)
             {
-                UpsertUserView addUserView = new UpsertUserView(userModel);
-                addUserView.Activate();
+                ActivateNewUpsertView(new UpsertUserView(ViewModel.SelectedUser));
             }
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        private void ActivateNewUpsertView<TView>(TView view) where TView : Window
         {
-            base.OnNavigatedFrom(e);
+            try
+            {
+                if (upsertView != null)
+                {
+                    upsertView.Close();
+                }
+
+                upsertView = view;
+                upsertView.Closed += UpsertView_Closed;
+                upsertView.Activate();
+            }
+            catch(Exception ex)
+            {
+                
+            }        
+        }
+
+        private void UpsertView_Closed(object sender, WindowEventArgs args)
+        {
+            upsertView = null;
+
         }
 
         ~UsersView()
@@ -59,7 +79,7 @@ namespace MedicalAppointmentsNotifier.Views
                     ViewModel.Dispose();
                 }
 
-                //this.Bindings.StopTracking();
+                this.Bindings.StopTracking();
                 DataContext = null;
             }
             catch { }
@@ -77,14 +97,12 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void btnAddAppointment_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.SelectedUser.Id);
-            addAppointmentView.Activate();
+            ActivateNewUpsertView(new UpsertAppointmentView(ViewModel.SelectedUser.Id));
         }
 
         private void btnAddNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.SelectedUser.Id);
-            addNoteView.Activate();
+            ActivateNewUpsertView(new UpsertNoteView(ViewModel.SelectedUser.Id));
         }
 
         private void btnEditNote_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -96,8 +114,7 @@ namespace MedicalAppointmentsNotifier.Views
 
             if (sender is Button button && button.DataContext is NoteModel note)
             {
-                UpsertNoteView addNoteView = new UpsertNoteView(ViewModel.SelectedUser.Id, note);
-                addNoteView.Activate();
+                ActivateNewUpsertView(new UpsertNoteView(ViewModel.SelectedUser.Id, note));
             }
         }
 
@@ -110,12 +127,11 @@ namespace MedicalAppointmentsNotifier.Views
 
             if (sender is Button button && button.DataContext is AppointmentModel appointment)
             {
-                UpsertAppointmentView addAppointmentView = new UpsertAppointmentView(ViewModel.SelectedUser.Id, appointment);
-                addAppointmentView.Activate();
+                ActivateNewUpsertView(new UpsertAppointmentView(ViewModel.SelectedUser.Id, appointment));
             }
         }
 
-        private async void ShowDeleteDialog(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private async void ShowDeleteConfirmationDialog(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ContentDialog dialog = new ContentDialog();
 
@@ -141,6 +157,41 @@ namespace MedicalAppointmentsNotifier.Views
                 if (sender is not null && sender is Button button)
                 {
                     ViewModel.DeleteEntry(button.DataContext);
+                }
+            }
+        }
+
+        private void SelectedUserChanged(object sender, int index)
+        {
+            UsersViewList.Select(index);
+        }
+
+        private async void ShowAppointmentConfirmFinalizeDialog(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            ContentDialog dialog = new ContentDialog();
+
+            dialog.XamlRoot = this.XamlRoot;
+            dialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            dialog.RequestedTheme = ElementTheme.Default;
+            dialog.Title = "Sigur doresti sa finalizezi scrisoarea medicala?";
+            dialog.Content = "Finalizarea scrisorii medicale duce la trecerea acesteia in modul finalizat." +
+                "Finalizarea ar trebui realizata dupa ce controlul programat a fost efectuat.";
+            dialog.PrimaryButtonText = "Finalizeaza";
+            dialog.CloseButtonText = "Inchide";
+            dialog.DefaultButton = ContentDialogButton.Primary;
+
+            ContentDialogResult result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                if (sender is null || sender is not Button)
+                {
+                    return;
+                }
+
+                if (sender is Button button && button.DataContext is AppointmentModel appointment)
+                {
+                    ViewModel.FinalizeAppointment(appointment);
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using MedicalAppointmentsNotifier.Core.Services;
 using MedicalAppointmentsNotifier.Domain;
 using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
@@ -19,36 +20,35 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     [ObservableProperty]
     private MedicalSpecialty specialty = 0;
 
-    public MedicalSpecialty[] MedicalSpecialties => (MedicalSpecialty[])Enum.GetValues(typeof(MedicalSpecialty));
-
-    [NotifyPropertyChangedFor(nameof(DaysIntervalErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(MonthsIntervalErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(ExpiringDate))]
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
-    [Range(1, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
-    private int daysInterval = 30;
-
-    public string DaysIntervalErrorMessage => GetErrors(nameof(DaysInterval)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    [Range(0, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
+    private int monthsInterval = 3;
 
     [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
+    [NotifyPropertyChangedFor(nameof(ExpiringDate))]
     [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? latestDate = DateTimeOffset.UtcNow;
+    private DateTimeOffset? issuedOn = DateTimeOffset.Now;
 
-    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
-    [ObservableProperty]
-    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? nextDate = DateTimeOffset.UtcNow.AddDays(1);
+    public DateTimeOffset? ExpiringDate => IssuedOn.HasValue ? IssuedOn.Value.AddMonths(MonthsInterval) : DateTimeOffset.Now;
 
     public string DateIntervalErrorMessage { get; private set; } = string.Empty;
+    public string MonthsIntervalErrorMessage => GetErrors(nameof(MonthsInterval)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-    public DateTimeOffset Today { get; } = DateTimeOffset.Now;
-
-    [ObservableProperty]
-    private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
+    public MedicalSpecialty[] MedicalSpecialties => (MedicalSpecialty[])Enum.GetValues(typeof(MedicalSpecialty));
 
     private Guid UserId { get; set; }
     private Guid AppointmentId { get; set; } = Guid.Empty;
     private AppointmentStatus Status { get; set; } = 0;
+
+    [ObservableProperty]
+    public bool isScheduled = false;
+    public string? ScheduledLocation { get; set; } = string.Empty;
+    public DateTimeOffset? ScheduledDate { get; set; } = DateTimeOffset.Now;
+    public TimeSpan ScheduledTime { get; set; } = DateTimeOffset.Now.TimeOfDay;
 
     public string Title { get; set; } = "Adauga Scrisoare Medicala";
     public string UpsertButtonText = "Adauga";
@@ -59,7 +59,8 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     private readonly IEntityToModelMapper mapper;
     private readonly ILogger<UpsertAppointmentViewModel> logger;
 
-    public UpsertAppointmentViewModel(IRepository<Appointment> appointmentsRepository, IEntityToModelMapper mapper, ILogger<UpsertAppointmentViewModel> logger)
+    public UpsertAppointmentViewModel(IRepository<Appointment> appointmentsRepository, 
+        IEntityToModelMapper mapper, ILogger<UpsertAppointmentViewModel> logger)
     {
         this.appointmentsRepository = appointmentsRepository ?? throw new ArgumentNullException(nameof(appointmentsRepository));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -79,8 +80,8 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         AppointmentId = appointment.Id;
         Specialty = appointment.MedicalSpecialty ?? 0;
         Status = appointment.Status;
-        DaysInterval = appointment.MonthsInterval;
-        LatestDate = appointment.IssuedOn;
+        MonthsInterval = appointment.MonthsInterval;
+        IssuedOn = appointment.IssuedOn;
 
         Title = "Modifica Scrisoarea Medicala";
         UpsertButtonText = "Modifica";
@@ -93,40 +94,23 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         UserId = userId;
     }
 
-    partial void OnDaysIntervalChanged(int value)
+    partial void OnMonthsIntervalChanged(int value)
     {
-        ValidateProperty(value, nameof(DaysInterval));
+        ValidateProperty(value, nameof(MonthsInterval));
     }
 
-    partial void OnLatestDateChanged(DateTimeOffset? value)
+    partial void OnIssuedOnChanged(DateTimeOffset? value)
     {
-        ValidateProperty(value, nameof(LatestDate));
-        ValidateDates();
-
-        if(LatestDate != null)
-        {
-            MinNextDate = LatestDate.Value.AddDays(1);
-        }
-    }
-
-    partial void OnNextDateChanged(DateTimeOffset? value)
-    {
-        ValidateProperty(value, nameof(NextDate));
+        ValidateProperty(value, nameof(IssuedOn));
         ValidateDates();
     }
 
     private bool ValidateDates()
     {
-        DateIntervalErrorMessage = GetErrors(nameof(LatestDate)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(NextDate)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+        DateIntervalErrorMessage = GetErrors(nameof(IssuedOn)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(ExpiringDate)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
         if(!string.IsNullOrEmpty(DateIntervalErrorMessage))
         {
-            return false;
-        }
-
-        if (LatestDate.Value >= NextDate.Value)
-        {
-            DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
             return false;
         }
 
@@ -144,7 +128,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             }
 
             OnPropertyChanged(nameof(DateIntervalErrorMessage));
-            OnPropertyChanged(nameof(DaysIntervalErrorMessage));
+            OnPropertyChanged(nameof(MonthsIntervalErrorMessage));
 
             if (HasErrors)
             {
@@ -159,6 +143,47 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         return true;
     }
 
+    private AppointmentStatus GetAppointmentStatus()
+    {
+        if (IsScheduled)
+        {
+            if (ScheduledDate.HasValue)
+            {
+                if(ScheduledDate.Value > DateTimeOffset.Now)
+                {
+                    return AppointmentStatus.Programat;
+                }
+                else
+                {
+                    return AppointmentStatus.Finalizat;
+                }
+            }
+        }
+        
+        if(ExpiringDate.HasValue && ExpiringDate.Value < DateTimeOffset.Now)
+        {
+            return AppointmentStatus.Finalizat;
+        }
+
+        return AppointmentStatus.Neprogramat;
+    }
+
+    private DateTimeOffset? GetScheduledOn()
+    {
+        if (ScheduledDate.HasValue)
+        {
+            return new DateTimeOffset(
+                ScheduledDate.Value.Year,
+                ScheduledDate.Value.Month,
+                ScheduledDate.Value.Day,
+                ScheduledTime.Hours,
+                ScheduledTime.Minutes,
+                ScheduledTime.Seconds,
+                ScheduledDate.Value.Offset);
+        }
+        return null;
+    }
+
     private async Task UpsertAsync()
     {
         if(!Validate())
@@ -167,13 +192,16 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             return;
         }
 
+        INameNormalizer nameNormalizer = new NameNormalizer();
         Appointment appointment = new Appointment
         {
             Id = Guid.NewGuid(),
             MedicalSpecialty = Specialty,
-            Status = Status,
-            MonthsInterval = DaysInterval,
-            IssuedOn = LatestDate,
+            Status = GetAppointmentStatus(),
+            MonthsInterval = MonthsInterval,
+            ScheduledLocation = nameNormalizer.Normalize(ScheduledLocation ?? string.Empty),
+            ScheduledOn = GetScheduledOn(),
+            IssuedOn = IssuedOn,
             UserId = UserId,
         };
 

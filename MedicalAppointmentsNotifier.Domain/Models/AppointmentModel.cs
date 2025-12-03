@@ -20,6 +20,22 @@ namespace MedicalAppointmentsNotifier.Domain.Models
 
         public bool IsSelected { get; set; } = false;
 
+        public int DaysUntilExpiry
+        {
+            get
+            {
+                return GetRemainingDaysUntilExpiry();
+            }
+        }
+
+        public int DaysUntilScheduled
+        {
+            get
+            {
+                return GetRemainingDaysUntilScheduled();
+            }
+        }
+
         public override bool Equals(object? obj)
         {
             if(obj is null)
@@ -52,6 +68,27 @@ namespace MedicalAppointmentsNotifier.Domain.Models
 
 
             return HashCode.Combine(Id, MedicalSpecialty, MonthsInterval, Status, IssuedOn, ScheduledOn, ScheduledLocation, IsSelected);
+        }
+
+        public int GetRemainingDaysUntilScheduled()
+        {
+            if (ScheduledOn.HasValue)
+            {
+                var remainingTimeSpan = ScheduledOn.Value.Date - DateTimeOffset.Now.Date;
+                return (int)remainingTimeSpan.TotalDays <= 0 ? 0 : (int)remainingTimeSpan.TotalDays;
+            }
+            return GetRemainingDaysUntilExpiry();
+        }
+
+        public int GetRemainingDaysUntilExpiry()
+        {
+            if (IssuedOn.HasValue)
+            {
+                var expiryDate = IssuedOn.Value.AddMonths(MonthsInterval);
+                var remainingTimeSpan = expiryDate.Date - DateTimeOffset.Now.Date;
+                return (int)remainingTimeSpan.TotalDays <= 0 ? 0 : (int)remainingTimeSpan.TotalDays;
+            }
+            return int.MaxValue;
         }
     }
 }

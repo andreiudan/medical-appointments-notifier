@@ -10,9 +10,17 @@
 
         public DateTimeOffset? From { get; set; }
 
-        public int DaysPeriod { get; set; }
+        public int MonthsPeriod { get; set; }
 
         public bool IsSelected { get; set; } = false;
+
+        public DateTimeOffset? Until
+        {
+            get
+            {
+                return GetUntilDate();
+            }
+        }
 
         public override bool Equals(object? obj)
         {
@@ -35,13 +43,23 @@
                 this.Title == obj.Title &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
-                this.DaysPeriod == obj.DaysPeriod &&
+                this.MonthsPeriod == obj.MonthsPeriod &&
                 this.IsSelected == obj.IsSelected;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Title, Description, From, DaysPeriod, IsSelected);
+            return HashCode.Combine(Id, Title, Description, From, MonthsPeriod, IsSelected);
+        }
+
+        public DateTimeOffset GetUntilDate()
+        {
+            if (From.HasValue)
+            {
+                return From.Value.AddMonths(MonthsPeriod);
+            }
+
+            return DateTimeOffset.MinValue;
         }
     }
 }

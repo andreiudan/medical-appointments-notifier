@@ -60,8 +60,10 @@
             <!-- Converters and other app resources -->
             <c:BooleanToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
             <c:BooleanToVisibilityConverter x:Key="FalseToVisibiliryConverter" IsReversed="True"/>
-            <c:UserFullNameConverter x:Key="UserFullNameConverter"/>
             <c:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <c:DateOnlyConverter x:Key="DateOnlyConverter"/>
+            <c:TimeOnlyConverter x:Key="TimeOnlyConverter"/>
+            <c:ValueToMessageConverter x:Key="ValueToMessageConverter"/>
 
             <!-- Style for Dangerous Buttons with PointerOver / Pressed visual states -->
             <Style x:Key="DangerButtonStyle" TargetType="Button">

@@ -19,8 +19,8 @@
 
         <!-- Left Panel - Users List -->
         <Grid Grid.Column="0" Background="{ThemeResource LayerFillColorDefaultBrush}" 
-      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-      BorderThickness="0,0,1,0">
+          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+          BorderThickness="0,0,1,0">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -45,6 +45,7 @@
             <!-- Users List -->
             <ItemsView Margin="8,0,8,8"
                        Grid.Row="2"
+                       x:Name="UsersViewList"
                        ItemsSource="{x:Bind ViewModel.ShownUsers, Mode=OneWay}"
                        SelectionMode="Single"
                        SelectionChanged="ItemsView_SelectionChanged">
@@ -84,6 +85,11 @@
                                     Value="2"
                                     VerticalAlignment="Center"
                                     Visibility="Visible"/>
+                                <!--<InfoBadge Grid.Column="2" 
+                                    Value="2"
+                                    Style="{StaticResource CriticalDotInfoBadgeStyle}"
+                                    VerticalAlignment="Center"
+                                    Visibility="Visible"/>-->
                             </Grid>
                         </ItemContainer>
 
@@ -132,12 +138,22 @@
                             HorizontalAlignment="Left" 
                             Orientation="Horizontal"
                             Spacing="12">
-                    <TextBlock Text="{x:Bind ViewModel.SelectedUser.LastName, Mode=OneWay}" 
-                         Style="{StaticResource TitleLargeTextBlockStyle}"
-                         FontWeight="SemiBold"/>
                     <TextBlock Text="{x:Bind ViewModel.SelectedUser.FirstName, Mode=OneWay}" 
                          Style="{StaticResource TitleLargeTextBlockStyle}"
                          FontWeight="SemiBold"/>
+                    <TextBlock Text="{x:Bind ViewModel.SelectedUser.LastName, Mode=OneWay}" 
+                         Style="{StaticResource TitleLargeTextBlockStyle}"
+                         FontWeight="SemiBold"/>
+                    <Button Name="btnEdit"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Click="btnEdit_Click"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="0,6,0,0"
+                            ToolTipService.ToolTip="Modifica Nume">
+                        <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                    </Button>
                 </StackPanel>
 
                 <Button Grid.Column="2"
@@ -172,18 +188,47 @@
                                    Style="{StaticResource CaptionTextBlockStyle}"
                                    FontWeight="SemiBold"
                                    Opacity="0.9"/>
-                        
-                        <TextBlock Text="Oct 15, 2025" 
+
+                        <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, TargetNullValue='N/A',
+                            Mode=OneWay, 
+                            Converter={StaticResource DateOnlyConverter}, 
+                            ConverterParameter='dd.MMM.yyy'}" 
                                    Foreground="White"
                                    Style="{StaticResource SubtitleTextBlockStyle}"
                                    FontWeight="SemiBold"
                                    Margin="0,4,0,0"/>
-                        
-                        <TextBlock Text="10:30 AM • Dr. Smith" 
-                                   Foreground="White"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Opacity="0.9"
-                                   Margin="0,2,0,0"/>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="6"
+                                    Margin="0,4,0,0">
+                            <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.MedicalSpecialty, Mode=OneWay}" 
+                                       Foreground="White"
+                                       Opacity="0.9"/>
+                            
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="4"
+                                        Visibility="Visible">
+                                <TextBlock Text="•" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                                <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, Mode=OneWay, Converter={StaticResource TimeOnlyConverter}}" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="4"
+                                        Visibility="Visible">
+                                <TextBlock Text="•" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                                <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledLocation, Mode=OneWay}" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                            </StackPanel>
+
+                            
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
@@ -214,7 +259,7 @@
                                          Style="{StaticResource CaptionTextBlockStyle}"
                                          Margin="0,2,0,0"/>
 
-                                    <TextBlock Text="24" 
+                                    <TextBlock Text="{x:Bind ViewModel.ScheduledAppointments.Count, Mode=OneWay}" 
                                          Style="{StaticResource SubtitleTextBlockStyle}"
                                          FontWeight="SemiBold"
                                          Margin="0,4,0,0"/>
@@ -229,7 +274,7 @@
                                         Style="{StaticResource CaptionTextBlockStyle}"
                                         Margin="0,2,0,0"/>
                                     
-                                    <TextBlock Text="24" 
+                                    <TextBlock Text="{x:Bind ViewModel.ExpiringAppointments.Count, Mode=OneWay}" 
                                         Style="{StaticResource SubtitleTextBlockStyle}"
                                         FontWeight="SemiBold"
                                         Margin="0,4,0,0"/>
@@ -255,7 +300,7 @@
                              Style="{StaticResource CaptionTextBlockStyle}"
                              FontWeight="SemiBold"/>
                         
-                        <TextBlock Text="3" 
+                        <TextBlock Text="{x:Bind ViewModel.Notes.Count, Mode=OneWay}" 
                              Style="{StaticResource SubtitleTextBlockStyle}"
                              FontWeight="SemiBold"
                              Margin="0,4,0,0"/>
@@ -302,21 +347,7 @@
                                                 <StackPanel HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
                                                             Orientation="Horizontal">
-                                                    <TextBlock Text="15" 
-                                                        Foreground="White"
-                                                        FontSize="18"
-                                                        FontWeight="SemiBold"
-                                                        HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
-                                                    
-                                                    <TextBlock Text="09" 
-                                                        Foreground="White"
-                                                        FontSize="18"
-                                                        FontWeight="SemiBold"
-                                                        HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
-
-                                                    <TextBlock Text="2025" 
+                                                    <TextBlock Text="{Binding ScheduledOn, Mode=OneWay, Converter={StaticResource DateOnlyConverter}}" 
                                                         Foreground="White"
                                                         FontSize="18"
                                                         FontWeight="SemiBold"
@@ -327,7 +358,7 @@
 
                                             <!-- Appointment Details -->
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="General Checkup" 
+                                                <TextBlock Text="{Binding MedicalSpecialty}" 
                                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                                     FontSize="16"/>
                                                 <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
@@ -336,7 +367,7 @@
                                                             FontSize="14"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <TextBlock Text="10:30 AM" 
+                                                        <TextBlock Text="{Binding ScheduledOn, Mode=OneWay, Converter={StaticResource TimeOnlyConverter}}" 
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Style="{StaticResource CaptionTextBlockStyle}"/>
                                                     </StackPanel>
@@ -346,7 +377,7 @@
                                                             FontSize="14"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <TextBlock Text="Main Clinic" 
+                                                        <TextBlock Text="{Binding ScheduledLocation, Mode=OneWay}" 
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                             Style="{StaticResource CaptionTextBlockStyle}"/>
                                                     </StackPanel>
@@ -358,7 +389,9 @@
                                             <InfoBar Severity="Warning" 
                                                      IsOpen="True"
                                                      IsClosable="True"
-                                                     Message="Reminder: 11 days remaining"
+                                                     Message="{Binding DaysUntilScheduled, 
+                                                Converter={StaticResource ValueToMessageConverter}, 
+                                                ConverterParameter='Atentie: Programarea este peste {0} zile.'}"
                                                      Margin="12,0"
                                                      CornerRadius="8"
                                                      VerticalAlignment="Center"
@@ -375,6 +408,7 @@
                                                         Style="{StaticResource AccentButtonStyle}"
                                                         VerticalAlignment="Center"
                                                         HorizontalAlignment="Right"
+                                                        Click="ShowAppointmentConfirmFinalizeDialog"
                                                         >
                                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                                         <FontIcon Glyph="&#xE73E;" 
@@ -390,7 +424,7 @@
                                                 </Button>
                                                 
                                                 <Button Name="btnDeleteAppointment"
-                                                        Click="ShowDeleteDialog"
+                                                        Click="ShowDeleteConfirmationDialog"
                                                         ToolTipService.ToolTip="Sterge">
                                                     <FontIcon Glyph="&#xE74D;" FontSize="16"/>
                                                 </Button>
@@ -461,7 +495,9 @@
                                                                   FontSize="14"
                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <TextBlock Text="Expira in 10 zile" 
+                                                        <TextBlock Text="{Binding DaysUntilExpiry, 
+                                                            Converter={StaticResource ValueToMessageConverter}, 
+                                                            ConverterParameter='Expira in {0} zile'}" 
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    Style="{StaticResource CaptionTextBlockStyle}"/>
                                                     </StackPanel>
@@ -487,7 +523,7 @@
                                                 </Button>
                                                 
                                                 <Button Name="btnDeleteAppointment"
-                                                        Click="ShowDeleteDialog"
+                                                        Click="ShowDeleteConfirmationDialog"
                                                         ToolTipService.ToolTip="Sterge">
                                                     <FontIcon Glyph="&#xE74D;" FontSize="16"/>
                                                 </Button>
@@ -536,18 +572,88 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Expander Header="Aug 15, 2025 - Blood Test Results with Dr. Chen"
+                                        <Expander Header="{Binding Title, Mode=OneWay}"
                                                   HorizontalAlignment="Stretch"
                                                   Margin="0,0,0,8"
-                                                  Grid.Column="0">
-                                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
-                                                    Padding="16"
-                                                    CornerRadius="4"
-                                                    Margin="0,8,0,0">
-                                                <TextBlock Text="{Binding Description}" 
-                                                           TextWrapping="Wrap"
-                                                           Style="{StaticResource BodyTextBlockStyle}"/>
-                                            </Border>
+                                                  Grid.Column="0"
+                                                  HorizontalContentAlignment="Left">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="0"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                            Spacing="6">
+                                                        <TextBlock Text="Din Data"
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding From, Mode=OneWay, Converter={StaticResource DateOnlyConverter}}" 
+                                                               TextWrapping="Wrap"
+                                                               Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="1"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="6">
+                                                        <TextBlock Text="Perioada (luni)" 
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding MonthsPeriod}" 
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="2"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="6">
+                                                        <TextBlock Text="Pana in Data" 
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}}" 
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="3"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="6">
+                                                        <TextBlock Text="Descriere" 
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                            </Grid>
                                         </Expander>
 
                                         <StackPanel Grid.Column="1" 
@@ -563,7 +669,7 @@
                                             </Button>
                                             
                                             <Button Name="btnDeleteNote"
-                                                    Click="ShowDeleteDialog"
+                                                    Click="ShowDeleteConfirmationDialog"
                                                     ToolTipService.ToolTip="Sterge">
                                                 <FontIcon Glyph="&#xE74D;" FontSize="16"/>
                                             </Button>
@@ -617,7 +723,7 @@
                                             </Border>
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="General Checkup" 
+                                                <TextBlock Text="{Binding MedicalSpecialty}" 
                                                            Style="{StaticResource BodyStrongTextBlockStyle}"
                                                            FontSize="16"/>
                                                 <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
@@ -686,7 +792,7 @@
                                         Style="{StaticResource DangerButtonStyle}"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Right"
-                                        Click="ShowDeleteDialog">
+                                        Click="ShowDeleteConfirmationDialog">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <FontIcon Glyph="&#xE74D;" FontSize="14"/>
                                         <TextBlock Text="Sterge Beneficiarul"/>

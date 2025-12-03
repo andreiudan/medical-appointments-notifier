@@ -64,7 +64,6 @@ namespace MedicalAppointmentsNotifier.Infrastructure.DependencyInjection
         public static IServiceCollection AddViewModels(this IServiceCollection services)
         {
             services.AddScoped<UsersViewModel>();
-            services.AddTransient<UserAppointmentsViewModel>();
             services.AddTransient<UpsertUserViewModel>();
             services.AddTransient<UpsertNoteViewModel>();
             services.AddTransient<UpsertAppointmentViewModel>();

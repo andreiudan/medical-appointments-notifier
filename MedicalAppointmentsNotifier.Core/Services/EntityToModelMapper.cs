@@ -58,9 +58,10 @@ namespace MedicalAppointmentsNotifier.Core.Services
             NoteModel noteModel = new NoteModel
             {
                 Id = note.Id,
+                Title = note.Title,
                 Description = note.Description,
                 From = note.From,
-                DaysPeriod = note.DaysPeriod,
+                MonthsPeriod = note.MonthsPeriod,
             };
 
             return noteModel;
@@ -73,9 +74,10 @@ namespace MedicalAppointmentsNotifier.Core.Services
             Note note = new Note
             {
                 Id = noteModel.Id,
+                Title = noteModel.Title,
                 Description = noteModel.Description,
                 From = noteModel.From,
-                DaysPeriod = noteModel.DaysPeriod,
+                MonthsPeriod = noteModel.MonthsPeriod,
                 UserId = userId
             };
 

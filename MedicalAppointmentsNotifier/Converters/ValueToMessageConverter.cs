@@ -3,20 +3,21 @@ using System;
 
 namespace MedicalAppointmentsNotifier.Converters
 {
-    internal class DateOnlyConverter : IValueConverter
+    class ValueToMessageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if(value is DateTimeOffset dateTimeOffset)
+            if(value is int)
             {
                 if(parameter is string format && !string.IsNullOrEmpty(format))
                 {
-                    return dateTimeOffset.ToString(format);
+                    return string.Format(format, value);
                 }
 
-                return dateTimeOffset.ToString("dd.MM.yyyy");
+                return value.ToString();
             }
-            return null;
+
+            return string.Empty;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

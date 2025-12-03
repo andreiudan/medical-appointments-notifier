@@ -3,20 +3,20 @@ using System;
 
 namespace MedicalAppointmentsNotifier.Converters
 {
-    internal class DateOnlyConverter : IValueConverter
+    internal class NextDateConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if(value is DateTimeOffset dateTimeOffset)
             {
-                if(parameter is string format && !string.IsNullOrEmpty(format))
+                if(parameter is int daysToAdd)
                 {
-                    return dateTimeOffset.ToString(format);
+                    DateTimeOffset newDate = dateTimeOffset.AddDays(daysToAdd);
+                    return newDate.ToString("dd/MM/yyyy");
                 }
-
-                return dateTimeOffset.ToString("dd.MM.yyyy");
             }
-            return null;
+
+            return DateTimeOffset.MinValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

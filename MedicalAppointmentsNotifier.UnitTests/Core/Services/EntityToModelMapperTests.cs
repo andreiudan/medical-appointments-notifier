@@ -207,7 +207,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Id = noteModelFake.Id,
                 Description = noteModelFake.Description,
                 From = noteModelFake.From,
-                DaysPeriod = noteModelFake.DaysPeriod,
+                MonthsPeriod = noteModelFake.MonthsPeriod,
                 UserId = userFake.Id
             };
 
