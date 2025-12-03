@@ -75,8 +75,9 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
         logger.LogInformation("Loading users from the database.");
         List<User> _users = await usersRepository.GetAllAsync();
+        _users = _users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList();
 
-        if(_users.Count == 0)
+        if (_users.Count == 0)
         {
             logger.LogInformation("No users found in the database.");
             return;
@@ -111,12 +112,14 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     public void Receive(UserAddedMessage message)
     {
         Users.Add(message.user);
+        Users = Users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList();
         int index = Users.Count;
 
         if (message.user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
            message.user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
         {
             ShownUsers.Add(message.user);
+            ShownUsers = new ObservableCollection<UserModel>(ShownUsers.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToList());
             index = ShownUsers.Count;
         }
 
@@ -146,13 +149,13 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         switch(message.appointment.Status)
         {
             case AppointmentStatus.Programat:
-                ScheduledAppointments.Add(message.appointment);
+                AddAppointmentToSchedluedCollection(message.appointment);
                 break;
             case AppointmentStatus.Neprogramat:
-                ExpiringAppointments.Add(message.appointment);
+                AddAppointmentToExpiringCollection(message.appointment);
                 break;
             case AppointmentStatus.Finalizat:
-                PastAppointments.Add(message.appointment);
+                AddAppointmentToPastCollection(message.appointment);
                 break;
             default:
                 logger.LogWarning("Received appointment with unknown status {AppointmentStatus}", message.appointment.Status);
@@ -166,6 +169,75 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     {
         AppointmentModel oldAppointment;
         int index;
+
+        if(ScheduledAppointments.Any(a => a.Id.Equals(message.appointment.Id)))
+        {
+            oldAppointment = ScheduledAppointments.FirstOrDefault(a => a.Id.Equals(message.appointment.Id));
+            index = ScheduledAppointments.IndexOf(oldAppointment);
+        }
+        else if(ExpiringAppointments.Any(a => a.Id.Equals(message.appointment.Id)))
+        {
+            oldAppointment = ExpiringAppointments.FirstOrDefault(a => a.Id.Equals(message.appointment.Id));
+            index = ExpiringAppointments.IndexOf(oldAppointment);
+        }
+        else if(PastAppointments.Any(a => a.Id.Equals(message.appointment.Id)))
+        {
+            oldAppointment = PastAppointments.FirstOrDefault(a => a.Id.Equals(message.appointment.Id));
+            index = PastAppointments.IndexOf(oldAppointment);
+        }
+        else
+        {
+            logger.LogWarning("Received update for appointment with ID {AppointmentId} which does not exist in any collection", message.appointment.Id);
+            return;
+        }
+
+        if(oldAppointment.Status != message.appointment.Status)
+        {
+            //Status has changed, move between collections
+            switch(oldAppointment.Status)
+            {
+                case AppointmentStatus.Programat:
+                    ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, oldAppointment);
+                    break;
+                case AppointmentStatus.Neprogramat:
+                    ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, oldAppointment);
+                    break;
+                case AppointmentStatus.Finalizat:
+                    PastAppointments = RemoveAppointmentFromCollection(PastAppointments, oldAppointment);
+                    break;
+            }
+            switch(message.appointment.Status)
+            {
+                case AppointmentStatus.Programat:
+                    AddAppointmentToSchedluedCollection(message.appointment);
+                    break;
+                case AppointmentStatus.Neprogramat:
+                    AddAppointmentToExpiringCollection(message.appointment);
+                    break;
+                case AppointmentStatus.Finalizat:
+                    AddAppointmentToPastCollection(message.appointment);
+                    break;
+            }
+        }
+        else
+        {
+            //Status is the same, just update in place
+            switch(message.appointment.Status)
+            {
+                case AppointmentStatus.Programat:
+                    ScheduledAppointments[index] = message.appointment;
+                    ReorderScheduledAppointmentsCollection();
+                    break;
+                case AppointmentStatus.Neprogramat:
+                    ExpiringAppointments[index] = message.appointment;
+                    ReorderExpiringAppointmentsOrder();
+                    break;
+                case AppointmentStatus.Finalizat:
+                    PastAppointments[index] = message.appointment;
+                    ReorderPastAppointmentsCollection();
+                    break;
+            }
+        }
 
         logger.LogInformation("Updated appointment with ID {AppointmentId}", message.appointment.Id);
     }
@@ -185,6 +257,39 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         }
         Notes[index] = message.note;
         logger.LogInformation("Updated note with ID {AppointmentId}", message.note.Id);
+    }
+
+    private void ReorderScheduledAppointmentsCollection()
+    {
+        ScheduledAppointments = new ObservableCollection<AppointmentModel>(ScheduledAppointments.OrderBy(a => a.DaysUntilScheduled).ToList());
+    }
+
+    private void ReorderExpiringAppointmentsOrder()
+    {
+        ExpiringAppointments = new ObservableCollection<AppointmentModel>(ExpiringAppointments.OrderBy(a => a.DaysUntilExpiry).ToList());
+    }
+
+    private void ReorderPastAppointmentsCollection()
+    {
+        PastAppointments = new ObservableCollection<AppointmentModel>(PastAppointments.OrderByDescending(a => a.MedicalSpecialty).ToList());
+    }
+
+    private void AddAppointmentToSchedluedCollection(AppointmentModel appointment)
+    {
+        ScheduledAppointments.Add(appointment);
+        ReorderScheduledAppointmentsCollection();
+    }
+
+    private void AddAppointmentToExpiringCollection(AppointmentModel appointment)
+    {
+        ExpiringAppointments.Add(appointment);
+        ReorderExpiringAppointmentsOrder();
+    }
+
+    private void AddAppointmentToPastCollection(AppointmentModel appointment)
+    {
+        PastAppointments.Add(appointment);
+        ReorderPastAppointmentsCollection();
     }
 
     private async Task DeleteSelectedUser()

@@ -83,6 +83,17 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         MonthsInterval = appointment.MonthsInterval;
         IssuedOn = appointment.IssuedOn;
 
+        if(Status == AppointmentStatus.Programat || Status == AppointmentStatus.Finalizat)
+        {
+            IsScheduled = true;
+            if(appointment.ScheduledOn.HasValue)
+            {
+                ScheduledDate = appointment.ScheduledOn.Value;
+                ScheduledTime = new TimeSpan(appointment.ScheduledOn.Value.Hour, appointment.ScheduledOn.Value.Minute, appointment.ScheduledOn.Value.Second);
+            }
+            ScheduledLocation = appointment.ScheduledLocation;
+        }
+
         Title = "Modifica Scrisoarea Medicala";
         UpsertButtonText = "Modifica";
 

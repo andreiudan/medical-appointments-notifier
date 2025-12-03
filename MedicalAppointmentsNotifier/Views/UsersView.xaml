@@ -392,6 +392,8 @@
                                                      Message="{Binding DaysUntilScheduled, 
                                                 Converter={StaticResource ValueToMessageConverter}, 
                                                 ConverterParameter='Atentie: Programarea este peste {0} zile.'}"
+                                                     Visibility="{Binding DaysUntilScheduled, 
+                                                Converter={StaticResource ScheduledDaysToVisibilityConverter}}"
                                                      Margin="12,0"
                                                      CornerRadius="8"
                                                      VerticalAlignment="Center"
@@ -413,7 +415,7 @@
                                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                                         <FontIcon Glyph="&#xE73E;" 
                                                                   FontSize="20"/>
-                                                        <TextBlock Text="Finalizeaza Programarea"/>
+                                                        <TextBlock Text="Finalizeaza"/>
                                                     </StackPanel>
                                                 </Button>
 
@@ -693,8 +695,9 @@
                                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1"
+                                            Margin="0, 0, 0 , 7"
                                             CornerRadius="8"
-                                            Padding="20"
+                                            Padding="16"
                                             Opacity="0.7">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -706,47 +709,27 @@
                                             <Border Grid.Column="0"
                                                     Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                                     CornerRadius="8"
-                                                    Padding="16,12"
+                                                    Padding="14,10"
                                                     Margin="0,0,16,0">
                                                 <StackPanel HorizontalAlignment="Center">
-                                                    <TextBlock Text="28" 
-                                                               FontSize="24"
-                                                               FontWeight="Bold"
+                                                    <TextBlock Text="{Binding IssuedOn, Converter={StaticResource DateOnlyConverter}, ConverterParameter='yyyy'}" 
+                                                               FontSize="20"
+                                                               FontWeight="SemiBold"
                                                                HorizontalAlignment="Center"/>
 
-                                                    <TextBlock Text="SEP" 
-                                                               FontSize="12"
+                                                    <TextBlock Text="{Binding IssuedOn, Converter={StaticResource DateOnlyConverter}, ConverterParameter='MMM'}" 
+                                                               FontSize="14"
                                                                FontWeight="SemiBold"
                                                                HorizontalAlignment="Center"
                                                                Margin="0,-4,0,0"/>
                                                 </StackPanel>
                                             </Border>
 
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding MedicalSpecialty}" 
-                                                           Style="{StaticResource BodyStrongTextBlockStyle}"
-                                                           FontSize="16"/>
-                                                <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
-                                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                                        <FontIcon Glyph="&#xE787;" 
-                                                                  FontSize="14"
-                                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                        
-                                                        <TextBlock Text="9:00 AM" 
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                   Style="{StaticResource CaptionTextBlockStyle}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                                        <FontIcon Glyph="&#xE716;" 
-                                                                  FontSize="14"
-                                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                        
-                                                        <TextBlock Text="Dr. Sarah Smith" 
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                   Style="{StaticResource CaptionTextBlockStyle}"/>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </StackPanel>
+                                            <TextBlock Text="{Binding MedicalSpecialty}" 
+                                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                       FontSize="16"
+                                                       Grid.Column="1"
+                                                       VerticalAlignment="Center"/>
 
                                             <FontIcon Grid.Column="2" 
                                                       Glyph="&#xE73E;" 
