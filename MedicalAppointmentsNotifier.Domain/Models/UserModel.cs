@@ -1,22 +1,22 @@
-﻿namespace MedicalAppointmentsNotifier.Domain.Models
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace MedicalAppointmentsNotifier.Domain.Models
 {
-    public class UserModel
+    public partial class UserModel : ObservableObject
     {
         public Guid Id { get; set; } = new();
 
-        public string FirstName { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial string FirstName { get; set; } = string.Empty;
 
-        public string LastName { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial string LastName { get; set; } = string.Empty;
 
-        public int DaysUntilNextAppointment { get; set; } = 0;
+        [ObservableProperty]
+        public partial int UpcominAppointmentsCount { get; set; } = 0;
 
-        public string Status { get; set; } = string.Empty;
-
-        public int UpcominAppointmentsCount { get; set; } = 0;
-
-        public int ExpiredAppointmentsCount { get; set; } = 0;
-
-        public bool IsSelected { get; set; } = false;
+        [ObservableProperty]
+        public partial int ExpiringAppointmentsCount { get; set; } = 0;
 
         public override bool Equals(object? obj)
         {
@@ -38,13 +38,13 @@
             return this.Id.CompareTo(obj.Id) == 0 &&
                 this.FirstName == obj.FirstName &&
                 this.LastName == obj.LastName &&
-                this.DaysUntilNextAppointment == obj.DaysUntilNextAppointment &&
-                this.Status == obj.Status;
+                this.UpcominAppointmentsCount == obj.UpcominAppointmentsCount &&
+                this.ExpiringAppointmentsCount == obj.ExpiringAppointmentsCount;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, FirstName, LastName, DaysUntilNextAppointment, Status);
+            return HashCode.Combine(Id, FirstName, LastName, UpcominAppointmentsCount, ExpiringAppointmentsCount);
         }
     }
 }

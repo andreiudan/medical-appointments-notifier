@@ -12,8 +12,7 @@ using System.Collections.ObjectModel;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, 
-    IRecipient<UserUpdatedMessage>, IRecipient<AppointmentAddedMessage>,
+public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<AppointmentAddedMessage>,
     IRecipient<AppointmentUpdatedMessage>, IRecipient<NoteAddedMessage>, IRecipient<NoteUpdatedMessage>, IDisposable
 {
     [ObservableProperty]
@@ -124,24 +123,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         }
 
         OnSelectedUserSwitched?.Invoke(this, index - 1);
-    }
-
-    public void Receive(UserUpdatedMessage message)
-    {
-        SelectedUser = message.user;
-
-        UserModel originalUser = Users.First(u => u.Id.Equals(message.user.Id));
-
-        int index = Users.IndexOf(originalUser);
-        Users[index] = message.user;
-
-        index = ShownUsers.IndexOf(originalUser);
-        if(index < 0)
-        {
-            return;
-        }
-
-        ShownUsers[index] = message.user;
     }
 
     public void Receive(AppointmentAddedMessage message)
@@ -454,12 +435,13 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         }
 
         SelectedUser.UpcominAppointmentsCount = ScheduledAppointments.Count;
-        SelectedUser.ExpiredAppointmentsCount = ExpiringAppointments.Count;
+        SelectedUser.ExpiringAppointmentsCount = ExpiringAppointments.Count;
 
         int index = Users.IndexOf(user);
         Users[index] = SelectedUser;
         index = ShownUsers.IndexOf(user);
-        ShownUsers[index] = SelectedUser;
+        ShownUsers[index].UpcominAppointmentsCount = ScheduledAppointments.Count;
+        ShownUsers[index].ExpiringAppointmentsCount = ExpiringAppointments.Count;
     }
 
     public async Task SwitchSelectedUser(Guid userId)

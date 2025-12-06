@@ -16,30 +16,21 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
             {
                 Id = Guid.NewGuid(),
                 FirstName = "John",
-                LastName = "Doe",
-                DaysUntilNextAppointment = 5,
-                Status = "Active",
-                IsSelected = true
+                LastName = "Doe"
             };
 
             differentUser = new UserModel
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Alex",
-                LastName = "Bean",
-                DaysUntilNextAppointment = 5,
-                Status = "Inactive",
-                IsSelected = false
+                LastName = "Bean"
             };
 
             sameUser = new UserModel
             {
                 Id = userFake.Id,
                 FirstName = "John",
-                LastName = "Doe",
-                DaysUntilNextAppointment = 5,
-                Status = "Active",
-                IsSelected = true
+                LastName = "Doe"
             };
         }
 

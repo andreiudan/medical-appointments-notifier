@@ -15,10 +15,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Test",
-                LastName = "Test",
-                DaysUntilNextAppointment = 1,
-                Status = "",
-                IsSelected = true
+                LastName = "Test"
             };
         }
 

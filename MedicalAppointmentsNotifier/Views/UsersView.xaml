@@ -91,10 +91,10 @@
                                     FontSize="16"
                                     Margin="6, 0"/>
                                 <InfoBadge Grid.Column="3" 
-                                    Value="{Binding ExpiredAppointmentsCount, Mode=OneWay}"
+                                    Value="{Binding ExpiringAppointmentsCount, Mode=OneWay}"
                                     Style="{StaticResource CriticalDotInfoBadgeStyle}"
                                     VerticalAlignment="Center"
-                                    Visibility="{Binding ExpiredAppointmentsCount, 
+                                    Visibility="{Binding ExpiringAppointmentsCount, 
                                         Mode=OneWay,
                                         Converter={StaticResource IntToVisibilityConverter}}"/>
                             </Grid>

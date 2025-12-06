@@ -1,24 +1,29 @@
-﻿using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 
 namespace MedicalAppointmentsNotifier.Domain.Models
 {
-    public class AppointmentModel
+    public partial class AppointmentModel : ObservableObject
     {
         public Guid Id { get; set; }
 
-        public MedicalSpecialty? MedicalSpecialty { get; set; }
+        [ObservableProperty]
+        public partial MedicalSpecialty? MedicalSpecialty { get; set; }
 
-        public int MonthsInterval { get; set; }
+        [ObservableProperty]
+        public partial AppointmentStatus Status { get; set; }
 
-        public AppointmentStatus Status { get; set; }
+        [ObservableProperty]
+        public partial int MonthsInterval { get; set; }
 
-        public DateTimeOffset? IssuedOn { get; set; }
+        [ObservableProperty]
+        public partial DateTimeOffset? IssuedOn { get; set; }
 
-        public DateTimeOffset? ScheduledOn { get; set; }
+        [ObservableProperty]
+        public partial DateTimeOffset? ScheduledOn { get; set; }
 
-        public string ScheduledLocation { get; set; }
-
-        public bool IsSelected { get; set; } = false;
+        [ObservableProperty]
+        public partial string ScheduledLocation { get; set; }
 
         public int DaysUntilExpiry
         {
@@ -59,15 +64,14 @@ namespace MedicalAppointmentsNotifier.Domain.Models
                 this.Status == obj.Status &&
                 this.IssuedOn == obj.IssuedOn &&
                 this.ScheduledOn == obj.ScheduledOn &&
-                this.ScheduledLocation == obj.ScheduledLocation &&
-                this.IsSelected == obj.IsSelected;
+                this.ScheduledLocation == obj.ScheduledLocation;
         }
 
         public override int GetHashCode()
         {
 
 
-            return HashCode.Combine(Id, MedicalSpecialty, MonthsInterval, Status, IssuedOn, ScheduledOn, ScheduledLocation, IsSelected);
+            return HashCode.Combine(Id, MedicalSpecialty, MonthsInterval, Status, IssuedOn, ScheduledOn, ScheduledLocation);
         }
 
         public int GetRemainingDaysUntilScheduled()

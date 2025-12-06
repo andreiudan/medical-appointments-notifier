@@ -17,8 +17,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
                 MedicalSpecialty = 0,
                 Status = 0,
                 MonthsInterval = 30,
-                IssuedOn = DateTime.Now,
-                IsSelected = true,
+                IssuedOn = DateTime.Now
             };
         }
 

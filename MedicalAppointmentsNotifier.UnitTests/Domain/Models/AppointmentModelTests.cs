@@ -19,8 +19,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
                 MedicalSpecialty = 0,
                 MonthsInterval = 30,
                 Status = 0,
-                IssuedOn = DateTimeOffset.Now,
-                IsSelected = true
+                IssuedOn = DateTimeOffset.Now
             };
 
             differentAppointment = new AppointmentModel
@@ -29,8 +28,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
                 MedicalSpecialty = 0,
                 MonthsInterval = 60,
                 Status = 0,
-                IssuedOn = DateTimeOffset.Now.AddDays(-60),
-                IsSelected = false
+                IssuedOn = DateTimeOffset.Now.AddDays(-60)
             };
 
             sameAppointment = new AppointmentModel
@@ -39,8 +37,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
                 MedicalSpecialty = 0,
                 MonthsInterval = 30,
                 Status = 0,
-                IssuedOn = appointmentFake.IssuedOn,
-                IsSelected = true
+                IssuedOn = appointmentFake.IssuedOn
             };
         }
 

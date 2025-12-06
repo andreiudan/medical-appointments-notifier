@@ -80,7 +80,7 @@ namespace MedicalAppointmentsNotifier.Views
                     ViewModel.Dispose();
                 }
 
-                this.Bindings.StopTracking();
+                //this.Bindings.StopTracking();
                 DataContext = null;
             }
             catch { }

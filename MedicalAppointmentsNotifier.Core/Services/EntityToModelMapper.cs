@@ -25,8 +25,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Status = appointment.Status,
                 IssuedOn = appointment.IssuedOn,
                 ScheduledOn = appointment.ScheduledOn,
-                ScheduledLocation = appointment.ScheduledLocation,
-                IsSelected = false
+                ScheduledLocation = appointment.ScheduledLocation
             };
 
             return appointmentModel;
@@ -93,11 +92,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                ExpiredAppointmentsCount = await appointmentRepository.GetExpiringAppointmentsCount(user.Id),
+                ExpiringAppointmentsCount = await appointmentRepository.GetExpiringAppointmentsCount(user.Id),
                 UpcominAppointmentsCount = await appointmentRepository.GetUpcomingAppointmentsCount(user.Id),
-                DaysUntilNextAppointment = 0,
-                Status = string.Empty,
-                IsSelected = false
             };
 
             return userModel;
