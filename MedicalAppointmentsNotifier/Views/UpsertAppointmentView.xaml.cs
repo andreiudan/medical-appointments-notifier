@@ -3,7 +3,6 @@ using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
-using Windows.Foundation;
 using Windows.Graphics;
 
 namespace MedicalAppointmentsNotifier.Views;
@@ -14,7 +13,7 @@ namespace MedicalAppointmentsNotifier.Views;
 public sealed partial class UpsertAppointmentView : Window
 {
     private readonly SizeInt32 noScheduleInfoSize = new(625, 545);
-    private readonly SizeInt32 scheduleInfoSize = new(625, 740);
+    private readonly SizeInt32 scheduleInfoSize = new(625, 750);
 
     public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null)
     {

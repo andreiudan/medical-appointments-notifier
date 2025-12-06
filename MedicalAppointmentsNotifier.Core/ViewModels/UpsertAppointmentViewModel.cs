@@ -47,8 +47,8 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     [ObservableProperty]
     public bool isScheduled = false;
     public string? ScheduledLocation { get; set; } = string.Empty;
-    public DateTimeOffset? ScheduledDate { get; set; } = DateTimeOffset.Now;
-    public TimeSpan ScheduledTime { get; set; } = DateTimeOffset.Now.TimeOfDay;
+    public DateTimeOffset? ScheduledDate { get; set; }
+    public TimeSpan ScheduledTime { get; set; }
 
     public string Title { get; set; } = "Adauga Scrisoare Medicala";
     public string UpsertButtonText = "Adauga";
@@ -158,20 +158,10 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     {
         if (IsScheduled)
         {
-            if (ScheduledDate.HasValue)
-            {
-                if(ScheduledDate.Value > DateTimeOffset.Now)
-                {
-                    return AppointmentStatus.Programat;
-                }
-                else
-                {
-                    return AppointmentStatus.Finalizat;
-                }
-            }
+            return AppointmentStatus.Programat;
         }
         
-        if(ExpiringDate.HasValue && ExpiringDate.Value < DateTimeOffset.Now)
+        if(ExpiringDate.HasValue && ExpiringDate.Value.Date < DateTimeOffset.Now.AddMonths(1).Date)
         {
             return AppointmentStatus.Finalizat;
         }

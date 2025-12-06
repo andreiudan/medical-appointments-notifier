@@ -136,7 +136,7 @@ public partial class UpsertUserViewModel : ObservableValidator
         _ = await repository.AddAsync(user);
 
         logger.LogInformation("Inserted new user with Id: {UserId}", user.Id);
-        WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(mapper.Map(user)));
+        WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(await mapper.Map(user)));
     }
 
     private async Task UpdateAsync(User user)
@@ -150,6 +150,6 @@ public partial class UpsertUserViewModel : ObservableValidator
         }
 
         logger.LogInformation("Updated user with Id: {UserId}", user.Id);
-        WeakReferenceMessenger.Default.Send<UserUpdatedMessage>(new UserUpdatedMessage(mapper.Map(user)));
+        WeakReferenceMessenger.Default.Send<UserUpdatedMessage>(new UserUpdatedMessage(await mapper.Map(user)));
     }
 }

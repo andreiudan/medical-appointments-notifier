@@ -6,11 +6,11 @@ namespace MedicalAppointmentsNotifier.Core.Services
 {
     public class EntityToModelMapper : IEntityToModelMapper
     {
-        private readonly IAppointmentCalculator appointmentCalculator;
+        private readonly IAppointmentsRepository appointmentRepository;
 
-        public EntityToModelMapper(IAppointmentCalculator appointmentCalculator)
+        public EntityToModelMapper(IAppointmentsRepository appointmentRepository)
         {
-            this.appointmentCalculator = appointmentCalculator ?? throw new ArgumentNullException(nameof(appointmentCalculator));
+            this.appointmentRepository = appointmentRepository ?? throw new ArgumentNullException(nameof(appointmentRepository));
         }
 
         public AppointmentModel Map(Appointment appointment)
@@ -84,7 +84,7 @@ namespace MedicalAppointmentsNotifier.Core.Services
             return note;
         }
 
-        public UserModel Map(User user)
+        public async Task<UserModel> Map(User user)
         {
             ArgumentNullException.ThrowIfNull(user);
 
@@ -93,6 +93,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                ExpiredAppointmentsCount = await appointmentRepository.GetExpiringAppointmentsCount(user.Id),
+                UpcominAppointmentsCount = await appointmentRepository.GetUpcomingAppointmentsCount(user.Id),
                 DaysUntilNextAppointment = 0,
                 Status = string.Empty,
                 IsSelected = false

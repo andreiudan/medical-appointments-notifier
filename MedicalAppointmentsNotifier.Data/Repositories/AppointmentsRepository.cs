@@ -46,15 +46,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
                 .AsNoTracking()
                 .AsEnumerable();
 
-            return appointments.Where(a =>
-                                {
-                                    if (a.ScheduledOn.HasValue)
-                                    {
-                                        return a.ScheduledOn.Value >= DateTimeOffset.Now;
-                                    }
-                                    return true;
-                                })
-                                .OrderBy(a =>
+            return appointments.OrderBy(a =>
                                 {
                                     if (a.ScheduledOn.HasValue)
                                     {
@@ -76,6 +68,20 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
             return appointments.GroupBy(a => a.MedicalSpecialty)
                 .Select(g => g.OrderByDescending(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval)).First())
                 .ToList();
+        }
+
+        public async Task<int> GetExpiringAppointmentsCount(Guid userId)
+        {
+            return context.Set<Appointment>()
+                          .Count(a => a.UserId.Equals(userId) && 
+                                 (int)a.Status == 0);
+        }
+
+        public async Task<int> GetUpcomingAppointmentsCount(Guid userId)
+        {
+            return context.Set<Appointment>()
+                          .Count(a => a.UserId.Equals(userId) &&
+                                 (int)a.Status == 1);
         }
     }
 }

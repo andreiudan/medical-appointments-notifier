@@ -25,7 +25,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     [ObservableProperty]
     private UserModel selectedUser = new();
 
-    public AppointmentModel FirstScheduledAppointment => ScheduledAppointments.FirstOrDefault();
+    public AppointmentModel? FirstScheduledAppointment => ScheduledAppointments.FirstOrDefault() ?? new();
 
     [NotifyPropertyChangedFor(nameof(FirstScheduledAppointment))]
     [ObservableProperty]
@@ -86,7 +86,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         ShownUsers.Clear();
         foreach (var user in _users)
         {
-            Users.Add(mapper.Map(user));
+            Users.Add(await mapper.Map(user));
         }
         ReorderUsersCollection();
 
@@ -288,7 +288,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
            user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
         {
             ShownUsers.Add(user);
-            ReorderShownUsersCollection()
+            ReorderShownUsersCollection();
         }
     }
 
@@ -304,25 +304,28 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     private void ReorderPastAppointmentsCollection()
     {
-        PastAppointments = new ObservableCollection<AppointmentModel>(PastAppointments.OrderByDescending(a => a.MedicalSpecialty).ToList());
+        PastAppointments = new ObservableCollection<AppointmentModel>(PastAppointments.OrderBy(a => a.MedicalSpecialty).ToList());
     }
 
     private void AddAppointmentToSchedluedCollection(AppointmentModel appointment)
     {
         ScheduledAppointments.Add(appointment);
         ReorderScheduledAppointmentsCollection();
+        UpdateSelectedUserInfo();
     }
 
     private void AddAppointmentToExpiringCollection(AppointmentModel appointment)
     {
         ExpiringAppointments.Add(appointment);
         ReorderExpiringAppointmentsOrder();
+        UpdateSelectedUserInfo();
     }
 
     private void AddAppointmentToPastCollection(AppointmentModel appointment)
     {
         PastAppointments.Add(appointment);
         ReorderPastAppointmentsCollection();
+        UpdateSelectedUserInfo();
     }
 
     private async Task DeleteSelectedUser()
@@ -387,6 +390,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
             temp.Remove(appointment);
         }
 
+        UpdateSelectedUserInfo();
         return new ObservableCollection<AppointmentModel>(temp);
     }
 
@@ -434,18 +438,28 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         bool updated = await appointmentsRepository.UpdateAsync(mapper.Map(appointment, SelectedUser.Id));
         if (updated)
         {
-            List<AppointmentModel> temp = new List<AppointmentModel>(ScheduledAppointments);
-
-            int index = temp.IndexOf(appointment);
-            if (index < 0)
-            {
-                return;
-            }
-
-            temp.RemoveAt(index);
-            ScheduledAppointments = new ObservableCollection<AppointmentModel>(temp);
-            ExpiringAppointments.Add(appointment);
+            RemoveAppointmentFromCollection(ScheduledAppointments, appointment);
+            AddAppointmentToPastCollection(appointment);
         }
+    }
+
+    private void UpdateSelectedUserInfo()
+    {
+        UserModel user = Users.FirstOrDefault(u => u.Id.Equals(SelectedUser.Id));
+        
+        if (user == null)
+        {
+            logger.LogWarning("Could not find user with Id: {userId} to update info.", SelectedUser.Id);
+            return;
+        }
+
+        SelectedUser.UpcominAppointmentsCount = ScheduledAppointments.Count;
+        SelectedUser.ExpiredAppointmentsCount = ExpiringAppointments.Count;
+
+        int index = Users.IndexOf(user);
+        Users[index] = SelectedUser;
+        index = ShownUsers.IndexOf(user);
+        ShownUsers[index] = SelectedUser;
     }
 
     public async Task SwitchSelectedUser(Guid userId)
@@ -465,10 +479,10 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         LoadPastAppointments();
         LoadExpiringAppointments();
         LoadNotes();
-        LoadUpcomingAppointments();
+        await LoadScheduledAppointments();
     }
 
-    private async Task LoadUpcomingAppointments()
+    private async Task LoadScheduledAppointments()
     {
         List<Appointment> appointments = await appointmentsRepository.GetUpcomingAppointments(SelectedUser.Id);
         List<AppointmentModel> temp = new List<AppointmentModel>();
@@ -502,6 +516,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         {
             PastAppointments.Add(mapper.Map(appointment));
         }
+
+        ReorderPastAppointmentsCollection();
     }
 
     private async Task LoadNotes()

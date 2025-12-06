@@ -4,16 +4,30 @@ using System;
 
 namespace MedicalAppointmentsNotifier.Converters
 {
-    public class StringToVisibilityConverter : IValueConverter
+    internal class NullablePropertyToVisibilityConverter : IValueConverter
     {
+        public bool IsReversed { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is not null && value is string val && !string.IsNullOrEmpty(val))
+            bool visible = true;
+
+            if (value is null)
             {
-                return Visibility.Visible;
+                visible = false;
             }
 
-            return Visibility.Collapsed;
+            if(!IsReversed)
+            {
+                visible = !visible;
+            }
+
+            if (visible)
+            {
+                return Visibility.Collapsed;
+            }
+
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

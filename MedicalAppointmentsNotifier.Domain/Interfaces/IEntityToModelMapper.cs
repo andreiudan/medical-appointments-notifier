@@ -5,7 +5,7 @@ namespace MedicalAppointmentsNotifier.Domain.Interfaces
 {
     public interface IEntityToModelMapper
     {
-        public UserModel Map(User user);
+        public Task<UserModel> Map(User user);
 
         public NoteModel Map(Note user);
 

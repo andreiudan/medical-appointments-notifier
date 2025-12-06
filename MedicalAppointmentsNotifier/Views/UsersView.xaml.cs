@@ -1,4 +1,5 @@
 using MedicalAppointmentsNotifier.Core.ViewModels;
+using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -127,6 +128,30 @@ namespace MedicalAppointmentsNotifier.Views
 
             if (sender is Button button && button.DataContext is AppointmentModel appointment)
             {
+                ActivateNewUpsertView(new UpsertAppointmentView(ViewModel.SelectedUser.Id, appointment));
+            }
+        }
+
+        private void btnScheduleAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is null || sender is not Button)
+            {
+                return;
+            }
+
+            if (sender is Button button && button.DataContext is AppointmentModel appointmentModel)
+            {
+                AppointmentModel appointment = new AppointmentModel
+                {
+                    Id = appointmentModel.Id,
+                    MedicalSpecialty = appointmentModel.MedicalSpecialty,
+                    MonthsInterval = appointmentModel.MonthsInterval,
+                    IssuedOn = appointmentModel.IssuedOn,
+                    ScheduledOn = appointmentModel.ScheduledOn,
+                    ScheduledLocation = appointmentModel.ScheduledLocation,
+                    Status = AppointmentStatus.Programat
+                };
+
                 ActivateNewUpsertView(new UpsertAppointmentView(ViewModel.SelectedUser.Id, appointment));
             }
         }

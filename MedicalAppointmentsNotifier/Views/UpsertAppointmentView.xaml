@@ -116,7 +116,7 @@
             <TextBlock Grid.Row="0" 
                        Grid.Column="0"
                        Text="Informatii Progamare"
-                       Style="{StaticResource BaseTextBlockStyle}"/>
+                       Style="{StaticResource SubtitleTextBlockStyle}"/>
 
             <TextBox Header="Locatia"
                      Text="{x:Bind ViewModel.ScheduledLocation, Mode=TwoWay}"/>

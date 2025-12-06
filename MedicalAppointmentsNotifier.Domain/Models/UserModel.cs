@@ -12,6 +12,10 @@
 
         public string Status { get; set; } = string.Empty;
 
+        public int UpcominAppointmentsCount { get; set; } = 0;
+
+        public int ExpiredAppointmentsCount { get; set; } = 0;
+
         public bool IsSelected { get; set; } = false;
 
         public override bool Equals(object? obj)

@@ -63,6 +63,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Avatar -->
@@ -82,14 +83,20 @@
 
                                 <!-- Notification Badge -->
                                 <InfoBadge Grid.Column="2" 
-                                    Value="2"
+                                    Value="{Binding UpcominAppointmentsCount, Mode=OneWay}"
                                     VerticalAlignment="Center"
-                                    Visibility="Visible"/>
-                                <!--<InfoBadge Grid.Column="2" 
-                                    Value="2"
+                                    Visibility="{Binding UpcominAppointmentsCount, 
+                                        Mode=OneWay,
+                                        Converter={StaticResource IntToVisibilityConverter}}"
+                                    FontSize="16"
+                                    Margin="6, 0"/>
+                                <InfoBadge Grid.Column="3" 
+                                    Value="{Binding ExpiredAppointmentsCount, Mode=OneWay}"
                                     Style="{StaticResource CriticalDotInfoBadgeStyle}"
                                     VerticalAlignment="Center"
-                                    Visibility="Visible"/>-->
+                                    Visibility="{Binding ExpiredAppointmentsCount, 
+                                        Mode=OneWay,
+                                        Converter={StaticResource IntToVisibilityConverter}}"/>
                             </Grid>
                         </ItemContainer>
 
@@ -189,7 +196,8 @@
                                    FontWeight="SemiBold"
                                    Opacity="0.9"/>
 
-                        <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, TargetNullValue='N/A',
+                        <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, 
+                            TargetNullValue='Data programarii nu este inregistrata',
                             Mode=OneWay, 
                             Converter={StaticResource DateOnlyConverter}, 
                             ConverterParameter='dd.MMM.yyy'}" 
@@ -203,22 +211,23 @@
                                     Margin="0,4,0,0">
                             <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.MedicalSpecialty, Mode=OneWay}" 
                                        Foreground="White"
-                                       Opacity="0.9"/>
+                                       Opacity="0.9"
+                                       Visibility="{x:Bind ViewModel.FirstScheduledAppointment.MedicalSpecialty, Converter={StaticResource NullablePropertyToVisibilityConverter}, Mode=OneWay}"/>
                             
                             <StackPanel Orientation="Horizontal"
                                         Spacing="4"
-                                        Visibility="Visible">
+                                        Visibility="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, Converter={StaticResource NullablePropertyToVisibilityConverter}, Mode=OneWay}">
                                 <TextBlock Text="•" 
                                            Foreground="White"
                                            Opacity="0.9"/>
-                                <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, Mode=OneWay, Converter={StaticResource TimeOnlyConverter}}" 
+                                <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, Converter={StaticResource TimeOnlyConverter}, Mode=OneWay}" 
                                            Foreground="White"
                                            Opacity="0.9"/>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal"
                                         Spacing="4"
-                                        Visibility="Visible">
+                                        Visibility="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledLocation, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}">
                                 <TextBlock Text="•" 
                                            Foreground="White"
                                            Opacity="0.9"/>
@@ -347,12 +356,24 @@
                                                 <StackPanel HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
                                                             Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding ScheduledOn, Mode=OneWay, Converter={StaticResource DateOnlyConverter}}" 
-                                                        Foreground="White"
-                                                        FontSize="18"
-                                                        FontWeight="SemiBold"
-                                                        HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding ScheduledOn,
+                                                        TargetNullValue='Fara data',
+                                                        Mode=OneWay, 
+                                                        Converter={StaticResource DateOnlyConverter}}" 
+                                                               Foreground="White"
+                                                               FontSize="18"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Fara data"
+                                                               Visibility="{Binding ScheduledOn, 
+                                                        Mode=OneWay, 
+                                                        Converter={StaticResource ReverseNullablePropertyToVisibilityConverter}}"
+                                                               Foreground="White"
+                                                               FontSize="18"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Border>
 
@@ -362,7 +383,11 @@
                                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                                     FontSize="16"/>
                                                 <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
-                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <StackPanel Orientation="Horizontal" 
+                                                                Spacing="6"
+                                                                Visibility="{Binding ScheduledOn, 
+                                                                    Mode=OneWay, 
+                                                                    Converter={StaticResource NullablePropertyToVisibilityConverter}}">
                                                         <FontIcon Glyph="&#xE787;" 
                                                             FontSize="14"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -372,7 +397,11 @@
                                                             Style="{StaticResource CaptionTextBlockStyle}"/>
                                                     </StackPanel>
 
-                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <StackPanel Orientation="Horizontal" 
+                                                                Spacing="6"
+                                                                Visibility="{Binding ScheduledLocation, 
+                                                                    Mode=OneWay, 
+                                                                    Converter={StaticResource StringToVisibilityConverter}}">
                                                         <FontIcon Glyph="&#xE707;" 
                                                             FontSize="14"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -510,11 +539,27 @@
                                                         Orientation="Horizontal" 
                                                         Spacing="8"
                                                         VerticalAlignment="Center">
+                                                <Button Grid.Column="1"
+                                                        x:Name="btnFinishAppointment"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Right"
+                                                        Click="ShowAppointmentConfirmFinalizeDialog">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon Glyph="&#xE73E;" 
+                                                                  FontSize="20"
+                                                                  Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                                        <TextBlock Text="Finalizeaza"/>
+                                                    </StackPanel>
+                                                </Button>
+
                                                 <Button Name="btnScheduleAppointment"
-                                                        ToolTipService.ToolTip="Adauga data programarii">
+                                                        ToolTipService.ToolTip="Adauga data programarii"
+                                                        Click="btnScheduleAppointment_Click">
                                                     <StackPanel Orientation="Horizontal"
                                                                 Spacing="12">
-                                                        <FontIcon Glyph="&#xE73E;" FontSize="16"/>
+                                                        <FontIcon Glyph="&#xF763;" 
+                                                                  FontSize="16"
+                                                                  Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                                                         <TextBlock Text="Seteaza Programarea"/>
                                                     </StackPanel>
                                                 </Button>

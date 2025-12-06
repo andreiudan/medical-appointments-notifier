@@ -65,6 +65,9 @@
             <c:TimeOnlyConverter x:Key="TimeOnlyConverter"/>
             <c:ValueToMessageConverter x:Key="ValueToMessageConverter"/>
             <c:ScheduledDaysToVisibilityConverter x:Key="ScheduledDaysToVisibilityConverter"/>
+            <c:NullablePropertyToVisibilityConverter x:Key="NullablePropertyToVisibilityConverter"/>
+            <c:NullablePropertyToVisibilityConverter x:Key="ReverseNullablePropertyToVisibilityConverter" IsReversed="True"/>
+            <c:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
 
             <!-- Style for Dangerous Buttons with PointerOver / Pressed visual states -->
             <Style x:Key="DangerButtonStyle" TargetType="Button">

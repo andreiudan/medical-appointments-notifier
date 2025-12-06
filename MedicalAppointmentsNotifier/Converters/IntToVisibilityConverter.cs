@@ -4,11 +4,11 @@ using System;
 
 namespace MedicalAppointmentsNotifier.Converters
 {
-    public class StringToVisibilityConverter : IValueConverter
+    internal class IntToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is not null && value is string val && !string.IsNullOrEmpty(val))
+            if(value is int number && number > 0)
             {
                 return Visibility.Visible;
             }
