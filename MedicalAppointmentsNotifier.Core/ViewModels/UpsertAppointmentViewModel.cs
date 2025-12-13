@@ -15,45 +15,109 @@ namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
 public partial class UpsertAppointmentViewModel : ObservableValidator
 {
-    public event EventHandler OnAppointmentAdded;
-
-    [ObservableProperty]
-    private MedicalSpecialty specialty = 0;
-
-    [NotifyPropertyChangedFor(nameof(MonthsIntervalErrorMessage))]
-    [NotifyPropertyChangedFor(nameof(ExpiringDate))]
-    [ObservableProperty]
-    [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
-    [Range(0, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
-    private int monthsInterval = 3;
-
-    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
-    [NotifyPropertyChangedFor(nameof(ExpiringDate))]
-    [ObservableProperty]
-    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? issuedOn = DateTimeOffset.Now;
-
-    public DateTimeOffset? ExpiringDate => IssuedOn.HasValue ? IssuedOn.Value.AddMonths(MonthsInterval) : DateTimeOffset.Now;
-
-    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
-    public string MonthsIntervalErrorMessage => GetErrors(nameof(MonthsInterval)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
-
+    public event EventHandler OnCompleted;
     public MedicalSpecialty[] MedicalSpecialties => (MedicalSpecialty[])Enum.GetValues(typeof(MedicalSpecialty));
 
-    private Guid UserId { get; set; }
-    private Guid AppointmentId { get; set; } = Guid.Empty;
-    private AppointmentStatus Status { get; set; } = 0;
+    private AppointmentModel appointment;
 
-    [ObservableProperty]
-    public bool isScheduled = false;
-    public string? ScheduledLocation { get; set; } = string.Empty;
-    public DateTimeOffset? ScheduledDate { get; set; }
-    public TimeSpan ScheduledTime { get; set; }
+    public MedicalSpecialty? Specialty
+    {
+        get => appointment.MedicalSpecialty ?? 0;
+        set
+        {
+            SetProperty(appointment.MedicalSpecialty, value, appointment, (a, m) => a.MedicalSpecialty = m);
+        }
+    }
+
+    public AppointmentStatus Status
+    {
+        get => appointment.Status;
+        set
+        {
+            SetProperty(appointment.Status, value, appointment, (a, s) => a.Status = s);
+        }
+    }
+
+    [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
+    [Range(0, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
+    public int MonthsInterval
+    {
+        get => appointment.MonthsInterval;
+        set
+        {
+            SetProperty(appointment.MonthsInterval, value, appointment, (a, m) => a.MonthsInterval = m, true);
+            OnPropertyChanged(nameof(ExpiringDate));
+            OnPropertyChanged(nameof(MonthsIntervalErrorMessage));
+        }
+    }
+
+    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
+    public DateTimeOffset? IssuedOn
+    {
+        get => appointment.IssuedOn;
+        set
+        {
+            SetProperty(appointment.IssuedOn, value, appointment, (a, i) => a.IssuedOn = i, true);
+            OnPropertyChanged(nameof(DateIntervalErrorMessage));
+            OnPropertyChanged(nameof(ExpiringDate));
+        }
+    }
+
+    public DateTimeOffset? ExpiringDate => IssuedOn.HasValue ? IssuedOn.Value.AddMonths(MonthsInterval) : null;
+
+    public string? ScheduledLocation
+    {
+        get => appointment.ScheduledLocation;
+        set
+        {
+            SetProperty(appointment.ScheduledLocation, value, appointment, (a, s) => a.ScheduledLocation = s);
+        }
+    }
+    public DateTimeOffset? ScheduledDate
+    {
+        get => appointment.ScheduledOn;
+        set
+        {
+            SetProperty(appointment.ScheduledOn, value, appointment, (a, s) => a.ScheduledOn = s);
+        }
+    }
+
+    private TimeSpan scheduledTime;
+
+    public TimeSpan ScheduledTime
+    {
+        get => scheduledTime;
+        set
+        {
+            SetProperty(ref scheduledTime, value);
+        }
+    }
+
+    private bool isScheduled = false;
+
+    public bool IsScheduled
+    {
+        get => isScheduled;
+        set
+        {
+            SetProperty(ref isScheduled, value);
+        }
+    }
+
+    public string DateIntervalErrorMessage => GetErrors(nameof(IssuedOn)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    public string MonthsIntervalErrorMessage => GetErrors(nameof(MonthsInterval)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    
+    private Guid userId { get; set; }
+    private AppointmentModel originalAppointment;
+    private bool isNewAppointment = false;
 
     public string Title { get; set; } = "Adauga Scrisoare Medicala";
     public string UpsertButtonText = "Adauga";
 
+    public IAsyncRelayCommand LoadAppointmentCommand { get; }
+    public IAsyncRelayCommand LoadUserIdCommand { get; }
     public IAsyncRelayCommand UpsertAppointmentCommand { get; }
+    public IAsyncRelayCommand TriggerScheduleCommand { get; }
 
     private readonly IRepository<Appointment> appointmentsRepository;
     private readonly IEntityToModelMapper mapper;
@@ -66,92 +130,71 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        LoadAppointmentCommand = new AsyncRelayCommand<AppointmentModel>(LoadAppointmentAsync);
+        LoadUserIdCommand = new AsyncRelayCommand<Guid>(LoadUserIdAsync);
+        TriggerScheduleCommand = new AsyncRelayCommand<bool>(TriggerScheduleAsync);
         UpsertAppointmentCommand = new AsyncRelayCommand(UpsertAsync);
+
+        ErrorsChanged += UpsertAppointmentViewModel_ErrorsChanged;
     }
 
-    public void LoadAppointment(AppointmentModel appointment)
+    private void UpsertAppointmentViewModel_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
     {
-        if(appointment == null)
+        OnPropertyChanged(nameof(DateIntervalErrorMessage));
+        OnPropertyChanged(nameof(MonthsIntervalErrorMessage));
+    }
+
+    public async Task LoadAppointmentAsync(AppointmentModel? loadedAppointment)
+    {
+        this.appointment = new AppointmentModel();
+
+        if (loadedAppointment == null)
         {
+            isNewAppointment = true;
+
             logger.LogWarning("LoadAppointment called with null appointment");
             return;
         }
 
-        AppointmentId = appointment.Id;
-        Specialty = appointment.MedicalSpecialty ?? 0;
-        Status = appointment.Status;
-        MonthsInterval = appointment.MonthsInterval;
-        IssuedOn = appointment.IssuedOn;
+        originalAppointment = loadedAppointment;
 
-        if(Status == AppointmentStatus.Programat || Status == AppointmentStatus.Finalizat)
+        Specialty = loadedAppointment.MedicalSpecialty;
+        Status = loadedAppointment.Status;
+        MonthsInterval = loadedAppointment.MonthsInterval;
+        IssuedOn = loadedAppointment.IssuedOn;
+        ScheduledLocation = loadedAppointment.ScheduledLocation;
+
+        if (loadedAppointment.Status == AppointmentStatus.Programat)
         {
             IsScheduled = true;
-            if(appointment.ScheduledOn.HasValue)
-            {
-                ScheduledDate = appointment.ScheduledOn.Value;
-                ScheduledTime = new TimeSpan(appointment.ScheduledOn.Value.Hour, appointment.ScheduledOn.Value.Minute, appointment.ScheduledOn.Value.Second);
-            }
-            ScheduledLocation = appointment.ScheduledLocation;
+        }
+
+        if (loadedAppointment.ScheduledOn.HasValue)
+        {
+            ScheduledDate = loadedAppointment.ScheduledOn;
+            ScheduledTime = new TimeSpan(loadedAppointment.ScheduledOn.Value.Hour, loadedAppointment.ScheduledOn.Value.Minute, loadedAppointment.ScheduledOn.Value.Second);
         }
 
         Title = "Modifica Scrisoarea Medicala";
         UpsertButtonText = "Modifica";
 
-        logger.LogInformation("Loaded appointment with Id: {AppointmentId}", AppointmentId);
+        logger.LogInformation("Loaded appointment with Id: {AppointmentId}", loadedAppointment.Id);
     }
 
-    public void LoadUserId(Guid userId)
+    public async Task LoadUserIdAsync(Guid userId)
     {
-        UserId = userId;
-    }
-
-    partial void OnMonthsIntervalChanged(int value)
-    {
-        ValidateProperty(value, nameof(MonthsInterval));
-    }
-
-    partial void OnIssuedOnChanged(DateTimeOffset? value)
-    {
-        ValidateProperty(value, nameof(IssuedOn));
-        ValidateDates();
-    }
-
-    private bool ValidateDates()
-    {
-        DateIntervalErrorMessage = GetErrors(nameof(IssuedOn)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(ExpiringDate)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
-
-        if(!string.IsNullOrEmpty(DateIntervalErrorMessage))
+        if(userId.Equals(Guid.Empty))
         {
-            return false;
+            logger.LogWarning("LoadUserId called with empty GUID");
+            return;
         }
 
-        return true;
+        this.userId = userId;
     }
 
-    public bool Validate()
+    public async Task TriggerScheduleAsync(bool isScheduled)
     {
-        try
-        {
-            ValidateAllProperties();
-            if (!ValidateDates())
-            {
-                return false;
-            }
-
-            OnPropertyChanged(nameof(DateIntervalErrorMessage));
-            OnPropertyChanged(nameof(MonthsIntervalErrorMessage));
-
-            if (HasErrors)
-            {
-                return false;
-            }
-        }
-        catch
-        {
-            return false;
-        }
-
-        return true;
+        IsScheduled = isScheduled;
     }
 
     private AppointmentStatus GetAppointmentStatus()
@@ -161,10 +204,10 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             return AppointmentStatus.Programat;
         }
         
-        if(ExpiringDate.HasValue && ExpiringDate.Value.Date < DateTimeOffset.Now.AddMonths(1).Date)
-        {
-            return AppointmentStatus.Finalizat;
-        }
+        //if(ExpiringDate.HasValue && ExpiringDate.Value.Date < DateTimeOffset.Now.AddMonths(1).Date)
+        //{
+        //    return AppointmentStatus.Finalizat;
+        //}
 
         return AppointmentStatus.Neprogramat;
     }
@@ -187,57 +230,62 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
 
     private async Task UpsertAsync()
     {
-        if(!Validate())
+        ValidateAllProperties();
+
+        if (HasErrors)
         {
-            logger.LogInformation("Validation failed for appointment ID:{AppointmentId}", AppointmentId);
             return;
         }
 
         INameNormalizer nameNormalizer = new NameNormalizer();
-        Appointment appointment = new Appointment
-        {
-            Id = Guid.NewGuid(),
-            MedicalSpecialty = Specialty,
-            Status = GetAppointmentStatus(),
-            MonthsInterval = MonthsInterval,
-            ScheduledLocation = nameNormalizer.Normalize(ScheduledLocation ?? string.Empty),
-            ScheduledOn = GetScheduledOn(),
-            IssuedOn = IssuedOn,
-            UserId = UserId,
-        };
+        appointment.Status = GetAppointmentStatus();
+        appointment.ScheduledLocation = nameNormalizer.Normalize(appointment.ScheduledLocation ?? string.Empty);
+        appointment.ScheduledOn = GetScheduledOn();
 
-        if(AppointmentId.Equals(Guid.Empty))
+        if (isNewAppointment)
         {
-            await InsertAsync(appointment);
+            await InsertAsync(mapper.Map(appointment, userId));
         }
         else
         {
-            appointment.Id = AppointmentId;
-            await UpdateAsync(appointment);
+            appointment.Id = originalAppointment.Id;
+            await UpdateAsync(mapper.Map(appointment, userId));
         }
 
-        OnAppointmentAdded?.Invoke(this, EventArgs.Empty);
+        OnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
-    private async Task InsertAsync(Appointment appointment)
+    private async Task InsertAsync(Appointment newAppointment)
     {
-        Appointment addedAppointment = await appointmentsRepository.AddAsync(appointment);
+        Appointment addedAppointment = await appointmentsRepository.AddAsync(newAppointment);
 
-        logger.LogInformation("Inserted new appointment with ID {AppointmentId}", appointment.Id);
+        logger.LogInformation("Inserted new appointment with ID {AppointmentId}", newAppointment.Id);
         WeakReferenceMessenger.Default.Send<AppointmentAddedMessage>(new AppointmentAddedMessage(mapper.Map(addedAppointment)));
     }
 
-    private async Task UpdateAsync(Appointment appointment)
+    private async Task UpdateAsync(Appointment updatedAppointment)
     {
-        bool updated = await appointmentsRepository.UpdateAsync(appointment);
-
+        bool updated = await appointmentsRepository.UpdateAsync(updatedAppointment);
         if (!updated)
         {
-            logger.LogWarning("Failed to update appointment with ID {AppointmentId}", appointment.Id);
+            logger.LogWarning("Failed to update appointment with ID {AppointmentId}", updatedAppointment.Id);
             return;
         }
 
-        logger.LogInformation("Updated appointment with ID {AppointmentId}", appointment.Id);
-        WeakReferenceMessenger.Default.Send<AppointmentUpdatedMessage>(new AppointmentUpdatedMessage(mapper.Map(appointment)));
+        bool statusChanged = !originalAppointment.Status.Equals(updatedAppointment.Status);
+        AppointmentStatus oldStatus = originalAppointment.Status;
+
+        originalAppointment.MedicalSpecialty = updatedAppointment.MedicalSpecialty;
+        originalAppointment.MonthsInterval = updatedAppointment.MonthsInterval;
+        originalAppointment.Status = updatedAppointment.Status;
+        originalAppointment.IssuedOn = updatedAppointment.IssuedOn;
+        originalAppointment.ScheduledOn = updatedAppointment.ScheduledOn;
+        originalAppointment.ScheduledLocation = updatedAppointment.ScheduledLocation ?? string.Empty;
+
+        logger.LogInformation("Updated appointment with ID {AppointmentId}", updatedAppointment.Id);
+        if (statusChanged)
+        {
+            WeakReferenceMessenger.Default.Send<AppointmentStatusChangedMessage>(new AppointmentStatusChangedMessage(mapper.Map(updatedAppointment), oldStatus, updatedAppointment.Status));
+        }
     }
 }

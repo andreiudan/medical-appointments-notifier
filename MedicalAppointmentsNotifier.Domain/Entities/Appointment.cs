@@ -20,7 +20,7 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
 
         public DateTimeOffset? ScheduledOn { get; set; }
 
-        public string ScheduledLocation { get; set; } = string.Empty;
+        public string? ScheduledLocation { get; set; }
 
         [Required]
         [ForeignKey("User")]

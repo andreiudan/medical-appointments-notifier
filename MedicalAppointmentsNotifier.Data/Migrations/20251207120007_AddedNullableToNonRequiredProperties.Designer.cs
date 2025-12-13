@@ -3,6 +3,7 @@ using System;
 using MedicalAppointmentsNotifier.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedicalAppointmentsNotifier.Data.Migrations
 {
     [DbContext(typeof(MedicalAppointmentsContext))]
-    partial class MedicalAppointmentsContextModelSnapshot : ModelSnapshot
+    [Migration("20251207120007_AddedNullableToNonRequiredProperties")]
+    partial class AddedNullableToNonRequiredProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");

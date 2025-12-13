@@ -18,7 +18,7 @@
         x:Name="RootGrid"
         HorizontalAlignment="Stretch" 
         VerticalAlignment="Stretch">
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>

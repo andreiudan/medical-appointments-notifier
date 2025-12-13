@@ -10,7 +10,7 @@ namespace MedicalAppointmentsNotifier.Domain.Models
         public partial string Title { get; set; }
 
         [ObservableProperty]
-        public partial string Description { get; set; }
+        public partial string? Description { get; set; }
 
         [ObservableProperty]
         public partial DateTimeOffset? From { get; set; }

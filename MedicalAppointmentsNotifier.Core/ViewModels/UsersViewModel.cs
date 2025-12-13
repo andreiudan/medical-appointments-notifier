@@ -13,8 +13,10 @@ using System.Collections.ObjectModel;
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
 public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedMessage>, IRecipient<AppointmentAddedMessage>,
-    IRecipient<AppointmentUpdatedMessage>, IRecipient<NoteAddedMessage>, IRecipient<NoteUpdatedMessage>, IDisposable
+    IRecipient<AppointmentStatusChangedMessage>, IRecipient<NoteAddedMessage>, IDisposable
 {
+    private List<UserModel> Users { get; set; } = new();
+
     [ObservableProperty]
     private ObservableCollection<UserModel> shownUsers = new();
 
@@ -23,8 +25,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     [ObservableProperty]
     private UserModel selectedUser = new();
-
-    public AppointmentModel? FirstScheduledAppointment => ScheduledAppointments.FirstOrDefault() ?? new();
 
     [NotifyPropertyChangedFor(nameof(FirstScheduledAppointment))]
     [ObservableProperty]
@@ -39,9 +39,9 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     [ObservableProperty]
     private ObservableCollection<NoteModel> notes = new();
 
-    public IAsyncRelayCommand LoadUsersCommand { get; }
+    public AppointmentModel? FirstScheduledAppointment => ScheduledAppointments.FirstOrDefault() ?? new();
 
-    private List<UserModel> Users { get; set; } = new();
+    public IAsyncRelayCommand LoadUsersCommand { get; }
 
     private readonly IAppointmentsRepository appointmentsRepository;
     private readonly IRepository<Note> notesRepository;
@@ -59,7 +59,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
-        LoadUsersCommand.Execute(null);
+        LoadUsersCommand.ExecuteAsync(null);
 
         IsActive = true;
     }
@@ -146,78 +146,37 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         logger.LogInformation("Added appointment with ID {AppointmentId} to user with ID {UserId}", message.appointment.Id, selectedUser.Id);
     }
 
-    public void Receive(AppointmentUpdatedMessage message)
+    public void Receive(AppointmentStatusChangedMessage message)
     {
-        AppointmentModel oldAppointment;
-        int index;
-
-        if(ScheduledAppointments.Any(a => a.Id.Equals(message.appointment.Id)))
+        switch(message.oldStatus)
         {
-            oldAppointment = ScheduledAppointments.FirstOrDefault(a => a.Id.Equals(message.appointment.Id));
-            index = ScheduledAppointments.IndexOf(oldAppointment);
+            case AppointmentStatus.Programat:
+                ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, message.appointment);
+                break;
+            case AppointmentStatus.Neprogramat:
+                ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, message.appointment);
+                break;
+            case AppointmentStatus.Finalizat:
+                PastAppointments = RemoveAppointmentFromCollection(PastAppointments, message.appointment);
+                break;
+            default:
+                logger.LogWarning("Received appointment with unknown status {Status}", message.oldStatus);
+                break;
         }
-        else if(ExpiringAppointments.Any(a => a.Id.Equals(message.appointment.Id)))
+        switch(message.newStatus)
         {
-            oldAppointment = ExpiringAppointments.FirstOrDefault(a => a.Id.Equals(message.appointment.Id));
-            index = ExpiringAppointments.IndexOf(oldAppointment);
-        }
-        else if(PastAppointments.Any(a => a.Id.Equals(message.appointment.Id)))
-        {
-            oldAppointment = PastAppointments.FirstOrDefault(a => a.Id.Equals(message.appointment.Id));
-            index = PastAppointments.IndexOf(oldAppointment);
-        }
-        else
-        {
-            logger.LogWarning("Received update for appointment with ID {AppointmentId} which does not exist in any collection", message.appointment.Id);
-            return;
-        }
-
-        if(oldAppointment.Status != message.appointment.Status)
-        {
-            //Status has changed, move between collections
-            switch(oldAppointment.Status)
-            {
-                case AppointmentStatus.Programat:
-                    ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, oldAppointment);
-                    break;
-                case AppointmentStatus.Neprogramat:
-                    ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, oldAppointment);
-                    break;
-                case AppointmentStatus.Finalizat:
-                    PastAppointments = RemoveAppointmentFromCollection(PastAppointments, oldAppointment);
-                    break;
-            }
-            switch(message.appointment.Status)
-            {
-                case AppointmentStatus.Programat:
-                    AddAppointmentToSchedluedCollection(message.appointment);
-                    break;
-                case AppointmentStatus.Neprogramat:
-                    AddAppointmentToExpiringCollection(message.appointment);
-                    break;
-                case AppointmentStatus.Finalizat:
-                    AddAppointmentToPastCollection(message.appointment);
-                    break;
-            }
-        }
-        else
-        {
-            //Status is the same, just update in place
-            switch(message.appointment.Status)
-            {
-                case AppointmentStatus.Programat:
-                    ScheduledAppointments[index] = message.appointment;
-                    ReorderScheduledAppointmentsCollection();
-                    break;
-                case AppointmentStatus.Neprogramat:
-                    ExpiringAppointments[index] = message.appointment;
-                    ReorderExpiringAppointmentsOrder();
-                    break;
-                case AppointmentStatus.Finalizat:
-                    PastAppointments[index] = message.appointment;
-                    ReorderPastAppointmentsCollection();
-                    break;
-            }
+            case AppointmentStatus.Programat:
+                AddAppointmentToSchedluedCollection(message.appointment);
+                break;
+            case AppointmentStatus.Neprogramat:
+                AddAppointmentToExpiringCollection(message.appointment);
+                break;
+            case AppointmentStatus.Finalizat:
+                AddAppointmentToPastCollection(message.appointment);
+                break;
+            default:
+                logger.LogWarning("Received appointment with unknown status {Status}", message.newStatus);
+                break;
         }
 
         logger.LogInformation("Updated appointment with ID {AppointmentId}", message.appointment.Id);
@@ -227,17 +186,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     {
         Notes.Add(message.note);
         logger.LogInformation("Added note with ID {NoteId} to user with ID {UserId}", message.note.Id, SelectedUser.Id);
-    }
-
-    public void Receive(NoteUpdatedMessage message)
-    {
-        int index = Notes.IndexOf(Notes.FirstOrDefault(n => n.Id.Equals(message.note.Id)));
-        if(index < 0)
-        {
-            return;
-        }
-        Notes[index] = message.note;
-        logger.LogInformation("Updated note with ID {AppointmentId}", message.note.Id);
     }
 
     private void ReorderShownUsersCollection()
@@ -366,9 +314,11 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     private ObservableCollection<AppointmentModel> RemoveAppointmentFromCollection(ObservableCollection<AppointmentModel> collection, AppointmentModel appointment)
     {
         List<AppointmentModel> temp = new List<AppointmentModel>(collection);
-        if (temp.Contains(appointment))
+
+        AppointmentModel tempAppointment = temp.FirstOrDefault(a => a.Id.Equals(appointment.Id));
+        if(tempAppointment != default)
         {
-            temp.Remove(appointment);
+            temp.Remove(tempAppointment);
         }
 
         UpdateSelectedUserInfo();

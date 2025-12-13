@@ -23,11 +23,6 @@ namespace MedicalAppointmentsNotifier.Views
 
         public UsersViewModel ViewModel => (UsersViewModel)DataContext;
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-        }
-
         private void btnAdd_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             ActivateNewUpsertView(new UpsertUserView());
@@ -141,18 +136,7 @@ namespace MedicalAppointmentsNotifier.Views
 
             if (sender is Button button && button.DataContext is AppointmentModel appointmentModel)
             {
-                AppointmentModel appointment = new AppointmentModel
-                {
-                    Id = appointmentModel.Id,
-                    MedicalSpecialty = appointmentModel.MedicalSpecialty,
-                    MonthsInterval = appointmentModel.MonthsInterval,
-                    IssuedOn = appointmentModel.IssuedOn,
-                    ScheduledOn = appointmentModel.ScheduledOn,
-                    ScheduledLocation = appointmentModel.ScheduledLocation,
-                    Status = AppointmentStatus.Programat
-                };
-
-                ActivateNewUpsertView(new UpsertAppointmentView(ViewModel.SelectedUser.Id, appointment));
+                ActivateNewUpsertView(new UpsertAppointmentView(ViewModel.SelectedUser.Id, appointmentModel, true));
             }
         }
 

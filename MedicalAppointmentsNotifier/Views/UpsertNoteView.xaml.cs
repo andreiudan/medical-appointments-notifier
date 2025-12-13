@@ -23,8 +23,8 @@ public sealed partial class UpsertNoteView : Window
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertNoteViewModel>();
         
         ViewModel.OnNoteAdded += CloseWindow;
-        ViewModel.LoadUserId(userId);
-        ViewModel.LoadNote(noteModel);
+        ViewModel.LoadNoteCommand.ExecuteAsync(noteModel);
+        ViewModel.LoadUserIdCommand.ExecuteAsync(userId);
     }
 
     public UpsertNoteViewModel ViewModel => (UpsertNoteViewModel)RootGrid.DataContext;
@@ -33,7 +33,7 @@ public sealed partial class UpsertNoteView : Window
     {
         ViewModel.OnNoteAdded -= CloseWindow;
 
-        this.Bindings.StopTracking();
+        //this.Bindings.StopTracking();
         RootGrid.DataContext = null;
         
         this.Close();

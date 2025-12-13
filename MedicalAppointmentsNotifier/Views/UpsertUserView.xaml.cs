@@ -21,10 +21,10 @@ namespace MedicalAppointmentsNotifier.Views
             InitializeComponent();
 
             RootGrid.DataContext = ((App)App.Current).Services.GetRequiredService<UpsertUserViewModel>();
+            ViewModel.LoadUserCommand.ExecuteAsync(userModel);
 
             this.Closed += UpsertUserView_Closed;
             ViewModel.OnUserAdded += CloseWindow;
-            ViewModel.LoadUser(userModel);
         }
 
         public UpsertUserViewModel ViewModel => (UpsertUserViewModel)RootGrid.DataContext;
@@ -51,7 +51,7 @@ namespace MedicalAppointmentsNotifier.Views
             }
             catch { }
 
-            this.Bindings.StopTracking();
+            //this.Bindings.StopTracking();
             RootGrid.DataContext = null;
         }
 

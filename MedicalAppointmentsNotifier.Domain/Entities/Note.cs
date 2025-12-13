@@ -8,7 +8,7 @@ namespace MedicalAppointmentsNotifier.Domain.Entities
         [Required]
         public string Title { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public DateTimeOffset? From { get; set; }

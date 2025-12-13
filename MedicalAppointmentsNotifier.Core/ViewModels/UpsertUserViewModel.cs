@@ -94,7 +94,7 @@ public partial class UpsertUserViewModel : ObservableValidator
 
         if (HasErrors)
         {
-            logger.LogInformation("Validation failed for user Id: {UserId}", user.Id);
+            logger.LogInformation("Validation failed on user upsert.");
             return;
         }
 
@@ -106,7 +106,7 @@ public partial class UpsertUserViewModel : ObservableValidator
             LastName = nameNormalizer.Normalize(LastName),
         };
 
-        if (newUser.Id.Equals(Guid.Empty))
+        if (user is null)
         {
             await InsertAsync(newUser);
         }

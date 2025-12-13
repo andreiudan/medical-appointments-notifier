@@ -8,22 +8,22 @@ namespace MedicalAppointmentsNotifier.Domain.Models
         public Guid Id { get; set; }
 
         [ObservableProperty]
-        public partial MedicalSpecialty? MedicalSpecialty { get; set; }
+        public partial MedicalSpecialty? MedicalSpecialty { get; set; } = 0;
 
         [ObservableProperty]
-        public partial AppointmentStatus Status { get; set; }
+        public partial AppointmentStatus Status { get; set; } = AppointmentStatus.Neprogramat;
 
         [ObservableProperty]
-        public partial int MonthsInterval { get; set; }
+        public partial int MonthsInterval { get; set; } = 3;
 
         [ObservableProperty]
-        public partial DateTimeOffset? IssuedOn { get; set; }
+        public partial DateTimeOffset? IssuedOn { get; set; } = DateTimeOffset.Now;
 
         [ObservableProperty]
-        public partial DateTimeOffset? ScheduledOn { get; set; }
+        public partial DateTimeOffset? ScheduledOn { get; set; } = null;
 
         [ObservableProperty]
-        public partial string ScheduledLocation { get; set; }
+        public partial string? ScheduledLocation { get; set; } = string.Empty;
 
         public int DaysUntilExpiry
         {
