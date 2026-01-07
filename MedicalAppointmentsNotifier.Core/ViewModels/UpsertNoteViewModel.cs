@@ -11,9 +11,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UpsertNoteViewModel : ObservableValidator
+public partial class UpsertNoteViewModel : ObservableValidator, IDisposable
 {
-    public event EventHandler OnNoteAdded;
+    public event EventHandler OnCompleted;
 
     private NoteModel note;
     
@@ -21,13 +21,21 @@ public partial class UpsertNoteViewModel : ObservableValidator
     public string Title
     {
         get => note.Title;
-        set => SetProperty(note.Title, value, note, (n, t) => n.Title = t, true);
+        set
+        {
+            SetProperty(note.Title, value, note, (n, t) => n.Title = t, true);
+            SetDirtyForm();
+        }
     }
 
     public string? Description
     {
         get => note.Description;
-        set => SetProperty(note.Description, value, note, (n, d) => n.Description = d);
+        set
+        {
+            SetProperty(note.Description, value, note, (n, d) => n.Description = d);
+            SetDirtyForm();
+        }
     }
 
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
@@ -38,6 +46,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
         {
             SetProperty(note.From, value, note, (n, f) => n.From = f, true);
             OnPropertyChanged(nameof(ExpiringDate));
+            SetDirtyForm();
         }
     }
 
@@ -50,6 +59,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
         {
             SetProperty(note.MonthsPeriod, value, note, (n, m) => n.MonthsPeriod = m, true);
             OnPropertyChanged(nameof(ExpiringDate));
+            SetDirtyForm();
         }
     }
 
@@ -69,6 +79,7 @@ public partial class UpsertNoteViewModel : ObservableValidator
     private Guid userId { get; set; }
     private NoteModel originalNote;
     private bool isNewNote = false;
+    private bool isDirty = false;
 
     private readonly IRepository<Note> noteRepository;
     private readonly IEntityToModelMapper mapper;
@@ -130,6 +141,11 @@ public partial class UpsertNoteViewModel : ObservableValidator
         this.userId = userId;
     }
 
+    private void SetDirtyForm()
+    {
+        isDirty = true;
+    }
+
     private async Task UpsertAsync()
     {
         ValidateAllProperties();
@@ -140,17 +156,20 @@ public partial class UpsertNoteViewModel : ObservableValidator
             return;
         }
 
-        if(isNewNote)
+        if (isDirty)
         {
-            await InsertAsync(mapper.Map(note, userId));
-        }
-        else
-        {
-            note.Id = this.originalNote.Id;
-            await UpdateAsync(mapper.Map(note, userId));
+            if (isNewNote)
+            {
+                await InsertAsync(mapper.Map(note, userId));
+            }
+            else
+            {
+                note.Id = this.originalNote.Id;
+                await UpdateAsync(mapper.Map(note, userId));
+            }
         }
 
-        OnNoteAdded?.Invoke(this, EventArgs.Empty);
+        OnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     private async Task InsertAsync(Note addedNote)
@@ -174,6 +193,25 @@ public partial class UpsertNoteViewModel : ObservableValidator
         originalNote.Description = updatedNote.Description;
         originalNote.From = updatedNote.From;
         originalNote.MonthsPeriod = updatedNote.MonthsPeriod;
+
         logger.LogInformation("Updated note with Id: {NoteId}", updatedNote.Id);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ErrorsChanged -= UpsertNoteViewModel_ErrorsChanged;
+            OnCompleted = null;
+            (LoadNoteCommand as IDisposable)?.Dispose();
+            (LoadUserIdCommand as IDisposable)?.Dispose();
+            (UpsertNoteCommand as IDisposable)?.Dispose();
+        }
     }
 }

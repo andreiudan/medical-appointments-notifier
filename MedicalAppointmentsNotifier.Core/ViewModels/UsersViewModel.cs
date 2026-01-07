@@ -21,9 +21,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     private ObservableCollection<UserModel> shownUsers = new();
 
     [ObservableProperty]
-    private string searchText = string.Empty;
-
-    [ObservableProperty]
     private UserModel selectedUser = new();
 
     [NotifyPropertyChangedFor(nameof(FirstScheduledAppointment))]
@@ -39,6 +36,18 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     [ObservableProperty]
     private ObservableCollection<NoteModel> notes = new();
 
+    private string searchText = string.Empty;
+
+    public string SearchText
+    {
+        get => searchText;
+        set
+        {
+            SetProperty(ref searchText, value);
+            OnSearchTextChanging(value);
+        }
+    }
+
     public AppointmentModel? FirstScheduledAppointment => ScheduledAppointments.FirstOrDefault() ?? new();
 
     public IAsyncRelayCommand LoadUsersCommand { get; }
@@ -47,6 +56,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
     private readonly IRepository<Note> notesRepository;
     private readonly ILogger<UsersViewModel> logger;
     private readonly IEntityToModelMapper mapper;
+
+    private CancellationTokenSource switchUserCancellationTokenSource;
 
     public delegate void SelectedUserSwitchedEventHandler(object sender, int newIndex);
     public event SelectedUserSwitchedEventHandler OnSelectedUserSwitched;
@@ -59,7 +70,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         LoadUsersCommand = new AsyncRelayCommand(LoadUsersAsync);
-        LoadUsersCommand.ExecuteAsync(null);
 
         IsActive = true;
     }
@@ -94,7 +104,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         logger.LogInformation("Loaded {UserCount} users from the database.", Users.Count);
     }
 
-    partial void OnSearchTextChanging(string value)
+    private void OnSearchTextChanging(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -110,82 +120,72 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     public void Receive(UserAddedMessage message)
     {
-        Users.Add(message.user);
-        ReorderUsersCollection();
-        int index = Users.Count;
-
-        if (message.user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-           message.user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+        Task.Run(async () =>
         {
-            ShownUsers.Add(message.user);
-            ReorderShownUsersCollection();
-            index = ShownUsers.Count;
-        }
+            Users.Add(message.user);
+            ReorderUsersCollection();
+            Task.Delay(5000).Wait();
+            int index = Users.Count;
 
-        OnSelectedUserSwitched?.Invoke(this, index - 1);
+            if (message.user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+               message.user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            {
+                ShownUsers.Add(message.user);
+                ReorderShownUsersCollection();
+                index = ShownUsers.Count;
+            }
+
+            OnSelectedUserSwitched?.Invoke(this, index - 1);
+        });
     }
 
     public void Receive(AppointmentAddedMessage message)
     {
-        switch(message.appointment.Status)
+        Task.Run(async () =>
         {
-            case AppointmentStatus.Programat:
-                AddAppointmentToSchedluedCollection(message.appointment);
-                break;
-            case AppointmentStatus.Neprogramat:
-                AddAppointmentToExpiringCollection(message.appointment);
-                break;
-            case AppointmentStatus.Finalizat:
-                AddAppointmentToPastCollection(message.appointment);
-                break;
-            default:
-                logger.LogWarning("Received appointment with unknown status {AppointmentStatus}", message.appointment.Status);
-                return;
-        }
-
-        logger.LogInformation("Added appointment with ID {AppointmentId} to user with ID {UserId}", message.appointment.Id, selectedUser.Id);
+            switch (message.appointment.Status)
+            {
+                case AppointmentStatus.Programat:
+                    AddAppointmentToSchedluedCollection(message.appointment);
+                    break;
+                case AppointmentStatus.Neprogramat:
+                    AddAppointmentToExpiringCollection(message.appointment);
+                    break;
+                case AppointmentStatus.Finalizat:
+                    AddAppointmentToPastCollection(message.appointment);
+                    break;
+                default:
+                    logger.LogWarning("Received appointment with unknown status {AppointmentStatus}", message.appointment.Status);
+                    return;
+            }
+        });
     }
 
     public void Receive(AppointmentStatusChangedMessage message)
     {
-        switch(message.oldStatus)
+        Task.Run(async () =>
         {
-            case AppointmentStatus.Programat:
-                ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, message.appointment);
-                break;
-            case AppointmentStatus.Neprogramat:
-                ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, message.appointment);
-                break;
-            case AppointmentStatus.Finalizat:
-                PastAppointments = RemoveAppointmentFromCollection(PastAppointments, message.appointment);
-                break;
-            default:
-                logger.LogWarning("Received appointment with unknown status {Status}", message.oldStatus);
-                break;
-        }
-        switch(message.newStatus)
-        {
-            case AppointmentStatus.Programat:
+            if(message.oldStatus == AppointmentStatus.Neprogramat)
+            {
+                RemoveAppointmentFromCollection(ExpiringAppointments, message.appointment);
                 AddAppointmentToSchedluedCollection(message.appointment);
-                break;
-            case AppointmentStatus.Neprogramat:
+            }
+            else
+            {
+                RemoveAppointmentFromCollection(ScheduledAppointments, message.appointment);
                 AddAppointmentToExpiringCollection(message.appointment);
-                break;
-            case AppointmentStatus.Finalizat:
-                AddAppointmentToPastCollection(message.appointment);
-                break;
-            default:
-                logger.LogWarning("Received appointment with unknown status {Status}", message.newStatus);
-                break;
-        }
+            }
 
-        logger.LogInformation("Updated appointment with ID {AppointmentId}", message.appointment.Id);
+            logger.LogInformation("Appointment with Id:{AppointmentId} changed status from {oldStatus} to {newStatus}.", message.appointment.Id, message.oldStatus, message.appointment.Status);
+        });
     }
 
     public void Receive(NoteAddedMessage message)
     {
-        Notes.Add(message.note);
-        logger.LogInformation("Added note with ID {NoteId} to user with ID {UserId}", message.note.Id, SelectedUser.Id);
+        Task.Run(async () =>
+        {
+            Notes.Add(message.note);
+        });
     }
 
     private void ReorderShownUsersCollection()
@@ -344,17 +344,28 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
             return;
         }
 
-        if (sender is AppointmentModel appointment)
+        try
         {
-            DeleteAppointment(appointment);
+            if (sender is AppointmentModel appointment)
+            {
+                await DeleteAppointment(appointment);
+            }
+            else if (sender is NoteModel note)
+            {
+                await DeleteNote(note);
+            }
+            else if (sender is UsersViewModel)
+            {
+                await DeleteSelectedUser();
+            }
+            else
+            {
+                logger.LogWarning("DeleteEntry called with unsupported sender type: {senderType}.", sender.GetType().Name);
+            }
         }
-        else if (sender is NoteModel note)
+        catch (Exception ex)
         {
-            DeleteNote(note);
-        }
-        else if(sender is UsersViewModel)
-        {
-            DeleteSelectedUser();
+            logger.LogError(ex, "An error occurred while deleting an entry.");
         }
     }
 
@@ -366,17 +377,23 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         }
 
         appointment.Status = AppointmentStatus.Finalizat;
+
         bool updated = await appointmentsRepository.UpdateAsync(mapper.Map(appointment, SelectedUser.Id));
         if (updated)
         {
             RemoveAppointmentFromCollection(ScheduledAppointments, appointment);
             AddAppointmentToPastCollection(appointment);
+
+            logger.LogInformation("Finalized appointment with Id: {appointmentId}.", appointment.Id);
+            return;
         }
+
+        logger.LogWarning("Could not finalize appointment with Id: {appointmentId}.", appointment.Id);
     }
 
     private void UpdateSelectedUserInfo()
     {
-        UserModel user = Users.FirstOrDefault(u => u.Id.Equals(SelectedUser.Id));
+        UserModel? user = Users.FirstOrDefault(u => u.Id.Equals(SelectedUser.Id));
         
         if (user == null)
         {
@@ -387,9 +404,7 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
         SelectedUser.UpcominAppointmentsCount = ScheduledAppointments.Count;
         SelectedUser.ExpiringAppointmentsCount = ExpiringAppointments.Count;
 
-        int index = Users.IndexOf(user);
-        Users[index] = SelectedUser;
-        index = ShownUsers.IndexOf(user);
+        int index = ShownUsers.IndexOf(user);
         ShownUsers[index].UpcominAppointmentsCount = ScheduledAppointments.Count;
         ShownUsers[index].ExpiringAppointmentsCount = ExpiringAppointments.Count;
     }
@@ -401,64 +416,99 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
             return;
         }
 
+        switchUserCancellationTokenSource?.Cancel();
+        switchUserCancellationTokenSource?.Dispose();
+
+        switchUserCancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = switchUserCancellationTokenSource.Token;
+
         PastAppointments.Clear();
         ExpiringAppointments.Clear();
         ScheduledAppointments.Clear();
         Notes.Clear();
 
         SelectedUser = Users.FirstOrDefault(u => u.Id.Equals(userId));
+        try
+        {
+            var loadTasks = new[]
+            {
+                LoadPastAppointments(cancellationToken),
+                LoadExpiringAppointments(cancellationToken),
+                LoadNotes(cancellationToken),
+                LoadScheduledAppointments(cancellationToken)
+            };
 
-        LoadPastAppointments();
-        LoadExpiringAppointments();
-        LoadNotes();
-        await LoadScheduledAppointments();
+            await Task.WhenAll(loadTasks);
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("SwitchSelectedUser operation was canceled.");
+            return;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while switching selected user.");
+            return;
+        }
     }
 
-    private async Task LoadScheduledAppointments()
+    private async Task LoadScheduledAppointments(CancellationToken cancellationToken)
     {
         List<Appointment> appointments = await appointmentsRepository.GetUpcomingAppointments(SelectedUser.Id);
         List<AppointmentModel> temp = new List<AppointmentModel>();
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         ScheduledAppointments.Clear();
         foreach (var appointment in appointments)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             temp.Add(mapper.Map(appointment));
         }
 
         ScheduledAppointments = new ObservableCollection<AppointmentModel>(temp);
     }
 
-    private async Task LoadExpiringAppointments()
+    private async Task LoadExpiringAppointments(CancellationToken cancellationToken)
     {
         List<Appointment> appointments = await appointmentsRepository.GetExpiringAppointments(SelectedUser.Id);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         ExpiringAppointments.Clear();
         foreach (var appointment in appointments)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             ExpiringAppointments.Add(mapper.Map(appointment));
         }
     }
 
-    private async Task LoadPastAppointments()
+    private async Task LoadPastAppointments(CancellationToken cancellationToken)
     {
         List<Appointment> appointments = await appointmentsRepository.GetPastAppointments(SelectedUser.Id);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         PastAppointments.Clear();
         foreach (var appointment in appointments)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             PastAppointments.Add(mapper.Map(appointment));
         }
 
         ReorderPastAppointmentsCollection();
     }
 
-    private async Task LoadNotes()
+    private async Task LoadNotes(CancellationToken cancellationToken)
     {
         IEnumerable<Note> notes = await notesRepository.FindAllAsync(n => n.UserId.Equals(SelectedUser.Id));
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         Notes.Clear();
         foreach (Note note in notes)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             Notes.Add(mapper.Map(note));
         }
     }
@@ -478,6 +528,27 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
             Users.Clear();
             Users = null;
+
+            ShownUsers.Clear();
+            ShownUsers = null;
+
+            PastAppointments.Clear();
+            PastAppointments = null;
+
+            ExpiringAppointments.Clear();
+            ExpiringAppointments = null;
+
+            ScheduledAppointments.Clear();
+            ScheduledAppointments = null;
+
+            Notes.Clear();
+            Notes = null;
+
+            switchUserCancellationTokenSource?.Cancel();
+            switchUserCancellationTokenSource?.Dispose();
+
+            OnSelectedUserSwitched = null;
+            (LoadUsersCommand as IDisposable)?.Dispose();
         }
     }
 }

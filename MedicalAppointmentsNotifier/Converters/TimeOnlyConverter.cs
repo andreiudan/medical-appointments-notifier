@@ -9,6 +9,10 @@ namespace MedicalAppointmentsNotifier.Converters
         {
             if(value is DateTimeOffset dateTimeOffset)
             {
+                if (dateTimeOffset.ToLocalTime().TimeOfDay.Equals(TimeSpan.Zero))
+                {
+                    return "Fara ora";
+                }
                 return dateTimeOffset.ToLocalTime().ToString("t");
             }
 

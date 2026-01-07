@@ -3,7 +3,6 @@ using MedicalAppointmentsNotifier.Domain.Entities;
 using MedicalAppointmentsNotifier.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Linq.Expressions;
 
 namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
 {
@@ -20,6 +19,20 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             repositoryMock = new Mock<IRepository<Appointment>>();
             loggerMock = new Mock<ILogger<AppointmentCalculator>>();
             appointmentCalculator = new AppointmentCalculator(repositoryMock.Object, loggerMock.Object);
+        }
+
+        [Test]
+        public void Constructor_WhenCalledWithNullRepository_ThrowsArgumentNullException()
+        {
+            //Assert
+            Assert.Throws<ArgumentNullException>(() => new AppointmentCalculator(null, loggerMock.Object));
+        }
+
+        [Test]
+        public void Constructor_WhenCalledWithNullLogger_ThrowsArgumentNullException()
+        {
+            //Assert
+            Assert.Throws<ArgumentNullException>(() => new AppointmentCalculator(repositoryMock.Object, null));
         }
 
         [Test]
@@ -44,63 +57,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
 
             //Act
             int result = appointmentCalculator.CalculateRemainingDays(dateTimeFake);
-
-            //Assert
-            Assert.That(result, Is.EqualTo(expectedResult));
-        }
-
-        [Test]
-        public async Task CalculateDaysUntilNextAppointmentAsync_WhenUserIdIsEmpty_ReturnsZero()
-        {
-            //Arrange
-            int expectedResult = 0;
-
-            //Act
-            int result = await appointmentCalculator.CalculateDaysUntilNextAppointmentAsync(Guid.Empty);
-
-            //Assert
-            Assert.That(result, Is.EqualTo(expectedResult));
-        }
-
-        [Test]
-        public async Task CalculateDaysUntilNextAppointmentAsync_WhenUserId_ReturnsCorrectResut()
-        {
-            //Arrange
-            User userFake = new User
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Test",
-                LastName = "Test",
-            };
-
-            IEnumerable<Appointment> appointmentsFake = new List<Appointment>
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    MedicalSpecialty = 0,
-                    MonthsInterval = 30,
-                    Status = 0,
-                    IssuedOn = DateTimeOffset.Now,
-                    User = userFake
-                },
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    MedicalSpecialty = 0,
-                    MonthsInterval = 30,
-                    Status = 0,
-                    IssuedOn = DateTimeOffset.Now,
-                    User = userFake
-                }
-            };
-
-            repositoryMock.Setup(r => r.FindAllAsync(It.IsAny<Expression<Func<Appointment, bool>>>())).ReturnsAsync(appointmentsFake);
-
-            int expectedResult = 4;
-
-            //Act
-            int result = await appointmentCalculator.CalculateDaysUntilNextAppointmentAsync(userFake.Id);
 
             //Assert
             Assert.That(result, Is.EqualTo(expectedResult));

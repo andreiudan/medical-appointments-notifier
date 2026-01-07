@@ -16,15 +16,11 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<List<Appointment>> GetAllExpiringAppointments()
         {
-            IEnumerable<Appointment> appointments = context.Set<Appointment>()
+            return await context.Set<Appointment>()
                 .Where(a => (int)a.Status == 0)
                 .Include(a => a.User)
                 .AsNoTracking()
-                .AsEnumerable();
-
-            return appointments.Where(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval) > DateTimeOffset.Now &&
-                                           a.IssuedOn.Value.AddMonths(a.MonthsInterval).Subtract(DateTimeOffset.Now).Days <= 30)
-                               .ToList();
+                .ToListAsync();
         }
 
         public async Task<List<Appointment>> GetExpiringAppointments(Guid userId)

@@ -70,24 +70,17 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<bool> UpdateAsync(TModel model)
         {
-            try
+            ArgumentNullException.ThrowIfNull(model);
+
+            var original = await context.Set<TModel>().FindAsync(model.Id).ConfigureAwait(false);
+            if (original == null)
             {
-                ArgumentNullException.ThrowIfNull(model);
-
-                var original = await context.Set<TModel>().FindAsync(model.Id).ConfigureAwait(false);
-                if (original == null)
-                {
-                    return false;
-                }
-
-                context.Entry(original).CurrentValues.SetValues(model);
-
-                await context.SaveChangesAsync().ConfigureAwait(false);
+                return false;
             }
-            catch(Exception ex)
-            {
 
-            }
+            context.Entry(original).CurrentValues.SetValues(model);
+
+            await context.SaveChangesAsync().ConfigureAwait(false);
 
             return true;
         }

@@ -13,7 +13,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UpsertAppointmentViewModel : ObservableValidator
+public partial class UpsertAppointmentViewModel : ObservableValidator, IDisposable
 {
     public event EventHandler OnCompleted;
     public MedicalSpecialty[] MedicalSpecialties => (MedicalSpecialty[])Enum.GetValues(typeof(MedicalSpecialty));
@@ -26,6 +26,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         set
         {
             SetProperty(appointment.MedicalSpecialty, value, appointment, (a, m) => a.MedicalSpecialty = m);
+            SetDirtyForm();
         }
     }
 
@@ -35,6 +36,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         set
         {
             SetProperty(appointment.Status, value, appointment, (a, s) => a.Status = s);
+            SetDirtyForm();
         }
     }
 
@@ -48,6 +50,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             SetProperty(appointment.MonthsInterval, value, appointment, (a, m) => a.MonthsInterval = m, true);
             OnPropertyChanged(nameof(ExpiringDate));
             OnPropertyChanged(nameof(MonthsIntervalErrorMessage));
+            SetDirtyForm();
         }
     }
 
@@ -60,6 +63,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
             SetProperty(appointment.IssuedOn, value, appointment, (a, i) => a.IssuedOn = i, true);
             OnPropertyChanged(nameof(DateIntervalErrorMessage));
             OnPropertyChanged(nameof(ExpiringDate));
+            SetDirtyForm();
         }
     }
 
@@ -71,6 +75,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         set
         {
             SetProperty(appointment.ScheduledLocation, value, appointment, (a, s) => a.ScheduledLocation = s);
+            SetDirtyForm();
         }
     }
     public DateTimeOffset? ScheduledDate
@@ -79,6 +84,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         set
         {
             SetProperty(appointment.ScheduledOn, value, appointment, (a, s) => a.ScheduledOn = s);
+            SetDirtyForm();
         }
     }
 
@@ -90,6 +96,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         set
         {
             SetProperty(ref scheduledTime, value);
+            SetDirtyForm();
         }
     }
 
@@ -101,6 +108,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         set
         {
             SetProperty(ref isScheduled, value);
+            SetDirtyForm();
         }
     }
 
@@ -110,6 +118,7 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
     private Guid userId { get; set; }
     private AppointmentModel originalAppointment;
     private bool isNewAppointment = false;
+    private bool isDirty = false;
 
     public string Title { get; set; } = "Adauga Scrisoare Medicala";
     public string UpsertButtonText = "Adauga";
@@ -203,11 +212,6 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         {
             return AppointmentStatus.Programat;
         }
-        
-        //if(ExpiringDate.HasValue && ExpiringDate.Value.Date < DateTimeOffset.Now.AddMonths(1).Date)
-        //{
-        //    return AppointmentStatus.Finalizat;
-        //}
 
         return AppointmentStatus.Neprogramat;
     }
@@ -228,6 +232,11 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         return null;
     }
 
+    private void SetDirtyForm()
+    {
+        isDirty = true;
+    }
+
     private async Task UpsertAsync()
     {
         ValidateAllProperties();
@@ -242,14 +251,17 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         appointment.ScheduledLocation = nameNormalizer.Normalize(appointment.ScheduledLocation ?? string.Empty);
         appointment.ScheduledOn = GetScheduledOn();
 
-        if (isNewAppointment)
+        if (isDirty)
         {
-            await InsertAsync(mapper.Map(appointment, userId));
-        }
-        else
-        {
-            appointment.Id = originalAppointment.Id;
-            await UpdateAsync(mapper.Map(appointment, userId));
+            if (isNewAppointment)
+            {
+                await InsertAsync(mapper.Map(appointment, userId));
+            }
+            else
+            {
+                appointment.Id = originalAppointment.Id;
+                await UpdateAsync(mapper.Map(appointment, userId));
+            }
         }
 
         OnCompleted?.Invoke(this, EventArgs.Empty);
@@ -285,7 +297,26 @@ public partial class UpsertAppointmentViewModel : ObservableValidator
         logger.LogInformation("Updated appointment with ID {AppointmentId}", updatedAppointment.Id);
         if (statusChanged)
         {
-            WeakReferenceMessenger.Default.Send<AppointmentStatusChangedMessage>(new AppointmentStatusChangedMessage(mapper.Map(updatedAppointment), oldStatus, updatedAppointment.Status));
+            WeakReferenceMessenger.Default.Send<AppointmentStatusChangedMessage>(new AppointmentStatusChangedMessage(mapper.Map(updatedAppointment), oldStatus));
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ErrorsChanged -= UpsertAppointmentViewModel_ErrorsChanged;
+            OnCompleted = null;
+            (LoadUserIdCommand as IDisposable)?.Dispose();
+            (LoadAppointmentCommand as IDisposable)?.Dispose();
+            (UpsertAppointmentCommand as IDisposable)?.Dispose();
+            (TriggerScheduleCommand as IDisposable)?.Dispose();
         }
     }
 }

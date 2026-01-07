@@ -12,9 +12,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UpsertUserViewModel : ObservableValidator
+public partial class UpsertUserViewModel : ObservableValidator, IDisposable
 {
-    public event EventHandler OnUserAdded;
+    public event EventHandler OnCompleted;
 
     private string firstName;
 
@@ -23,7 +23,11 @@ public partial class UpsertUserViewModel : ObservableValidator
     public string FirstName
     {
         get => firstName;
-        set => SetProperty(ref firstName, value, true);
+        set
+        {
+            SetProperty(ref firstName, value, true);
+            SetDirtyForm();
+        }
     }
 
     public string FirstNameErrorMessage => GetErrors(nameof(FirstName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
@@ -35,17 +39,22 @@ public partial class UpsertUserViewModel : ObservableValidator
     public string LastName
     {
         get => lastName;
-        set => SetProperty(ref lastName, value, true);
+        set
+        {
+            SetProperty(ref lastName, value, true);
+            SetDirtyForm();
+        }
     }
 
     public string LastNameErrorMessage => GetErrors(nameof(LastName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
     private UserModel user;
+    private bool isDirty = false;
 
     public string Title { get; set; } = "Adauga Beneficiar";
     public string UpsertButtonText { get; set; } = "Adauga";
 
-    public IAsyncRelayCommand AddUserCommand { get; }
+    public IAsyncRelayCommand UpsertUserCommand { get; }
     public IAsyncRelayCommand LoadUserCommand { get; }
 
     private readonly IRepository<User> repository;
@@ -59,7 +68,7 @@ public partial class UpsertUserViewModel : ObservableValidator
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         LoadUserCommand = new AsyncRelayCommand<UserModel>(LoadUser);
-        AddUserCommand = new AsyncRelayCommand(AddAsync);
+        UpsertUserCommand = new AsyncRelayCommand(UpsertAsync);
 
         this.ErrorsChanged += UpsertUserViewModel_ErrorsChanged;
     }
@@ -88,7 +97,12 @@ public partial class UpsertUserViewModel : ObservableValidator
         logger.LogInformation("Loaded user with Id: {UserId}", user.Id);
     }
 
-    private async Task AddAsync()
+    private void SetDirtyForm()
+    {
+        isDirty = true;
+    }
+
+    private async Task UpsertAsync()
     {
         ValidateAllProperties();
 
@@ -106,17 +120,20 @@ public partial class UpsertUserViewModel : ObservableValidator
             LastName = nameNormalizer.Normalize(LastName),
         };
 
-        if (user is null)
+        if (isDirty)
         {
-            await InsertAsync(newUser);
-        }
-        else
-        {
-            newUser.Id = user.Id;
-            await UpdateAsync(newUser);
+            if (user is null)
+            {
+                await InsertAsync(newUser);
+            }
+            else
+            {
+                newUser.Id = user.Id;
+                await UpdateAsync(newUser);
+            }
         }
 
-        OnUserAdded?.Invoke(this, EventArgs.Empty);
+        OnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     private async Task InsertAsync(User newUser)
@@ -139,5 +156,22 @@ public partial class UpsertUserViewModel : ObservableValidator
         user.FirstName = updatedUser.FirstName;
         user.LastName = updatedUser.LastName;
         logger.LogInformation("Updated user with Id: {UserId}", updatedUser.Id);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ErrorsChanged -= UpsertUserViewModel_ErrorsChanged;
+            OnCompleted = null;
+            (LoadUserCommand as IDisposable)?.Dispose();
+            (UpsertUserCommand as IDisposable)?.Dispose();
+        }
     }
 }

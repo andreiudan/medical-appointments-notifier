@@ -44,10 +44,10 @@ namespace MedicalAppointmentsNotifier.Core.Services
             {
                 message.AppendLine(string.Format("{0}.{1} {2} - {3} - peste {4} zile.",
                     i,
-                    appointments[i].User.LastName,
-                    appointments[i].User.FirstName,
+                    appointments[i].User?.LastName,
+                    appointments[i].User?.FirstName,
                     appointments[i].MedicalSpecialty,
-                    appointments[i].IssuedOn.Value.AddMonths(appointments[i].MonthsInterval).Subtract(DateTimeOffset.Now).Days));
+                    appointments[i].IssuedOn.HasValue ? appointments[i].IssuedOn.Value.AddMonths(appointments[i].MonthsInterval).Subtract(DateTimeOffset.Now).Days : "x"));
             }
 
             logger.LogInformation("{Count} expiring appointments found", appointments.Count());

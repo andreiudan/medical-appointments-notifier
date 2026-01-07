@@ -7,13 +7,11 @@ namespace MedicalAppointmentsNotifier.Domain.Messages
     {
         public readonly AppointmentModel appointment;
         public readonly AppointmentStatus oldStatus;
-        public readonly AppointmentStatus newStatus;
 
-        public AppointmentStatusChangedMessage(AppointmentModel appointment, AppointmentStatus oldStatus, AppointmentStatus newStatus)
+        public AppointmentStatusChangedMessage(AppointmentModel appointment, AppointmentStatus oldStatus)
         {
             this.appointment = appointment ?? throw new ArgumentNullException(nameof(appointment));
             this.oldStatus = oldStatus;
-            this.newStatus = newStatus;
         }
     }
 }

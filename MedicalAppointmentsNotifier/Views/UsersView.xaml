@@ -388,7 +388,7 @@
                                                                 Visibility="{Binding ScheduledOn, 
                                                                     Mode=OneWay, 
                                                                     Converter={StaticResource NullablePropertyToVisibilityConverter}}">
-                                                        <FontIcon Glyph="&#xE787;" 
+                                                        <FontIcon Glyph="&#xE823;" 
                                                             FontSize="14"
                                                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 

@@ -157,7 +157,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Data.Repositories
         public void UpdateAsync_WhenParameterIsNull_ThrowsArgumentNullException()
         {
             //Assert
-            Assert.ThrowsAsync<ArgumentNullException>(async () => await repositoryFake.UpdateAsync(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => repositoryFake.UpdateAsync(null));
         }
 
         [Test]

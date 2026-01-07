@@ -38,8 +38,9 @@ public sealed partial class UpsertAppointmentView : Window
     private void CloseWindow(object? sender, EventArgs e)
     {
         ViewModel.OnCompleted -= CloseWindow;
+        ViewModel.Dispose();
 
-        //this.Bindings.StopTracking();
+        this.Bindings?.StopTracking();
         RootGrid.DataContext = null;
 
         this.Close();

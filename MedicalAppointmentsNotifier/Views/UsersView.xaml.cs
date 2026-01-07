@@ -1,10 +1,8 @@
 using MedicalAppointmentsNotifier.Core.ViewModels;
-using MedicalAppointmentsNotifier.Domain.EntityPropertyTypes;
 using MedicalAppointmentsNotifier.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 
 namespace MedicalAppointmentsNotifier.Views
@@ -15,10 +13,12 @@ namespace MedicalAppointmentsNotifier.Views
 
         public UsersView()
         {
+            InitializeComponent();
+
             this.DataContext = ((App)App.Current).Services.GetRequiredService<UsersViewModel>();
             ViewModel.OnSelectedUserSwitched += SelectedUserChanged;
 
-            InitializeComponent();
+            ViewModel.LoadUsersCommand.ExecuteAsync(null);
         }
 
         public UsersViewModel ViewModel => (UsersViewModel)DataContext;
@@ -62,20 +62,28 @@ namespace MedicalAppointmentsNotifier.Views
 
         private void UpsertView_Closed(object sender, WindowEventArgs args)
         {
-            upsertView = null;
+            if(upsertView is null)
+            {
+                return;
+            }
 
+            upsertView.Closed -= UpsertView_Closed;
+            upsertView = null;
         }
 
         ~UsersView()
         {
             try
             {
+                upsertView.Close();
+
                 if (ViewModel is not null)
                 {
+                    ViewModel.OnSelectedUserSwitched -= SelectedUserChanged;
                     ViewModel.Dispose();
                 }
 
-                //this.Bindings.StopTracking();
+                this.Bindings?.StopTracking();
                 DataContext = null;
             }
             catch { }

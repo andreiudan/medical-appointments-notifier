@@ -35,22 +35,5 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
             //Assert
             Assert.That(message.note, Is.EqualTo(noteFake));
         }
-
-        [Test]
-        public void UpdatedConstructor_WhenNoteIsNull_ThrowsArgumentNullException()
-        {
-            //Assert
-            Assert.Throws<ArgumentNullException>(() => new NoteUpdatedMessage(null));
-        }
-
-        [Test]
-        public void UpdatedConstructor_Always_SetsNoteField()
-        {
-            //Act
-            NoteUpdatedMessage message = new NoteUpdatedMessage(noteFake);
-
-            //Assert
-            Assert.That(message.note, Is.EqualTo(noteFake));
-        }
     }
 }

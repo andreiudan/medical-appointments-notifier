@@ -9,18 +9,13 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
     [TestFixture]
     public class EntityToModelMapperTests
     {
-        private Mock<IAppointmentCalculator> appointmentCalculatorMock;
+        private Mock<IAppointmentsRepository> appointmentRepositoryMock;
         private EntityToModelMapper mapper;
         private User userFake;
 
         [SetUp]
         public void SetUp()
         {
-            appointmentCalculatorMock = new Mock<IAppointmentCalculator>();
-            appointmentCalculatorMock.Setup(x => x.CalculateDaysUntilNextAppointmentAsync(It.IsAny<Guid>())).ReturnsAsync(0);
-
-            //mapper = new EntityToModelMapper(appointmentCalculatorMock.Object);
-
             userFake = new User
             {
                 Id = Guid.NewGuid(),
@@ -29,8 +24,21 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 Appointments = new List<Appointment>(),
                 Notes = new List<Note>()
             };
+
+            appointmentRepositoryMock = new Mock<IAppointmentsRepository>();
+            appointmentRepositoryMock.Setup(x => x.GetExpiringAppointmentsCount(userFake.Id)).ReturnsAsync(4);
+            appointmentRepositoryMock.Setup(x => x.GetUpcomingAppointmentsCount(userFake.Id)).ReturnsAsync(0);
+
+            mapper = new EntityToModelMapper(appointmentRepositoryMock.Object);
         }
-    
+
+        [Test]
+        public void Constructor_WhenCalledWithNullRepository_ThrowsArgumentNullException()
+        {
+            //Assert
+            Assert.Throws<ArgumentNullException>(() => new EntityToModelMapper(null));
+        }
+
         [Test]
         public void Map_WhenAppointmentIsNull_ThrowsArgumentNullException()
         {
@@ -52,7 +60,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 MonthsInterval = 30,
                 Status = 0,
                 IssuedOn = DateTimeOffset.Now,
-                User = userFake
+                User = userFake,
+                ScheduledOn = DateTimeOffset.Now.AddDays(10),
+                ScheduledLocation = "Location"
             };
 
             AppointmentModel expectedResult = new AppointmentModel
@@ -61,7 +71,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 MedicalSpecialty = appointmentFake.MedicalSpecialty,
                 MonthsInterval = appointmentFake.MonthsInterval,
                 Status = appointmentFake.Status,
-                IssuedOn = appointmentFake.IssuedOn
+                IssuedOn = appointmentFake.IssuedOn,
+                ScheduledOn = appointmentFake.ScheduledOn,
+                ScheduledLocation = appointmentFake.ScheduledLocation,
             };
 
             //Act
@@ -88,15 +100,19 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             Note noteFake = new Note
             {
                 Id = Guid.NewGuid(),
+                Title = "Title",
                 Description = "Description",
                 From = DateTimeOffset.Now,
+                MonthsPeriod = 6,
             };
 
             NoteModel expectedResult = new NoteModel
             {
                 Id = noteFake.Id,
+                Title = noteFake.Title,
                 Description = noteFake.Description,
-                From = noteFake.From
+                From = noteFake.From,
+                MonthsPeriod = noteFake.MonthsPeriod
             };
 
             //Act
@@ -107,13 +123,13 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
         }
 
         [Test]
-        public void Map_WhenUserIsNull_ThrowsArgumentNullException()
+        public async Task Map_WhenUserIsNull_ThrowsArgumentNullException()
         {
             //Asert
             User model = null;
 
             //Assert
-            Assert.Throws<ArgumentNullException>(() => mapper.Map(model));
+            Assert.ThrowsAsync<ArgumentNullException>(() => mapper.Map(model));
         }
 
         [Test]
@@ -124,14 +140,16 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 Id = userFake.Id,
                 FirstName = userFake.FirstName,
-                LastName = userFake.LastName
+                LastName = userFake.LastName,
+                ExpiringAppointmentsCount = 4,
+                UpcominAppointmentsCount = 0
             };
 
             //Act
-            var result = mapper.Map(userFake);
+            var result = await mapper.Map(userFake);
 
             //Assert
-            //Assert.That(result, Is.EqualTo(expectedResult));
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -154,7 +172,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 MedicalSpecialty = 0,
                 MonthsInterval = 30,
                 Status = 0,
-                IssuedOn = DateTime.Now
+                IssuedOn = DateTime.Now,
+                ScheduledOn = DateTime.Now.AddDays(10),
+                ScheduledLocation = "Location"
             }; 
 
             Appointment expectedResult = new Appointment
@@ -164,6 +184,8 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
                 MonthsInterval = appointmentModelFake.MonthsInterval,
                 Status = appointmentModelFake.Status,
                 IssuedOn = appointmentModelFake.IssuedOn,
+                ScheduledOn = appointmentModelFake.ScheduledOn,
+                ScheduledLocation = appointmentModelFake.ScheduledLocation,
                 UserId = userFake.Id
             };
 
@@ -191,13 +213,16 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             NoteModel noteModelFake = new NoteModel
             {
                 Id = Guid.NewGuid(),
+                Title = "Title",
                 Description = "Description",
-                From = DateTime.Now
+                From = DateTime.Now,
+                MonthsPeriod = 3
             };
 
             Note expectedResult = new Note
             {
                 Id = noteModelFake.Id,
+                Title = noteModelFake.Title,
                 Description = noteModelFake.Description,
                 From = noteModelFake.From,
                 MonthsPeriod = noteModelFake.MonthsPeriod,
@@ -229,7 +254,9 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 Id = Guid.NewGuid(),
                 FirstName = "John",
-                LastName = "Doe"
+                LastName = "Doe",
+                ExpiringAppointmentsCount = 4,
+                UpcominAppointmentsCount = 0
             };
 
             User expectedResult = new User
