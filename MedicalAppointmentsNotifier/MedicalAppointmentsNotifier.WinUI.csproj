@@ -60,6 +60,12 @@
     <ProjectReference Include="..\MedicalAppointmentsNotifier.Infrastructure\MedicalAppointmentsNotifier.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Assets\SmallTile.scale-150.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="Views\UpsertAppointmentView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -94,7 +100,7 @@
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -103,7 +109,13 @@
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundle>Never</AppxBundle>
+    <AppxBundle>Always</AppxBundle>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <ApplicationIcon>Assets\SmallTile.scale-400.ico</ApplicationIcon>
+    <StartupObject></StartupObject>
+    <PublishAot>False</PublishAot>
+    <Title>Medical Appointments Notifier</Title>
+    <PackageIcon>SmallTile.scale-150.png</PackageIcon>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
   </PropertyGroup>
 </Project>

@@ -44,7 +44,7 @@
             <TextBlock
                   Foreground="{ThemeResource SystemErrorTextColor}"
                   Text="{x:Bind ViewModel.TitleErrorMessage, Mode=OneWay}"
-                  Visibility="{Binding NoteTitleErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                  Visibility="{Binding TitleErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2"

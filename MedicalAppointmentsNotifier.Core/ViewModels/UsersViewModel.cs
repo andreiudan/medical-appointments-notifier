@@ -120,72 +120,59 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
 
     public void Receive(UserAddedMessage message)
     {
-        Task.Run(async () =>
+        Users.Add(message.user);
+        ReorderUsersCollection();
+        int index = Users.Count;
+
+        if (message.user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+            message.user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
         {
-            Users.Add(message.user);
-            ReorderUsersCollection();
-            Task.Delay(5000).Wait();
-            int index = Users.Count;
+            ShownUsers.Add(message.user);
+            ReorderShownUsersCollection();
+            index = ShownUsers.Count;
+        }
 
-            if (message.user.FirstName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-               message.user.LastName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
-            {
-                ShownUsers.Add(message.user);
-                ReorderShownUsersCollection();
-                index = ShownUsers.Count;
-            }
-
-            OnSelectedUserSwitched?.Invoke(this, index - 1);
-        });
+        OnSelectedUserSwitched?.Invoke(this, index - 1);
     }
 
     public void Receive(AppointmentAddedMessage message)
     {
-        Task.Run(async () =>
+        switch (message.appointment.Status)
         {
-            switch (message.appointment.Status)
-            {
-                case AppointmentStatus.Programat:
-                    AddAppointmentToSchedluedCollection(message.appointment);
-                    break;
-                case AppointmentStatus.Neprogramat:
-                    AddAppointmentToExpiringCollection(message.appointment);
-                    break;
-                case AppointmentStatus.Finalizat:
-                    AddAppointmentToPastCollection(message.appointment);
-                    break;
-                default:
-                    logger.LogWarning("Received appointment with unknown status {AppointmentStatus}", message.appointment.Status);
-                    return;
-            }
-        });
+            case AppointmentStatus.Programat:
+                AddAppointmentToSchedluedCollection(message.appointment);
+                break;
+            case AppointmentStatus.Neprogramat:
+                AddAppointmentToExpiringCollection(message.appointment);
+                break;
+            case AppointmentStatus.Finalizat:
+                AddAppointmentToPastCollection(message.appointment);
+                break;
+            default:
+                logger.LogWarning("Received appointment with unknown status {AppointmentStatus}", message.appointment.Status);
+                return;
+        }
     }
 
     public void Receive(AppointmentStatusChangedMessage message)
     {
-        Task.Run(async () =>
+        if(message.oldStatus == AppointmentStatus.Neprogramat)
         {
-            if(message.oldStatus == AppointmentStatus.Neprogramat)
-            {
-                RemoveAppointmentFromCollection(ExpiringAppointments, message.appointment);
-                AddAppointmentToSchedluedCollection(message.appointment);
-            }
-            else
-            {
-                RemoveAppointmentFromCollection(ScheduledAppointments, message.appointment);
-                AddAppointmentToExpiringCollection(message.appointment);
-            }
+            ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, message.appointment);
+            AddAppointmentToSchedluedCollection(message.appointment);
+        }
+        else
+        {
+            ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, message.appointment);
+            AddAppointmentToExpiringCollection(message.appointment);
+        }
 
-            logger.LogInformation("Appointment with Id:{AppointmentId} changed status from {oldStatus} to {newStatus}.", message.appointment.Id, message.oldStatus, message.appointment.Status);
-        });
+        logger.LogInformation("Appointment with Id:{AppointmentId} changed status from {oldStatus} to {newStatus}.", message.appointment.Id, message.oldStatus, message.appointment.Status);
     }
 
     public void Receive(NoteAddedMessage message)
     {
-        Task.Run(async () =>
-        {
-            Notes.Add(message.note);
-        });
+        Notes.Add(message.note);
     }
 
     private void ReorderShownUsersCollection()
@@ -300,6 +287,8 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
             ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, appointment);
             ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, appointment);
             PastAppointments = RemoveAppointmentFromCollection(PastAppointments, appointment);
+
+            UpdateSelectedUserInfo();
             logger.LogInformation("Deleted appointment with Id: {appointmentId}.", appointment.Id);
         }
     }
@@ -321,7 +310,6 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
             temp.Remove(tempAppointment);
         }
 
-        UpdateSelectedUserInfo();
         return new ObservableCollection<AppointmentModel>(temp);
     }
 
@@ -376,12 +364,22 @@ public partial class UsersViewModel : ObservableRecipient, IRecipient<UserAddedM
             return;
         }
 
+        AppointmentStatus oldStatus = appointment.Status;
+
         appointment.Status = AppointmentStatus.Finalizat;
 
         bool updated = await appointmentsRepository.UpdateAsync(mapper.Map(appointment, SelectedUser.Id));
         if (updated)
         {
-            RemoveAppointmentFromCollection(ScheduledAppointments, appointment);
+            if(oldStatus == AppointmentStatus.Neprogramat)
+            {
+                ExpiringAppointments = RemoveAppointmentFromCollection(ExpiringAppointments, appointment);
+            }
+            else
+            {
+                ScheduledAppointments = RemoveAppointmentFromCollection(ScheduledAppointments, appointment);
+            }
+
             AddAppointmentToPastCollection(appointment);
 
             logger.LogInformation("Finalized appointment with Id: {appointmentId}.", appointment.Id);
