@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationIcon>Square44x44Logo.scale-200.ico</ApplicationIcon>
+    <Title>Notificator expirare scrisori medicale</Title>
+    <Description>Aplicatie care trimite o notificare atunci cand urmeaza sa expire o scrisoare medicala pentru un beneficiar adaugat in aplicatie.</Description>
+    <PackageIcon>StoreLogo.scale-200.png</PackageIcon>
+    <AssemblyTitle>NotificatorExpirareScrisoriMedicale</AssemblyTitle>
+    <AssemblyName>NotificatorExpirareScrisoriMedicale</AssemblyName>
+		<RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Square44x44Logo.scale-200.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\MedicalAppointmentsNotifier\Assets\StoreLogo.scale-200.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MedicalAppointmentsNotifier.Data\MedicalAppointmentsNotifier.Data.csproj" />
+    <ProjectReference Include="..\MedicalAppointmentsNotifier.Domain\MedicalAppointmentsNotifier.Domain.csproj" />
+    <ProjectReference Include="..\MedicalAppointmentsNotifier.Infrastructure\MedicalAppointmentsNotifier.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>

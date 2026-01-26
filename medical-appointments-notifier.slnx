@@ -1,10 +1,20 @@
 <Solution>
   <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
     <Platform Name="ARM64" />
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="MedicalAppointmentsNotifier/MedicalAppointmentsNotifier.csproj">
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier.Core/MedicalAppointmentsNotifier.Core.csproj" Id="09e72688-5c50-46ba-9a1f-58f38ab903a8" />
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier.Data/MedicalAppointmentsNotifier.Data.csproj" />
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier.Domain/MedicalAppointmentsNotifier.Domain.csproj" />
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier.Infrastructure/MedicalAppointmentsNotifier.Infrastructure.csproj" Id="e3c288a1-ec8e-4ac8-8214-b594e59f629f" />
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier.Notification/MedicalAppointmentsNotifier.ReminderJob.csproj" Id="6db15cf5-7725-4ca2-9e1b-58bb09dafb61" />
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier.UnitTests/MedicalAppointmentsNotifier.UnitTests.csproj" Id="c855a50f-8033-4731-b35e-576b84132b68" />
+  <Project Path="G:/Git/medical-appointments-notifier/MedicalAppointmentsNotifier/MedicalAppointmentsNotifier.WinUI.csproj">
+    <Platform Solution="*|Any CPU" Project="x64" />
+    <Platform Solution="*|ARM" Project="x64" />
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|x86" Project="x86" />

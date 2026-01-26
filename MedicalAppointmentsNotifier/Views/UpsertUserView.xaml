@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="MedicalAppointmentsNotifier.Views.UpsertUserView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MedicalAppointmentsNotifier.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:MedicalAppointmentsNotifier.Core.ViewModels"
+    mc:Ignorable="d"
+    Title="Adauga Beneficiar">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid 
+        x:Name="RootGrid"
+        HorizontalAlignment="Stretch" 
+        VerticalAlignment="Stretch">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock 
+            Text="{x:Bind ViewModel.Title}" 
+            FontSize="28" 
+            Style="{StaticResource TitleTextBlockStyle}"
+            Grid.Row="0" 
+            HorizontalAlignment="Center"
+            Padding="32, 32, 32, 24"/>
+
+        <StackPanel Grid.Row="1"
+                    Spacing="6"
+                    Padding="32, 0, 32, 24">
+            <TextBox Header="Nume de familie"
+                     Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
+                       Text="{x:Bind ViewModel.LastNameErrorMessage, Mode=OneWay}"
+                       Visibility="Visible"/>
+
+        </StackPanel>
+
+        <StackPanel 
+            Grid.Row="2"
+            Spacing="6"
+            Padding="32, 0, 32, 16">
+
+            <TextBox 
+                Header="Prenume"  
+                Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock
+                Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
+                Text="{x:Bind ViewModel.FirstNameErrorMessage, Mode=OneWay}"
+                Visibility="{Binding FirstNameErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+        </StackPanel>
+
+        <Grid 
+            Grid.Row="3"
+            ColumnSpacing="8" 
+            Padding="32, 24, 32, 24"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="{ThemeResource LayerFillColorDefaultBrush}" 
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+            BorderThickness="0,1,0,0">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50*"/>
+                <ColumnDefinition Width="50*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button 
+                x:Name="btnClose" 
+                Content="Anuleaza" 
+                Click="btnClose_Click"  
+                Grid.Column="0" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Center"/>
+            
+            <Button 
+                Style="{StaticResource AccentButtonStyle}"
+                Content="{x:Bind ViewModel.UpsertButtonText}" 
+                Command="{x:Bind ViewModel.UpsertUserCommand}" 
+                Grid.Column="1" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

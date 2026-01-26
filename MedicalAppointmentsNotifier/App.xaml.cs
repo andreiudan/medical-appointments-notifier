@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using MedicalAppointmentsNotifier.Data;
+using MedicalAppointmentsNotifier.Infrastructure.DependencyInjection;
+using MedicalAppointmentsNotifier.Views;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System;
+using System.Configuration;
 
 namespace MedicalAppointmentsNotifier
 {
@@ -27,6 +17,8 @@ namespace MedicalAppointmentsNotifier
     public partial class App : Application
     {
         private Window? _window;
+        public Frame RootFrame { get; private set; }
+        public IServiceProvider Services { get; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -35,16 +27,41 @@ namespace MedicalAppointmentsNotifier
         public App()
         {
             InitializeComponent();
+            Services = ConfigureServices();
+            Ioc.Default.ConfigureServices(Services);
         }
 
         /// <summary>
         /// Invoked when the application is launched.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            using (var scope = Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<MedicalAppointmentsContext>();
+                await dbContext.Database.MigrateAsync();
+            }
+
             _window = new MainWindow();
+
+            RootFrame = new Frame();
+            RootFrame.Navigate(typeof(UsersView), args.Arguments);
+
+            _window.Content = RootFrame;
             _window.Activate();
+        }
+
+        private static IServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+
+            services.AddLoggingService();
+            services.AddMedicalAppointmentsServices(connectionString);
+            services.AddViewModels();
+
+            return services.BuildServiceProvider();
         }
     }
 }
