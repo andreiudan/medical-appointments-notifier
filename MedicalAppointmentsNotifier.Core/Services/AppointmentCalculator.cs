@@ -26,18 +26,5 @@ namespace MedicalAppointmentsNotifier.Core.Services
 
             return remainingDays < 0 ? 0 : remainingDays;
         }
-
-        public async Task<int> CalculateDaysUntilNextAppointmentAsync(Guid userId)
-        {
-            IEnumerable<Appointment> appointments = await repository.FindAllAsync(a => a.User.Id == userId).ConfigureAwait(false);
-            DateTimeOffset? nextAppointment = appointments.OrderBy(a => a.NextDate).FirstOrDefault()?.NextDate;
-
-            int daysUntilNextAppointment = nextAppointment.HasValue
-                ? (nextAppointment.Value - DateTimeOffset.Now).Days
-                : 0;
-
-            logger.LogInformation("User with ID:{UserId} has {DaysUntilNextAppointment} days until next appointment.", userId, daysUntilNextAppointment);
-            return daysUntilNextAppointment;
-        }
     }
 }

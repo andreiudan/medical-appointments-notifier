@@ -9,9 +9,14 @@ namespace MedicalAppointmentsNotifier.Converters
         {
             if(value is DateTimeOffset dateTimeOffset)
             {
-                return dateTimeOffset.ToString("dd/MM/yyyy");
+                if(parameter is string format && !string.IsNullOrEmpty(format))
+                {
+                    return dateTimeOffset.ToString(format);
+                }
+
+                return dateTimeOffset.ToString("dd.MM.yyyy");
             }
-            return string.Empty;
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

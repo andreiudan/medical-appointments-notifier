@@ -12,7 +12,7 @@ namespace MedicalAppointmentsNotifier.Views;
 /// </summary>
 public sealed partial class UpsertNoteView : Window
 {
-    private readonly SizeInt32 startSize = new(445, 460);
+    private readonly SizeInt32 startSize = new(530, 630);
 
     public UpsertNoteView(Guid userId, NoteModel noteModel = null)
     {
@@ -22,20 +22,21 @@ public sealed partial class UpsertNoteView : Window
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertNoteViewModel>();
         
-        ViewModel.OnNoteAdded += CloseWindow;
-        ViewModel.LoadUserId(userId);
-        ViewModel.LoadNote(noteModel);
+        ViewModel.OnCompleted += CloseWindow;
+        ViewModel.LoadNoteCommand.ExecuteAsync(noteModel);
+        ViewModel.LoadUserIdCommand.ExecuteAsync(userId);
     }
 
     public UpsertNoteViewModel ViewModel => (UpsertNoteViewModel)RootGrid.DataContext;
 
     private void CloseWindow(object? sender, EventArgs e)
     {
-        ViewModel.OnNoteAdded -= CloseWindow;
+        ViewModel.OnCompleted -= CloseWindow;
+        ViewModel.Dispose();
 
-        this.Bindings.StopTracking();
         RootGrid.DataContext = null;
-        
+        this.Bindings?.StopTracking();
+
         this.Close();
     }
 

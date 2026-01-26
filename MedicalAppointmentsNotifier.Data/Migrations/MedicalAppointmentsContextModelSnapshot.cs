@@ -23,16 +23,19 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("IntervalDays")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset>("LatestDate")
+                    b.Property<DateTimeOffset>("IssuedOn")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("MedicalSpecialty")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("NextDate")
+                    b.Property<int>("MonthsInterval")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ScheduledLocation")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("ScheduledOn")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -45,7 +48,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Appointments", (string)null);
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("MedicalAppointmentsNotifier.Domain.Entities.Note", b =>
@@ -55,13 +58,16 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("From")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("Until")
+                    b.Property<int>("MonthsPeriod")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -71,7 +77,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notes", (string)null);
+                    b.ToTable("Notes");
                 });
 
             modelBuilder.Entity("MedicalAppointmentsNotifier.Domain.Entities.User", b =>
@@ -90,7 +96,7 @@ namespace MedicalAppointmentsNotifier.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MedicalAppointmentsNotifier.Domain.Entities.Appointment", b =>

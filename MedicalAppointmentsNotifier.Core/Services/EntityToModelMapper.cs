@@ -6,11 +6,11 @@ namespace MedicalAppointmentsNotifier.Core.Services
 {
     public class EntityToModelMapper : IEntityToModelMapper
     {
-        private readonly IAppointmentCalculator appointmentCalculator;
+        private readonly IAppointmentsRepository appointmentRepository;
 
-        public EntityToModelMapper(IAppointmentCalculator appointmentCalculator)
+        public EntityToModelMapper(IAppointmentsRepository appointmentRepository)
         {
-            this.appointmentCalculator = appointmentCalculator ?? throw new ArgumentNullException(nameof(appointmentCalculator));
+            this.appointmentRepository = appointmentRepository ?? throw new ArgumentNullException(nameof(appointmentRepository));
         }
 
         public AppointmentModel Map(Appointment appointment)
@@ -21,12 +21,11 @@ namespace MedicalAppointmentsNotifier.Core.Services
             {
                 Id = appointment.Id,
                 MedicalSpecialty = appointment.MedicalSpecialty,
-                IntervalDays = appointment.IntervalDays,
+                MonthsInterval = appointment.MonthsInterval,
                 Status = appointment.Status,
-                DaysUntilNextAppointment = appointmentCalculator.CalculateRemainingDays(appointment.NextDate),
-                LatestDate = appointment.LatestDate,
-                NextDate = appointment.NextDate,
-                IsSelected = false
+                IssuedOn = appointment.IssuedOn,
+                ScheduledOn = appointment.ScheduledOn,
+                ScheduledLocation = appointment.ScheduledLocation
             };
 
             return appointmentModel;
@@ -40,10 +39,11 @@ namespace MedicalAppointmentsNotifier.Core.Services
             {
                 Id = appointmentModel.Id,
                 MedicalSpecialty = appointmentModel.MedicalSpecialty,
-                IntervalDays = appointmentModel.IntervalDays,
+                MonthsInterval = appointmentModel.MonthsInterval,
                 Status = appointmentModel.Status,
-                LatestDate = appointmentModel.LatestDate,
-                NextDate = appointmentModel.NextDate,
+                IssuedOn = appointmentModel.IssuedOn,
+                ScheduledOn = appointmentModel.ScheduledOn,
+                ScheduledLocation = appointmentModel.ScheduledLocation,
                 UserId = userId,
             };
 
@@ -57,9 +57,10 @@ namespace MedicalAppointmentsNotifier.Core.Services
             NoteModel noteModel = new NoteModel
             {
                 Id = note.Id,
+                Title = note.Title,
                 Description = note.Description,
                 From = note.From,
-                Until = note.Until,
+                MonthsPeriod = note.MonthsPeriod,
             };
 
             return noteModel;
@@ -72,16 +73,17 @@ namespace MedicalAppointmentsNotifier.Core.Services
             Note note = new Note
             {
                 Id = noteModel.Id,
+                Title = noteModel.Title,
                 Description = noteModel.Description,
                 From = noteModel.From,
-                Until = noteModel.Until,
+                MonthsPeriod = noteModel.MonthsPeriod,
                 UserId = userId
             };
 
             return note;
         }
 
-        public UserModel Map(User user)
+        public async Task<UserModel> Map(User user)
         {
             ArgumentNullException.ThrowIfNull(user);
 
@@ -90,9 +92,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                DaysUntilNextAppointment = appointmentCalculator.CalculateDaysUntilNextAppointmentAsync(user.Id).Result,
-                Status = string.Empty,
-                IsSelected = false
+                ExpiringAppointmentsCount = await appointmentRepository.GetExpiringAppointmentsCount(user.Id),
+                UpcominAppointmentsCount = await appointmentRepository.GetUpcomingAppointmentsCount(user.Id),
             };
 
             return userModel;

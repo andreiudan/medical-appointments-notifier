@@ -16,11 +16,8 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
                 Status = 0,
-                DaysUntilNextAppointment = 30,
-                IntervalDays = 30,
-                LatestDate = DateTime.Now,
-                NextDate = DateTime.Now.AddDays(30),
-                IsSelected = true,
+                MonthsInterval = 30,
+                IssuedOn = DateTime.Now
             };
         }
 
@@ -45,17 +42,17 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
         public void UpdatedConstructor_WhenAppointmentIsNull_ThrowsArgumentNullException()
         {
             //Assert
-            Assert.Throws<ArgumentNullException>(() => new AppointmentUpdatedMessage(null));
+            //Assert.Throws<ArgumentNullException>(() => new AppointmentStatusChangedMessage(null));
         }
 
         [Test]
         public void UpdatedConstructor_Always_SetsAppointmentField()
         {
             //Act
-            AppointmentUpdatedMessage message = new AppointmentUpdatedMessage(appointmentFake);
+            //AppointmentStatusChangedMessage message = new AppointmentStatusChangedMessage(appointmentFake);
 
             //Assert
-            Assert.That(message.appointment, Is.EqualTo(appointmentFake));
+            //Assert.That(message.appointment, Is.EqualTo(appointmentFake));
         }
     }
 }

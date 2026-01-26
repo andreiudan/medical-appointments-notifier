@@ -19,7 +19,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Entities
                 Id = Guid.NewGuid(),
                 Description = "Follow-up visit",
                 From = DateTimeOffset.Now,
-                Until = DateTimeOffset.Now.AddDays(2),
                 User = user
             };
 
@@ -28,7 +27,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Entities
                 Id = Guid.NewGuid(),
                 Description = "Different note",
                 From = DateTimeOffset.Now.AddDays(-5),
-                Until = DateTimeOffset.Now.AddDays(-3),
                 User = new User { Id = Guid.NewGuid(), FirstName = "Alex", LastName = "Bean" }
             };
 
@@ -37,7 +35,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Entities
                 Id = noteFake.Id,
                 Description = "Follow-up visit",
                 From = noteFake.From,
-                Until = noteFake.Until,
+                MonthsPeriod = noteFake.MonthsPeriod,
                 User = user
             };
         }

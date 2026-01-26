@@ -4,7 +4,6 @@ using MedicalAppointmentsNotifier.Infrastructure.DependencyInjection;
 using MedicalAppointmentsNotifier.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;

@@ -17,36 +17,27 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
             {
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
-                IntervalDays = 30,
+                MonthsInterval = 30,
                 Status = 0,
-                DaysUntilNextAppointment = 10,
-                LatestDate = DateTimeOffset.Now,
-                NextDate = DateTimeOffset.Now.AddDays(10),
-                IsSelected = true
+                IssuedOn = DateTimeOffset.Now
             };
 
             differentAppointment = new AppointmentModel
             {
                 Id = Guid.NewGuid(),
                 MedicalSpecialty = 0,
-                IntervalDays = 60,
+                MonthsInterval = 60,
                 Status = 0,
-                DaysUntilNextAppointment = 0,
-                LatestDate = DateTimeOffset.Now.AddDays(-60),
-                NextDate = DateTimeOffset.Now,
-                IsSelected = false
+                IssuedOn = DateTimeOffset.Now.AddDays(-60)
             };
 
             sameAppointment = new AppointmentModel
             {
                 Id = appointmentFake.Id,
                 MedicalSpecialty = 0,
-                IntervalDays = 30,
+                MonthsInterval = 30,
                 Status = 0,
-                DaysUntilNextAppointment = 10,
-                LatestDate = appointmentFake.LatestDate,
-                NextDate = appointmentFake.NextDate,
-                IsSelected = true
+                IssuedOn = appointmentFake.IssuedOn
             };
         }
 

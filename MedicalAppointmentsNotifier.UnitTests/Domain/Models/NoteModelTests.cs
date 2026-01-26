@@ -16,18 +16,14 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
             {
                 Id = Guid.NewGuid(),
                 Description = "Follow-up visit",
-                From = DateTimeOffset.Now,
-                Until = DateTimeOffset.Now.AddDays(2),
-                IsSelected = true
+                From = DateTimeOffset.Now
             };
 
             differentNote = new NoteModel
             {
                 Id = Guid.NewGuid(),
                 Description = "Annual checkup",
-                From = DateTimeOffset.Now.AddDays(-5),
-                Until = DateTimeOffset.Now.AddDays(-3),
-                IsSelected = false
+                From = DateTimeOffset.Now.AddDays(-5)
             };
 
             sameNote = new NoteModel
@@ -35,8 +31,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Models
                 Id = noteFake.Id,
                 Description = "Follow-up visit",
                 From = noteFake.From,
-                Until = noteFake.Until,
-                IsSelected = true
+                MonthsPeriod = noteFake.MonthsPeriod
             };
         }
 

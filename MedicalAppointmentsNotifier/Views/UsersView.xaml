@@ -11,146 +11,826 @@
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     mc:Ignorable="d">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="80*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        
-        <Grid 
-            VerticalAlignment="Top"
-            Padding="36, 40, 36, 24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+    <Grid x:Name="mainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <TextBlock 
-                Grid.Column="0" 
-                Text="Beneficiari" 
-                HorizontalAlignment="Left" 
-                FontSize="32" 
-                Style="{StaticResource TitleTextBlockStyle}"/>
-            <StackPanel 
-                Grid.Column="1" 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Right"
-                Spacing="8">
-                <Button 
-                    x:Name="btnAdd"
-                    Style="{StaticResource AccentButtonStyle}"
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center" 
-                     Click="btnAdd_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <SymbolIcon Symbol="Add" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Adauga" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                <Button 
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center" 
-                    Command="{x:Bind ViewModel.DeleteSelectedUsersCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <SymbolIcon Symbol="Delete" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Sterge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
+        <!-- Left Panel - Users List -->
+        <Grid Grid.Column="0" Background="{ThemeResource LayerFillColorDefaultBrush}" 
+          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+          BorderThickness="0,0,1,0">
 
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Padding="24,24,24,16">
+                <TextBlock Text="Beneficiari" 
+                           Style="{StaticResource TitleTextBlockStyle}"
+                           FontWeight="SemiBold"/>
             </StackPanel>
+
+            <!-- Search Box -->
+            <AutoSuggestBox Grid.Row="1"
+                            PlaceholderText="Cauta beneficiari..."
+                            Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}"
+                            Margin="16,0,16,16"
+                            QueryIcon="Find"/>
+
+            <!-- Users List -->
+            <ItemsView Margin="8,0,8,8"
+                       Grid.Row="2"
+                       x:Name="UsersViewList"
+                       ItemsSource="{x:Bind ViewModel.ShownUsers, Mode=OneWay}"
+                       SelectionMode="Single"
+                       SelectionChanged="ItemsView_SelectionChanged">
+                <ItemsView.ItemTemplate>
+                    <DataTemplate>
+                        <ItemContainer>
+                            <Grid Margin="8,4" 
+                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                  BorderThickness="1"
+                                  CornerRadius="8"
+                                  Padding="16,12">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Avatar -->
+                                <PersonPicture Grid.Column="0" 
+                                               Width="48" 
+                                               Height="48"
+                                               Margin="0,0,12,0"/>
+
+                                <!-- Patient Info -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding LastName}" 
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding FirstName}" 
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- Notification Badge -->
+                                <InfoBadge Grid.Column="2" 
+                                    Value="{Binding UpcominAppointmentsCount, Mode=OneWay}"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding UpcominAppointmentsCount, 
+                                        Mode=OneWay,
+                                        Converter={StaticResource IntToVisibilityConverter}}"
+                                    FontSize="16"
+                                    Margin="6, 0"/>
+                                <InfoBadge Grid.Column="3" 
+                                    Value="{Binding ExpiringAppointmentsCount, Mode=OneWay}"
+                                    Style="{StaticResource CriticalDotInfoBadgeStyle}"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding ExpiringAppointmentsCount, 
+                                        Mode=OneWay,
+                                        Converter={StaticResource IntToVisibilityConverter}}"/>
+                            </Grid>
+                        </ItemContainer>
+
+                    </DataTemplate>
+                </ItemsView.ItemTemplate>
+            </ItemsView>
+
+            <!-- Add Patient Button -->
+            <Button Grid.Row="2"
+               Style="{StaticResource AccentButtonStyle}"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Bottom"
+               Margin="16"
+               Padding="16,12"
+               Click="btnAdd_Click">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE109;" FontSize="16"/>
+                    <TextBlock Text="Adauga Beneficiar"/>
+                </StackPanel>
+            </Button>
         </Grid>
 
-        <ListView 
-            BorderThickness="1" 
-            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-            CornerRadius="{StaticResource ControlCornerRadius}"
-            Margin="36,0,36,0"
-            Grid.Row="1" 
-            x:Name="UsersListView"
-            ItemsSource="{x:Bind ViewModel.Users}"
-            IsItemClickEnabled="True"
-            ItemClick="UsersListView_ItemClick">
-            
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid 
-                        Padding="14, 12, 14, 12"
-                        Margin="0, 0, 0, 4"
-                        Background="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}"
-                        ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="10*"/>
-                            <ColumnDefinition Width="40*"/>
-                            <ColumnDefinition Width="35*"/>
-                            <ColumnDefinition Width="25*"/>
-                            <ColumnDefinition Width="8*"/>
-                        </Grid.ColumnDefinitions>
+        <!-- Right Panel - Appointment Details -->
+        <Grid Grid.Column="1" Padding="32,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                        <interactivity:Interaction.Behaviors>
-                            <behaviors:StickyHeaderBehavior/>
-                        </interactivity:Interaction.Behaviors>
+            <!-- Patient Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                        <SymbolIcon Symbol="Delete" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <TextBlock Text="Nume" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Urmatoarea programare (zile)" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Status" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                        <TextBlock Text="Modifica" Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
+                <PersonPicture Grid.Column="0" 
+                               Width="80" 
+                               Height="80"
+                               Margin="0,0,20,0"/>
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid 
-                        Margin="0,8,0,8"
-                        Padding="0,6"
-                        ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="10*"/>
-                            <ColumnDefinition Width="40*"/>
-                            <ColumnDefinition Width="35*"/>
-                            <ColumnDefinition Width="25*"/>
-                            <ColumnDefinition Width="8*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <CheckBox 
-                            IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                <StackPanel Grid.Column="1" 
+                            VerticalAlignment="Center" 
                             HorizontalAlignment="Left" 
-                            VerticalAlignment="Center" 
-                            Grid.Column="0" 
-                            Click="CheckBox_Click"/>
-                        <TextBlock 
-                            Text="{Binding Converter={StaticResource UserFullNameConverter}}" 
-                            Grid.Column="1" 
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center" 
-                            Style="{StaticResource BodyTextBlockStyle}"/>
-                        <TextBlock Text="{Binding DaysUntilNextAppointment}" Grid.Column="2" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-                        <TextBlock Text="{Binding Status}" Grid.Column="3" HorizontalTextAlignment="Center" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
-                        <Button
-                            x:Name="btnEdit"
-                            Grid.Column="4"
+                            Orientation="Horizontal"
+                            Spacing="12">
+                    <TextBlock Text="{x:Bind ViewModel.SelectedUser.FirstName, Mode=OneWay}" 
+                         Style="{StaticResource TitleLargeTextBlockStyle}"
+                         FontWeight="SemiBold"/>
+                    <TextBlock Text="{x:Bind ViewModel.SelectedUser.LastName, Mode=OneWay}" 
+                         Style="{StaticResource TitleLargeTextBlockStyle}"
+                         FontWeight="SemiBold"/>
+                    <Button Name="btnEdit"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Click="btnEdit_Click"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Click="btnEdit_Click">
-                            <SymbolIcon Symbol="Edit"/>
-                        </Button>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                            Margin="0,6,0,0"
+                            ToolTipService.ToolTip="Modifica Nume">
+                        <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                    </Button>
+                </StackPanel>
 
-        <StackPanel 
-            Orientation="Horizontal" 
-            HorizontalAlignment="Left" 
-            VerticalAlignment="Center" 
-            Grid.Row="2" 
-            Spacing="12"
-            Padding="36,24,36,24">
-            <TextBlock Text="Urmeaza sa expire" FontSize="16"></TextBlock>
-            <TextBlock Text="A expirat" FontSize="16"></TextBlock>
-            <TextBlock Text="Nu expira curand" FontSize="16"></TextBlock>
-        </StackPanel>
+                <Button Grid.Column="2"
+                        x:Name="btnAddAppointment"
+                        Style="{StaticResource AccentButtonStyle}"
+                        VerticalAlignment="Center"
+                        Click="btnAddAppointment_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE109;" FontSize="14"/>
+                            <TextBlock Text="Adauga Scrisoare Medicala"/>
+                        </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Quick Stats Cards -->
+            <Grid Grid.Row="1" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Next Appointment Card -->
+                <Border Grid.Column="0" 
+                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        Margin="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="URMATOAREA PROGRAMARE" 
+                                   Foreground="White"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   FontWeight="SemiBold"
+                                   Opacity="0.9"/>
+
+                        <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, 
+                            TargetNullValue='Data programarii nu este inregistrata',
+                            Mode=OneWay, 
+                            Converter={StaticResource DateOnlyConverter}, 
+                            ConverterParameter='dd.MMM.yyy'}" 
+                                   Foreground="White"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold"
+                                   Margin="0,4,0,0"/>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="6"
+                                    Margin="0,4,0,0">
+                            <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.MedicalSpecialty, Mode=OneWay}" 
+                                       Foreground="White"
+                                       Opacity="0.9"
+                                       Visibility="{x:Bind ViewModel.FirstScheduledAppointment.MedicalSpecialty, Converter={StaticResource NullablePropertyToVisibilityConverter}, Mode=OneWay}"/>
+                            
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="4"
+                                        Visibility="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, Converter={StaticResource NullablePropertyToVisibilityConverter}, Mode=OneWay}">
+                                <TextBlock Text="•" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                                <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledOn, Converter={StaticResource TimeOnlyConverter}, Mode=OneWay}" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="4"
+                                        Visibility="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledLocation, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}">
+                                <TextBlock Text="•" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                                <TextBlock Text="{x:Bind ViewModel.FirstScheduledAppointment.ScheduledLocation, Mode=OneWay}" 
+                                           Foreground="White"
+                                           Opacity="0.9"/>
+                            </StackPanel>
+
+                            
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Total Appointments -->
+                <Border Grid.Column="1" 
+                   Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                   BorderThickness="1"
+                   CornerRadius="8"
+                   Padding="20,16"
+                   Margin="4,0">
+                    <StackPanel>
+                        <TextBlock Text="SCRISORI MEDICALE" 
+                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                             Style="{StaticResource CaptionTextBlockStyle}"
+                             FontWeight="SemiBold"/>
+
+                        <Grid Margin="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Border Grid.Column="0">
+                                <StackPanel>
+                                    <TextBlock Text="Programate" 
+                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                         Style="{StaticResource CaptionTextBlockStyle}"
+                                         Margin="0,2,0,0"/>
+
+                                    <TextBlock Text="{x:Bind ViewModel.ScheduledAppointments.Count, Mode=OneWay}" 
+                                         Style="{StaticResource SubtitleTextBlockStyle}"
+                                         FontWeight="SemiBold"
+                                         Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                                
+                            <Border Grid.Column="1"
+                                    HorizontalAlignment="Right">
+                                <StackPanel>
+                                    <TextBlock Text="Neprogramate" 
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Margin="0,2,0,0"/>
+                                    
+                                    <TextBlock Text="{x:Bind ViewModel.ExpiringAppointments.Count, Mode=OneWay}" 
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        FontWeight="SemiBold"
+                                        Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        
+                        
+                    </StackPanel>
+                </Border>
+
+                <!-- Pending Notes -->
+                <Border Grid.Column="2" 
+                   Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                   BorderThickness="1"
+                   CornerRadius="8"
+                   Padding="20,16"
+                   Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="MENTIUNI" 
+                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                             Style="{StaticResource CaptionTextBlockStyle}"
+                             FontWeight="SemiBold"/>
+                        
+                        <TextBlock Text="{x:Bind ViewModel.Notes.Count, Mode=OneWay}" 
+                             Style="{StaticResource SubtitleTextBlockStyle}"
+                             FontWeight="SemiBold"
+                             Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Appointments Content -->
+            <ScrollViewer Grid.Row="2"
+                          Padding="0,0,12,0">
+                <StackPanel Spacing="16">
+
+                    <!-- Upcoming Appointments Section -->
+                    <StackPanel>
+                        <TextBlock Text="Scrisori medicale programate" 
+                         Style="{StaticResource SubtitleTextBlockStyle}"
+                         FontWeight="SemiBold"
+                         Margin="0,0,0,12"/>
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.ScheduledAppointments, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="20"
+                                            Margin="0,0,0,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Date Badge -->
+                                            <Border Grid.Column="0"
+                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    CornerRadius="8"
+                                                    Padding="16,12"
+                                                    Margin="0,0,16,0"
+                                                    VerticalAlignment="Top">
+                                                <StackPanel HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding ScheduledOn,
+                                                        TargetNullValue='Fara data',
+                                                        Mode=OneWay, 
+                                                        Converter={StaticResource DateOnlyConverter}}" 
+                                                               Foreground="White"
+                                                               FontSize="18"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Fara data"
+                                                               Visibility="{Binding ScheduledOn, 
+                                                        Mode=OneWay, 
+                                                        Converter={StaticResource ReverseNullablePropertyToVisibilityConverter}}"
+                                                               Foreground="White"
+                                                               FontSize="18"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Appointment Details -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding MedicalSpecialty}" 
+                                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                    FontSize="16"/>
+                                                <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
+                                                    <StackPanel Orientation="Horizontal" 
+                                                                Spacing="6"
+                                                                Visibility="{Binding ScheduledOn, 
+                                                                    Mode=OneWay, 
+                                                                    Converter={StaticResource NullablePropertyToVisibilityConverter}}">
+                                                        <FontIcon Glyph="&#xE823;" 
+                                                            FontSize="14"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <TextBlock Text="{Binding ScheduledOn, Mode=OneWay, Converter={StaticResource TimeOnlyConverter}}" 
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Style="{StaticResource CaptionTextBlockStyle}"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Orientation="Horizontal" 
+                                                                Spacing="6"
+                                                                Visibility="{Binding ScheduledLocation, 
+                                                                    Mode=OneWay, 
+                                                                    Converter={StaticResource StringToVisibilityConverter}}">
+                                                        <FontIcon Glyph="&#xE707;" 
+                                                            FontSize="14"
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <TextBlock Text="{Binding ScheduledLocation, Mode=OneWay}" 
+                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                            Style="{StaticResource CaptionTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                
+                                            </StackPanel>
+
+                                            <InfoBar Severity="Warning" 
+                                                     IsOpen="True"
+                                                     IsClosable="True"
+                                                     Message="{Binding DaysUntilScheduled, 
+                                                Converter={StaticResource ValueToMessageConverter}, 
+                                                ConverterParameter='Atentie: Programarea este peste {0} zile.'}"
+                                                     Visibility="{Binding DaysUntilScheduled, 
+                                                Converter={StaticResource ScheduledDaysToVisibilityConverter}}"
+                                                     Margin="12,0"
+                                                     CornerRadius="8"
+                                                     VerticalAlignment="Center"
+                                                     HorizontalAlignment="Center"
+                                                     Grid.Column="2"/>
+
+                                            <!-- Actions -->
+                                            <StackPanel Grid.Column="3" 
+                                                    Orientation="Horizontal" 
+                                                    Spacing="8"
+                                                    VerticalAlignment="Center">
+                                                <Button Grid.Column="1"
+                                                        x:Name="btnFinishAppointment"
+                                                        Style="{StaticResource AccentButtonStyle}"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Right"
+                                                        Click="ShowAppointmentConfirmFinalizeDialog"
+                                                        >
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon Glyph="&#xE73E;" 
+                                                                  FontSize="20"/>
+                                                        <TextBlock Text="Finalizeaza"/>
+                                                    </StackPanel>
+                                                </Button>
+
+                                                <Button Name="btnEditAppointment"
+                                                        Click="btnEditAppointment_Click"
+                                                        ToolTipService.ToolTip="Modifica">
+                                                    <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                                                </Button>
+                                                
+                                                <Button Name="btnDeleteAppointment"
+                                                        Click="ShowDeleteConfirmationDialog"
+                                                        ToolTipService.ToolTip="Sterge">
+                                                    <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <!-- Appointments that need to be scheduled -->
+                    <StackPanel>
+                        <TextBlock Text="Scrisori medicale care necesita programare" 
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,12"/>
+
+                        <!-- Appointment Cards -->
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.ExpiringAppointments, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="20">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Needs To Be Scheduled Card -->
+                                            <Border Grid.Column="0"
+                                                    Background="{StaticResource DangerBackground}"
+                                                    CornerRadius="8"
+                                                    Padding="16,12"
+                                                    Margin="0,0,16,0"
+                                                    VerticalAlignment="Top">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Necesita" 
+                                                               Foreground="White"
+                                                               FontSize="20"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"/>
+
+                                                    <TextBlock Text="Programare" 
+                                                               Foreground="White"
+                                                               FontSize="16"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"
+                                                               Margin="0,-4,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding MedicalSpecialty}" 
+                                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                           FontSize="16"/>
+                                                
+                                                <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
+                                                    <StackPanel Orientation="Horizontal" 
+                                                                Spacing="6"
+                                                                ToolTipService.ToolTip="Data">
+                                                        <FontIcon Glyph="&#xE787;" 
+                                                                  FontSize="14"
+                                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                                        <TextBlock Text="{Binding DaysUntilExpiry, 
+                                                                        Converter={StaticResource ValueToMessageConverter}, 
+                                                                        ConverterParameter='Expira in {0} zile'}" 
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   Style="{StaticResource CaptionTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" 
+                                                        Orientation="Horizontal" 
+                                                        Spacing="8"
+                                                        VerticalAlignment="Center">
+                                                <Button Grid.Column="1"
+                                                        x:Name="btnFinishAppointment"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Right"
+                                                        Click="ShowAppointmentConfirmFinalizeDialog">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon Glyph="&#xE73E;" 
+                                                                  FontSize="20"
+                                                                  Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                                        <TextBlock Text="Finalizeaza"/>
+                                                    </StackPanel>
+                                                </Button>
+
+                                                <Button Name="btnScheduleAppointment"
+                                                        ToolTipService.ToolTip="Adauga data programarii"
+                                                        Click="btnScheduleAppointment_Click">
+                                                    <StackPanel Orientation="Horizontal"
+                                                                Spacing="12">
+                                                        <FontIcon Glyph="&#xF763;" 
+                                                                  FontSize="16"
+                                                                  Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                                        <TextBlock Text="Seteaza Programarea"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Name="btnEditAppointment"
+                                                        Click="btnEditAppointment_Click"
+                                                        ToolTipService.ToolTip="Modifica">
+                                                    <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                                                </Button>
+                                                
+                                                <Button Name="btnDeleteAppointment"
+                                                        Click="ShowDeleteConfirmationDialog"
+                                                        ToolTipService.ToolTip="Sterge">
+                                                    <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <!-- Doctor's Notes Section -->
+                    <StackPanel Margin="0,16,0,0">
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Mentiuni" 
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,12"
+                                       Grid.Column="0"/>
+
+                            <Button Grid.Column="1"
+                                    x:Name="btnAddNote"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Right"
+                                    Click="btnAddNote_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE109;" FontSize="14"/>
+                                    <TextBlock Text="Adauga mentiune"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        
+                        <!-- Note Cards -->
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Notes, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Expander Header="{Binding Title, Mode=OneWay}"
+                                                  HorizontalAlignment="Stretch"
+                                                  Margin="0,0,0,8"
+                                                  Grid.Column="0"
+                                                  HorizontalContentAlignment="Left">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="0"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                            Spacing="6">
+                                                        <TextBlock Text="Din Data"
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding From, Mode=OneWay, Converter={StaticResource DateOnlyConverter}}" 
+                                                               TextWrapping="Wrap"
+                                                               Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="1"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="6">
+                                                        <TextBlock Text="Perioada (luni)" 
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding MonthsPeriod}" 
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="2"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="6">
+                                                        <TextBlock Text="Pana in Data" 
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Until, Converter={StaticResource DateOnlyConverter}}" 
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
+                                                <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                                        Padding="16"
+                                                        CornerRadius="4"
+                                                        Grid.Column="3"
+                                                        Margin="0,8,0,0">
+                                                    <StackPanel Orientation="Vertical"
+                                                                Spacing="6">
+                                                        <TextBlock Text="Descriere" 
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                            </Grid>
+                                        </Expander>
+
+                                        <StackPanel Grid.Column="1" 
+                                                    Orientation="Horizontal" 
+                                                    Spacing="8"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="0,0,0,8">
+                                            <Button Name="btnEditNote"
+                                                    Click="btnEditNote_Click"
+                                                    ToolTipService.ToolTip="Modifica">
+                                                <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                                            </Button>
+                                            
+                                            <Button Name="btnDeleteNote"
+                                                    Click="ShowDeleteConfirmationDialog"
+                                                    ToolTipService.ToolTip="Sterge">
+                                                <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <!-- Past Appointments Section -->
+                    <StackPanel Margin="0,16,0,0">
+                        <TextBlock Text="Scrisori medicale trecute" 
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,12"/>
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.PastAppointments, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            Margin="0, 0, 0 , 7"
+                                            CornerRadius="8"
+                                            Padding="16"
+                                            Opacity="0.7">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0"
+                                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                    CornerRadius="8"
+                                                    Padding="14,10"
+                                                    Margin="0,0,16,0">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding IssuedOn, Converter={StaticResource DateOnlyConverter}, ConverterParameter='yyyy'}" 
+                                                               FontSize="20"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"/>
+
+                                                    <TextBlock Text="{Binding IssuedOn, Converter={StaticResource DateOnlyConverter}, ConverterParameter='MMM'}" 
+                                                               FontSize="14"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center"
+                                                               Margin="0,-4,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <TextBlock Text="{Binding MedicalSpecialty}" 
+                                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                       FontSize="16"
+                                                       Grid.Column="1"
+                                                       VerticalAlignment="Center"/>
+
+                                            <FontIcon Grid.Column="2" 
+                                                      Glyph="&#xE73E;" 
+                                                      FontSize="20"
+                                                      Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <!-- Delete Section -->
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Sterge beneficiarul"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                        <Border Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorCriticalBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="⚠️ ATENTIE" 
+                                               FontWeight="SemiBold"
+                                               Style="{StaticResource BodyTextBlockStyle}"/>
+
+                                    <TextBlock Text="Stergerea unui beneficiar duce la pierderea tuturor datelor inregistrate in aplicatie." 
+                                               TextWrapping="Wrap"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               FontSize="14"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="1"
+                                        x:Name="btnDelete"
+                                        Style="{StaticResource DangerButtonStyle}"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Right"
+                                        Click="ShowDeleteConfirmationDialog">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                                        <TextBlock Text="Sterge Beneficiarul"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

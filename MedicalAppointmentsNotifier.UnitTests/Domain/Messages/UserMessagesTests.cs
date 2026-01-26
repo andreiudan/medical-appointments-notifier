@@ -15,10 +15,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
             {
                 Id = Guid.NewGuid(),
                 FirstName = "Test",
-                LastName = "Test",
-                DaysUntilNextAppointment = 1,
-                Status = "",
-                IsSelected = true
+                LastName = "Test"
             };
         }
 
@@ -34,23 +31,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
         {
             //Act
             UserAddedMessage message = new UserAddedMessage(userFake);
-
-            //Assert
-            Assert.That(message.user, Is.EqualTo(userFake));
-        }
-
-        [Test]
-        public void UpdatedConstructor_WhenUserIsNull_ThrowsArgumentNullException()
-        {
-            //Assert
-            Assert.Throws<ArgumentNullException>(() => new UserUpdatedMessage(null));
-        }
-
-        [Test]
-        public void UpdatedConstructor_Always_SetsUserField()
-        {
-            //Act
-            UserUpdatedMessage message = new UserUpdatedMessage(userFake);
 
             //Assert
             Assert.That(message.user, Is.EqualTo(userFake));

@@ -12,28 +12,35 @@ namespace MedicalAppointmentsNotifier.Views;
 /// </summary>
 public sealed partial class UpsertAppointmentView : Window
 {
-    private readonly SizeInt32 startSize = new(600, 470);
+    private readonly SizeInt32 noScheduleInfoSize = new(625, 545);
+    private readonly SizeInt32 scheduleInfoSize = new(625, 750);
 
-    public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null)
+    public UpsertAppointmentView(Guid userId, AppointmentModel appointment = null, bool scheduleTrigger = false)
     {
-        AppWindow.Resize(startSize);
+        AppWindow.Resize(noScheduleInfoSize);
         AppWindow.SetIcon("Assets/Square44x44Logo.targetsize-16.ico");
 
         InitializeComponent();
         RootGrid.DataContext = ((App)App.Current).Services.GetService<UpsertAppointmentViewModel>();
 
-        ViewModel.OnAppointmentAdded += CloseWindow;
-        ViewModel.LoadUserId(userId);
-        ViewModel.LoadAppointment(appointment);
+        ViewModel.OnCompleted += CloseWindow;
+        ViewModel.LoadUserIdCommand.ExecuteAsync(userId);
+        ViewModel.LoadAppointmentCommand.ExecuteAsync(appointment);
+
+        if (scheduleTrigger)
+        {
+            ViewModel.TriggerScheduleCommand.ExecuteAsync(scheduleTrigger);
+        }
     }
 
     public UpsertAppointmentViewModel ViewModel => (UpsertAppointmentViewModel)RootGrid.DataContext;
 
     private void CloseWindow(object? sender, EventArgs e)
     {
-        ViewModel.OnAppointmentAdded -= CloseWindow;
+        ViewModel.OnCompleted -= CloseWindow;
+        ViewModel.Dispose();
 
-        this.Bindings.StopTracking();
+        this.Bindings?.StopTracking();
         RootGrid.DataContext = null;
 
         this.Close();
@@ -42,5 +49,15 @@ public sealed partial class UpsertAppointmentView : Window
     public void btnClose_Click(object sender, RoutedEventArgs e)
     {
         this.CloseWindow(sender, EventArgs.Empty);
+    }
+
+    public void ResizeWindowOnChecked(object sender, RoutedEventArgs e)
+    {
+        AppWindow.Resize(scheduleInfoSize);
+    }
+
+    public void ResizeWindowOnUnchecked(object sender, RoutedEventArgs e)
+    {
+        AppWindow.Resize(noScheduleInfoSize);
     }
 }

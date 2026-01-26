@@ -8,14 +8,12 @@ namespace MedicalAppointmentsNotifier.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            string val = value.ToString();
-
-            if (string.IsNullOrEmpty(val))
+            if (value is not null && value is string val && !string.IsNullOrEmpty(val))
             {
-                return Visibility.Collapsed;
+                return Visibility.Visible;
             }
 
-            return Visibility.Visible;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

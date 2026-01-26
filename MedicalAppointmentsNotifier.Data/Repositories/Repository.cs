@@ -81,7 +81,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
             context.Entry(original).CurrentValues.SetValues(model);
 
             await context.SaveChangesAsync().ConfigureAwait(false);
-            
+
             return true;
         }
     }

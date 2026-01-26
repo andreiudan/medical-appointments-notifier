@@ -21,17 +21,22 @@ namespace MedicalAppointmentsNotifier.Views
             InitializeComponent();
 
             RootGrid.DataContext = ((App)App.Current).Services.GetRequiredService<UpsertUserViewModel>();
+            ViewModel.LoadUserCommand.ExecuteAsync(userModel);
 
             this.Closed += UpsertUserView_Closed;
-            ViewModel.OnUserAdded += CloseWindow;
-            ViewModel.LoadUser(userModel);
+            ViewModel.OnCompleted += CloseWindow;
         }
 
         public UpsertUserViewModel ViewModel => (UpsertUserViewModel)RootGrid.DataContext;
 
         private void CloseWindow(object? sender, EventArgs e)
         {
-            ViewModel.OnUserAdded -= CloseWindow;
+            ViewModel.OnCompleted -= CloseWindow;
+            ViewModel.Dispose();
+
+            this.Bindings?.StopTracking();
+            RootGrid.DataContext = null;
+
             this.Close();
         }
 
@@ -41,7 +46,7 @@ namespace MedicalAppointmentsNotifier.Views
             {
                 if (ViewModel is not null)
                 {
-                    ViewModel.OnUserAdded -= CloseWindow;
+                    ViewModel.OnCompleted -= CloseWindow;
 
                     if (ViewModel is IDisposable disposable)
                     {
@@ -51,7 +56,6 @@ namespace MedicalAppointmentsNotifier.Views
             }
             catch { }
 
-            this.Bindings.StopTracking();
             RootGrid.DataContext = null;
         }
 

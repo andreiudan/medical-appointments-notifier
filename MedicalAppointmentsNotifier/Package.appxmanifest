@@ -10,13 +10,13 @@
   <Identity
     Name="343413ca-2a05-4b6b-9cd0-2589a3c7d466"
     Publisher="CN=andre"
-    Version="1.0.0.0" />
+    Version="1.5.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="343413ca-2a05-4b6b-9cd0-2589a3c7d466" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>MedicalAppointmentsNotifier</DisplayName>
-    <PublisherDisplayName>andre</PublisherDisplayName>
+    <PublisherDisplayName>uzenad</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -34,8 +34,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="MedicalAppointmentsNotifier"
-        Description="An application that notifies upcoming expiring medical periodical appointments."
+        DisplayName="Notificator Expirare Scrisori Medicale"
+        Description="O aplicatie care gestioneaza scrisorile medicale si notifica expirarea acestora."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
@@ -46,7 +46,7 @@
     </Application>
   </Applications>
 
-  <Capabilities>
+	<Capabilities>
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>

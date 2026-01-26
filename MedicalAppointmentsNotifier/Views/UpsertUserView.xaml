@@ -18,7 +18,7 @@
         x:Name="RootGrid"
         HorizontalAlignment="Stretch" 
         VerticalAlignment="Stretch">
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
@@ -34,36 +34,32 @@
             HorizontalAlignment="Center"
             Padding="32, 32, 32, 24"/>
 
-        <StackPanel 
-            Grid.Row="1"
-            Spacing="6"
-            Padding="32, 0, 32, 16">
-            
-            <TextBox 
-                Header="Prenume"  
-                Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            
-            <TextBlock
-                Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
-                Text="{x:Bind ViewModel.FirstNameErrorMessage, Mode=OneWay}"
-                Visibility="{Binding FirstNameErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
-            
+        <StackPanel Grid.Row="1"
+                    Spacing="6"
+                    Padding="32, 0, 32, 24">
+            <TextBox Header="Nume de familie"
+                     Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <TextBlock Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
+                       Text="{x:Bind ViewModel.LastNameErrorMessage, Mode=OneWay}"
+                       Visibility="Visible"/>
+
         </StackPanel>
 
         <StackPanel 
             Grid.Row="2"
             Spacing="6"
-            Padding="32, 0, 32, 24">
-            
+            Padding="32, 0, 32, 16">
+
             <TextBox 
-                Header="Nume de familie"
-                Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            
+                Header="Prenume"  
+                Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
             <TextBlock
                 Foreground="{ThemeResource SystemControlErrorTextForegroundBrush}"
-                Text="{x:Bind ViewModel.LastNameErrorMessage, Mode=OneWay}"
-                Visibility="Visible"/>
-            
+                Text="{x:Bind ViewModel.FirstNameErrorMessage, Mode=OneWay}"
+                Visibility="{Binding FirstNameErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
         </StackPanel>
 
         <Grid 
@@ -72,7 +68,9 @@
             Padding="32, 24, 32, 24"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+            Background="{ThemeResource LayerFillColorDefaultBrush}" 
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+            BorderThickness="0,1,0,0">
             
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
@@ -90,7 +88,7 @@
             <Button 
                 Style="{StaticResource AccentButtonStyle}"
                 Content="{x:Bind ViewModel.UpsertButtonText}" 
-                Command="{x:Bind ViewModel.AddUserCommand}" 
+                Command="{x:Bind ViewModel.UpsertUserCommand}" 
                 Grid.Column="1" 
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Center"/>

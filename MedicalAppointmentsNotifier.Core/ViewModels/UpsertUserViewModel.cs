@@ -12,32 +12,50 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UpsertUserViewModel : ObservableValidator
+public partial class UpsertUserViewModel : ObservableValidator, IDisposable
 {
-    public event EventHandler OnUserAdded;
+    public event EventHandler OnCompleted;
 
-    [NotifyPropertyChangedFor(nameof(FirstNameErrorMessage))]
-    [ObservableProperty]
+    private string firstName;
+
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
     [RegularExpression(ValidationConstants.NameRegex, ErrorMessage = ValidationConstants.NameErrorMessage)]
-    private string firstName;
+    public string FirstName
+    {
+        get => firstName;
+        set
+        {
+            SetProperty(ref firstName, value, true);
+            SetDirtyForm();
+        }
+    }
 
     public string FirstNameErrorMessage => GetErrors(nameof(FirstName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-    [NotifyPropertyChangedFor(nameof(LastNameErrorMessage))]
-    [ObservableProperty]
+    private string lastName;
+
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
     [RegularExpression(ValidationConstants.NameRegex, ErrorMessage = ValidationConstants.NameErrorMessage)]
-    private string lastName;
+    public string LastName
+    {
+        get => lastName;
+        set
+        {
+            SetProperty(ref lastName, value, true);
+            SetDirtyForm();
+        }
+    }
 
     public string LastNameErrorMessage => GetErrors(nameof(LastName)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-    private Guid UserId { get; set; } = Guid.Empty;
+    private UserModel user;
+    private bool isDirty = false;
 
     public string Title { get; set; } = "Adauga Beneficiar";
     public string UpsertButtonText { get; set; } = "Adauga";
 
-    public IAsyncRelayCommand AddUserCommand { get; }
+    public IAsyncRelayCommand UpsertUserCommand { get; }
+    public IAsyncRelayCommand LoadUserCommand { get; }
 
     private readonly IRepository<User> repository;
     private readonly IEntityToModelMapper mapper;
@@ -49,10 +67,19 @@ public partial class UpsertUserViewModel : ObservableValidator
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        AddUserCommand = new AsyncRelayCommand(AddAsync);
+        LoadUserCommand = new AsyncRelayCommand<UserModel>(LoadUser);
+        UpsertUserCommand = new AsyncRelayCommand(UpsertAsync);
+
+        this.ErrorsChanged += UpsertUserViewModel_ErrorsChanged;
     }
 
-    public void LoadUser(UserModel user)
+    private void UpsertUserViewModel_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(FirstNameErrorMessage));
+        OnPropertyChanged(nameof(LastNameErrorMessage));
+    }
+
+    public async Task LoadUser(UserModel? user)
     {
         if(user == null)
         {
@@ -60,96 +87,91 @@ public partial class UpsertUserViewModel : ObservableValidator
             return;
         }
 
-        UserId = user.Id;
+        this.user = user;
         FirstName = user.FirstName;
         LastName = user.LastName;
 
         Title = "Modifica Beneficiar";
         UpsertButtonText = "Modifica";
 
-        logger.LogInformation("Loaded user with Id: {UserId}", UserId);
+        logger.LogInformation("Loaded user with Id: {UserId}", user.Id);
     }
 
-    partial void OnFirstNameChanged(string value)
+    private void SetDirtyForm()
     {
-        ValidateProperty(value, nameof(FirstName));
+        isDirty = true;
     }
 
-    partial void OnLastNameChanged(string value)
+    private async Task UpsertAsync()
     {
-        ValidateProperty(value, nameof(LastName));
-    }
+        ValidateAllProperties();
 
-    private bool Validate()
-    {
-        try
+        if (HasErrors)
         {
-            ValidateAllProperties();
-
-            OnPropertyChanged(nameof(FirstNameErrorMessage));
-            OnPropertyChanged(nameof(LastNameErrorMessage));
-
-            if (HasErrors)
-            {
-                return false;
-            }
-        }
-        catch 
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private async Task AddAsync()
-    {
-        if (!Validate())
-        {
-            logger.LogInformation("Validation failed for user Id: {UserId}", UserId);
+            logger.LogInformation("Validation failed on user upsert.");
             return;
         }
 
         INameNormalizer nameNormalizer = new NameNormalizer();
-        User user = new User
+        User newUser = new User
         {
             Id = Guid.NewGuid(),
             FirstName = nameNormalizer.Normalize(FirstName),
             LastName = nameNormalizer.Normalize(LastName),
         };
 
-        if (UserId.Equals(Guid.Empty))
+        if (isDirty)
         {
-            await InsertAsync(user);
-        }
-        else
-        {
-            user.Id = UserId;
-            await UpdateAsync(user);
+            if (user is null)
+            {
+                await InsertAsync(newUser);
+            }
+            else
+            {
+                newUser.Id = user.Id;
+                await UpdateAsync(newUser);
+            }
         }
 
-        OnUserAdded?.Invoke(this, EventArgs.Empty);
+        OnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
-    private async Task InsertAsync(User user)
+    private async Task InsertAsync(User newUser)
     {
-        _ = await repository.AddAsync(user);
+        _ = await repository.AddAsync(newUser);
 
-        logger.LogInformation("Inserted new user with Id: {UserId}", user.Id);
-        WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(mapper.Map(user)));
+        logger.LogInformation("Inserted new user with Id: {UserId}", newUser.Id);
+        WeakReferenceMessenger.Default.Send<UserAddedMessage>(new UserAddedMessage(await mapper.Map(newUser)));
     }
 
-    private async Task UpdateAsync(User user)
+    private async Task UpdateAsync(User updatedUser)
     {
-        bool updated = await repository.UpdateAsync(user);
-
+        bool updated = await repository.UpdateAsync(updatedUser);
         if (!updated)
         {
-            logger.LogWarning("Failed to update user with Id: {UserId}", user.Id);
+            logger.LogWarning("Failed to update user with Id: {UserId}", updatedUser.Id);
             return;
         }
 
-        logger.LogInformation("Updated user with Id: {UserId}", user.Id);
-        WeakReferenceMessenger.Default.Send<UserUpdatedMessage>(new UserUpdatedMessage(mapper.Map(user)));
+        user.FirstName = updatedUser.FirstName;
+        user.LastName = updatedUser.LastName;
+        logger.LogInformation("Updated user with Id: {UserId}", updatedUser.Id);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ErrorsChanged -= UpsertUserViewModel_ErrorsChanged;
+            OnCompleted = null;
+            (LoadUserCommand as IDisposable)?.Dispose();
+            (UpsertUserCommand as IDisposable)?.Dispose();
+        }
     }
 }

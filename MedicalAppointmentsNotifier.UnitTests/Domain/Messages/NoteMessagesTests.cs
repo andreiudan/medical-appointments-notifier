@@ -15,9 +15,7 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
             {
                 Id = Guid.NewGuid(),
                 Description = "description",
-                From = DateTime.Now,
-                Until = DateTime.Now.AddDays(3),
-                IsSelected = true
+                From = DateTime.Now
             };
         }
 
@@ -33,23 +31,6 @@ namespace MedicalAppointmentsNotifier.UnitTests.Domain.Messages
         {
             //Act
             NoteAddedMessage message = new NoteAddedMessage(noteFake);
-
-            //Assert
-            Assert.That(message.note, Is.EqualTo(noteFake));
-        }
-
-        [Test]
-        public void UpdatedConstructor_WhenNoteIsNull_ThrowsArgumentNullException()
-        {
-            //Assert
-            Assert.Throws<ArgumentNullException>(() => new NoteUpdatedMessage(null));
-        }
-
-        [Test]
-        public void UpdatedConstructor_Always_SetsNoteField()
-        {
-            //Act
-            NoteUpdatedMessage message = new NoteUpdatedMessage(noteFake);
 
             //Assert
             Assert.That(message.note, Is.EqualTo(noteFake));

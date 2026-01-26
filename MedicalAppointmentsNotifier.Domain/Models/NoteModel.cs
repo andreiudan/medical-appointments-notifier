@@ -1,16 +1,30 @@
-﻿namespace MedicalAppointmentsNotifier.Domain.Models
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace MedicalAppointmentsNotifier.Domain.Models
 {
-    public class NoteModel
+    public partial class NoteModel : ObservableObject
     {
         public Guid Id { get; set; }
 
-        public string Description { get; set; }
+        [ObservableProperty]
+        public partial string Title { get; set; }
 
-        public DateTimeOffset? From { get; set; }
+        [ObservableProperty]
+        public partial string? Description { get; set; }
 
-        public DateTimeOffset? Until { get; set; }
+        [ObservableProperty]
+        public partial DateTimeOffset? From { get; set; }
 
-        public bool IsSelected { get; set; } = false;
+        [ObservableProperty]
+        public partial int MonthsPeriod { get; set; }
+
+        public DateTimeOffset? Until
+        {
+            get
+            {
+                return GetUntilDate();
+            }
+        }
 
         public override bool Equals(object? obj)
         {
@@ -30,15 +44,25 @@
         private bool Equals(NoteModel obj)
         {
             return this.Id.CompareTo(obj.Id) == 0 &&
+                this.Title == obj.Title &&
                 this.Description == obj.Description &&
                 this.From == obj.From &&
-                this.Until == obj.Until &&
-                this.IsSelected == obj.IsSelected;
+                this.MonthsPeriod == obj.MonthsPeriod;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Description, From, Until, IsSelected);
+            return HashCode.Combine(Id, Title, Description, From, MonthsPeriod);
+        }
+
+        public DateTimeOffset GetUntilDate()
+        {
+            if (From.HasValue)
+            {
+                return From.Value.AddMonths(MonthsPeriod);
+            }
+
+            return DateTimeOffset.MinValue;
         }
     }
 }

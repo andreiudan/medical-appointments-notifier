@@ -31,23 +31,23 @@ namespace MedicalAppointmentsNotifier.Core.Services
 
         private async Task<string> GetNotificationMessage()
         {
-            List<Appointment> appointments = await repository.GetExpiringAppointments();
+            List<Appointment> appointments = await repository.GetAllExpiringAppointments();
             if (!appointments.Any())
             {
                 return string.Empty;
             }
-            appointments = appointments.OrderBy(a => a.NextDate).ToList();
+            appointments = appointments.OrderBy(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval)).ToList();
 
             StringBuilder message = new StringBuilder();
 
             for (int i = 0; i < appointments.Count(); i++)
             {
-                message.AppendLine(string.Format("{0}.{1} {2} - {3} - peste {4} zile.",
-                    i,
-                    appointments[i].User.LastName,
-                    appointments[i].User.FirstName,
+                message.AppendLine(string.Format("{0}. {1} {2} - {3} - peste {4} zile.",
+                    i + 1,
+                    appointments[i].User?.LastName,
+                    appointments[i].User?.FirstName,
                     appointments[i].MedicalSpecialty,
-                    (appointments[i].NextDate - DateTime.Now).Value.Days));
+                    appointments[i].IssuedOn.HasValue ? appointments[i].IssuedOn.Value.AddMonths(appointments[i].MonthsInterval).Subtract(DateTimeOffset.Now).Days : "x"));
             }
 
             logger.LogInformation("{Count} expiring appointments found", appointments.Count());

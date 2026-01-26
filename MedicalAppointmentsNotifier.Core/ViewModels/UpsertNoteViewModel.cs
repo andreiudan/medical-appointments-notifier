@@ -11,42 +11,75 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MedicalAppointmentsNotifier.Core.ViewModels;
 
-public partial class UpsertNoteViewModel : ObservableValidator
+public partial class UpsertNoteViewModel : ObservableValidator, IDisposable
 {
-    public event EventHandler OnNoteAdded;
+    public event EventHandler OnCompleted;
 
-    [NotifyPropertyChangedFor(nameof(DescriptionErrorMessage))]
-    [ObservableProperty]
+    private NoteModel note;
+    
     [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
-    private string description = string.Empty;
+    public string Title
+    {
+        get => note.Title;
+        set
+        {
+            SetProperty(note.Title, value, note, (n, t) => n.Title = t, true);
+            SetDirtyForm();
+        }
+    }
 
-    public string DescriptionErrorMessage => GetErrors(Description).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    public string? Description
+    {
+        get => note.Description;
+        set
+        {
+            SetProperty(note.Description, value, note, (n, d) => n.Description = d);
+            SetDirtyForm();
+        }
+    }
 
-    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
-    [ObservableProperty]
     [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? dateFrom = DateTimeOffset.UtcNow;
+    public DateTimeOffset? From
+    {
+        get => note.From;
+        set
+        {
+            SetProperty(note.From, value, note, (n, f) => n.From = f, true);
+            OnPropertyChanged(nameof(ExpiringDate));
+            SetDirtyForm();
+        }
+    }
 
-    [NotifyPropertyChangedFor(nameof(DateIntervalErrorMessage))]
-    [ObservableProperty]
-    [Required(ErrorMessage = ValidationConstants.DatesRequiredErrorMessage)]
-    private DateTimeOffset? dateTo = DateTimeOffset.UtcNow.AddDays(1);
+    [Required(ErrorMessage = ValidationConstants.RequiredErrorMessage)]
+    [Range(0, int.MaxValue, ErrorMessage = ValidationConstants.DaysIntervalErrorMessage)]
+    public int MonthsPeriod
+    {
+        get => note.MonthsPeriod;
+        set
+        {
+            SetProperty(note.MonthsPeriod, value, note, (n, m) => n.MonthsPeriod = m, true);
+            OnPropertyChanged(nameof(ExpiringDate));
+            SetDirtyForm();
+        }
+    }
 
-    public string DateIntervalErrorMessage { get; private set; } = string.Empty;
+    public DateTimeOffset? ExpiringDate => From.HasValue ? From.Value.AddMonths(MonthsPeriod) : null;
 
-    public DateTimeOffset Today { get; } = DateTimeOffset.Now;
+    public string DateIntervalErrorMessage => GetErrors(nameof(From)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    public string MonthsPeriodErrorMessage => GetErrors(nameof(MonthsPeriod)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
+    public string TitleErrorMessage => GetErrors(nameof(Title)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
 
-    [ObservableProperty]
-    private DateTimeOffset minNextDate = DateTimeOffset.Now.AddDays(1);
-
-    public string Title { get; set; } = "Adauga Mentiune";
-
+    public string WindowTitle { get; set; } = "Adauga Mentiune";
     public string UpsertButtonText { get; set; } = "Adauga";
 
     public IAsyncRelayCommand UpsertNoteCommand;
+    public IAsyncRelayCommand LoadNoteCommand;
+    public IAsyncRelayCommand LoadUserIdCommand;
 
-    private Guid UserId { get; set; }
-    private Guid NoteId { get; set; } = Guid.Empty;
+    private Guid userId { get; set; }
+    private NoteModel originalNote;
+    private bool isNewNote = false;
+    private bool isDirty = false;
 
     private readonly IRepository<Note> noteRepository;
     private readonly IEntityToModelMapper mapper;
@@ -59,148 +92,126 @@ public partial class UpsertNoteViewModel : ObservableValidator
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         UpsertNoteCommand = new AsyncRelayCommand(UpsertAsync);
+        LoadNoteCommand = new AsyncRelayCommand<NoteModel>(LoadNote);
+        LoadUserIdCommand = new AsyncRelayCommand<Guid>(LoadUserId);
+
+        ErrorsChanged += UpsertNoteViewModel_ErrorsChanged;
     }
 
-    public void LoadNote(NoteModel note)
+    private void UpsertNoteViewModel_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
     {
-        if(note == null)
+        OnPropertyChanged(nameof(TitleErrorMessage));
+        OnPropertyChanged(nameof(MonthsPeriodErrorMessage));
+        OnPropertyChanged(nameof(DateIntervalErrorMessage));
+    }
+
+    public async Task LoadNote(NoteModel? note)
+    {
+        this.note = new NoteModel();
+
+        if (note == null)
         {
+            isNewNote = true;
+
             logger.LogWarning("LoadNote called with null note");
             return;
         }
 
-        NoteId = note.Id;
-        Description = note.Description;
-        DateFrom = note.From;
-        DateTo = note.Until;
+        originalNote = note;
 
-        Title = "Modifica Mentiunea";
+        Title = note.Title;
+        Description = note.Description;
+        MonthsPeriod = note.MonthsPeriod;
+        From = note.From;
+
+        WindowTitle = "Modifica Mentiunea";
         UpsertButtonText = "Modifica";
 
-        logger.LogInformation("Loaded note with Id: {NoteId}", NoteId);
+        logger.LogInformation("Loaded note with Id: {NoteId}", originalNote.Id);
     }
 
-    public void LoadUserId(Guid userId)
+    public async Task LoadUserId(Guid userId)
     {
-        UserId = userId;
-    }
-
-    partial void OnDescriptionChanged(string value)
-    {
-        ValidateProperty(value, nameof(Description));
-    }
-
-    partial void OnDateFromChanged(DateTimeOffset? value)
-    {
-        ValidateProperty(value, nameof(DateFrom));
-        ValidateDates();
-
-        if(DateFrom != null)
+        if(userId.Equals(Guid.Empty))
         {
-            MinNextDate = DateFrom.Value.AddDays(1);
-        }
-    }
-
-    partial void OnDateToChanged(DateTimeOffset? value)
-    {
-        ValidateProperty(value, nameof(DateTo));
-        ValidateDates();
-    }
-
-    private bool ValidateDates()
-    {
-        DateIntervalErrorMessage = GetErrors(nameof(DateFrom)).FirstOrDefault()?.ErrorMessage ?? GetErrors(nameof(DateTo)).FirstOrDefault()?.ErrorMessage ?? string.Empty;
-
-        if (!string.IsNullOrEmpty(DateIntervalErrorMessage))
-        {
-            return false;
+            logger.LogWarning("LoadUserId called with empty Guid");
+            return;
         }
 
-        if (DateFrom.Value > DateTo.Value)
-        {
-            DateIntervalErrorMessage = ValidationConstants.DateIntervalErrorMessage;
-            return false;
-        }
-
-        return true;
+        this.userId = userId;
     }
 
-    private bool Validate()
+    private void SetDirtyForm()
     {
-        try
-        {
-            ValidateAllProperties();
-
-            if (!ValidateDates())
-            {
-                return false;
-            }
-
-            OnPropertyChanged(nameof(DateIntervalErrorMessage));
-            OnPropertyChanged(nameof(DescriptionErrorMessage));
-
-            if (HasErrors)
-            {
-                return false;
-            }
-        }
-        catch
-        {
-            return false;
-        }
-
-        return true;
+        isDirty = true;
     }
 
     private async Task UpsertAsync()
     {
-        if (!Validate())
+        ValidateAllProperties();
+
+        if (HasErrors)
         {
-            logger.LogInformation("Validation failed on note ID:{NoteId}", NoteId);
+            logger.LogInformation("Validation failed on note with Title: {Title}, Months Period: {MonthsPeriod}, From: {From}", Title, MonthsPeriod, From);
             return;
         }
 
-        Note note = new Note
+        if (isDirty)
         {
-            Id = Guid.NewGuid(),
-            Description = Description,
-            From = DateFrom,
-            Until = DateTo,
-            UserId = UserId,
-        };
-
-        if(NoteId.Equals(Guid.Empty))
-        {
-            await InsertAsync(note);
-        }
-        else
-        {
-            note.Id = NoteId;
-            await UpdateAsync(note);
+            if (isNewNote)
+            {
+                await InsertAsync(mapper.Map(note, userId));
+            }
+            else
+            {
+                note.Id = this.originalNote.Id;
+                await UpdateAsync(mapper.Map(note, userId));
+            }
         }
 
-        OnNoteAdded?.Invoke(this, EventArgs.Empty);
+        OnCompleted?.Invoke(this, EventArgs.Empty);
     }
 
-    private async Task InsertAsync(Note note)
+    private async Task InsertAsync(Note addedNote)
     {
-        _ = await noteRepository.AddAsync(note);
+        _ = await noteRepository.AddAsync(addedNote);
 
-        logger.LogInformation("Inserted new note with Id: {NoteId}", note.Id);
-        WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(mapper.Map(note)));
+        logger.LogInformation("Inserted new note with Id: {NoteId}", addedNote.Id);
+        WeakReferenceMessenger.Default.Send<NoteAddedMessage>(new NoteAddedMessage(mapper.Map(addedNote)));
     }
 
-    private async Task UpdateAsync(Note note)
+    private async Task UpdateAsync(Note updatedNote)
     {
-        bool updated = await noteRepository.UpdateAsync(note);
-
+        bool updated = await noteRepository.UpdateAsync(updatedNote);
         if (!updated)
         {
-            logger.LogWarning("Failed to update note with Id: {NoteId}", note.Id);
+            logger.LogWarning("Failed to update note with Id: {NoteId}", updatedNote.Id);
             return;
         }
+        
+        originalNote.Title = updatedNote.Title;
+        originalNote.Description = updatedNote.Description;
+        originalNote.From = updatedNote.From;
+        originalNote.MonthsPeriod = updatedNote.MonthsPeriod;
 
-        logger.LogInformation("Updated note with Id: {NoteId}", note.Id);
-        WeakReferenceMessenger.Default.Send<NoteUpdatedMessage>(new NoteUpdatedMessage(mapper.Map(note)));
+        logger.LogInformation("Updated note with Id: {NoteId}", updatedNote.Id);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ErrorsChanged -= UpsertNoteViewModel_ErrorsChanged;
+            OnCompleted = null;
+            (LoadNoteCommand as IDisposable)?.Dispose();
+            (LoadUserIdCommand as IDisposable)?.Dispose();
+            (UpsertNoteCommand as IDisposable)?.Dispose();
+        }
     }
 }
