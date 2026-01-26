@@ -8,7 +8,7 @@ namespace MedicalAppointmentsNotifier.Domain.Models
         public Guid Id { get; set; }
 
         [ObservableProperty]
-        public partial MedicalSpecialty? MedicalSpecialty { get; set; } = 0;
+        public partial MedicalSpecialty? MedicalSpecialty { get; set; } = null;
 
         [ObservableProperty]
         public partial AppointmentStatus Status { get; set; } = AppointmentStatus.Neprogramat;
@@ -79,7 +79,7 @@ namespace MedicalAppointmentsNotifier.Domain.Models
             if (ScheduledOn.HasValue)
             {
                 var remainingTimeSpan = ScheduledOn.Value.Date - DateTimeOffset.Now.Date;
-                return (int)remainingTimeSpan.TotalDays <= 0 ? 0 : (int)remainingTimeSpan.TotalDays;
+                return (int)remainingTimeSpan.TotalDays;
             }
             return GetRemainingDaysUntilExpiry();
         }
@@ -90,7 +90,7 @@ namespace MedicalAppointmentsNotifier.Domain.Models
             {
                 var expiryDate = IssuedOn.Value.AddMonths(MonthsInterval);
                 var remainingTimeSpan = expiryDate.Date - DateTimeOffset.Now.Date;
-                return (int)remainingTimeSpan.TotalDays <= 0 ? 0 : (int)remainingTimeSpan.TotalDays;
+                return (int)remainingTimeSpan.TotalDays;
             }
             return int.MaxValue;
         }

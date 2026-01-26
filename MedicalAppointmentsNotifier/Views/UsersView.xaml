@@ -527,8 +527,8 @@
                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                                         <TextBlock Text="{Binding DaysUntilExpiry, 
-                                                            Converter={StaticResource ValueToMessageConverter}, 
-                                                            ConverterParameter='Expira in {0} zile'}" 
+                                                                        Converter={StaticResource ValueToMessageConverter}, 
+                                                                        ConverterParameter='Expira in {0} zile'}" 
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                    Style="{StaticResource CaptionTextBlockStyle}"/>
                                                     </StackPanel>

@@ -37,13 +37,13 @@ namespace MedicalAppointmentsNotifier.ReminderJob.Notifiers
             StringBuilder stringBuilder = new StringBuilder();
             string[] appointments = message.Trim().Split("\n");
 
-            if (appointments.Length > 6)
+            if (appointments.Length > 4)
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     stringBuilder.Append(appointments[i]);
                 }
-                stringBuilder.Append(string.Format("+{0} scrisori medicale care urmeaza sa expire", (appointments.Length - 5)));
+                stringBuilder.Append(string.Format("+ inca {0} scrisori medicale care urmeaza sa expire", (appointments.Length - 4)));
             }
             else
             {

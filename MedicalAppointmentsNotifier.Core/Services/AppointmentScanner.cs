@@ -42,8 +42,8 @@ namespace MedicalAppointmentsNotifier.Core.Services
 
             for (int i = 0; i < appointments.Count(); i++)
             {
-                message.AppendLine(string.Format("{0}.{1} {2} - {3} - peste {4} zile.",
-                    i,
+                message.AppendLine(string.Format("{0}. {1} {2} - {3} - peste {4} zile.",
+                    i + 1,
                     appointments[i].User?.LastName,
                     appointments[i].User?.FirstName,
                     appointments[i].MedicalSpecialty,

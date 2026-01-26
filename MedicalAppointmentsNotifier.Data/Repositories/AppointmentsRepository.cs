@@ -30,8 +30,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
                 .AsNoTracking()
                 .AsEnumerable();
 
-            return appointments.Where(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval) > DateTimeOffset.Now)
-                               .OrderByDescending(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval))
+            return appointments.OrderByDescending(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval))
                                .ToList();
         }
 
