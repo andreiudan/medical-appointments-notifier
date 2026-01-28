@@ -526,7 +526,7 @@
                                                                   FontSize="14"
                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-                                                        <TextBlock Text="{Binding DaysUntilExpiry, 
+                                                        <TextBlock Text="{Binding DaysUntilExpiry, Mode=OneWay,
                                                                         Converter={StaticResource ValueToMessageConverter}, 
                                                                         ConverterParameter='Expira in {0} zile'}" 
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
