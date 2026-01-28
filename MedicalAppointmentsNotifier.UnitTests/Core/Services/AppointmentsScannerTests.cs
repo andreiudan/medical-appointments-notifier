@@ -58,27 +58,27 @@ namespace MedicalAppointmentsNotifier.UnitTests.Core.Services
             {
                 new Appointment
                 {
-                    User = new User { FirstName = "Jane", LastName = "Smith" },
-                    MedicalSpecialty = MedicalSpecialty.Cardiologie,
-                    IssuedOn = DateTimeOffset.Now.AddDays(-20),
-                    MonthsInterval = 1,
-                    Status = AppointmentStatus.Neprogramat
-                },
-                new Appointment
-                {
                     User = new User { FirstName = "John", LastName = "Doe" },
                     MedicalSpecialty = MedicalSpecialty.Oncologie,
                     IssuedOn = DateTimeOffset.Now.AddDays(-25),
                     MonthsInterval = 1,
                     Status = AppointmentStatus.Neprogramat,
+                },
+                new Appointment
+                {
+                    User = new User { FirstName = "Jane", LastName = "Smith" },
+                    MedicalSpecialty = MedicalSpecialty.Cardiologie,
+                    IssuedOn = DateTimeOffset.Now.AddDays(-20),
+                    MonthsInterval = 1,
+                    Status = AppointmentStatus.Neprogramat
                 }
             };
 
             appointemntsRepositoryMock.Setup(x => x.GetAllExpiringAppointments()).ReturnsAsync(appointments);
 
             string expectedMessage =
-                "0.Doe John - Oncologie - peste 5 zile.\r\n" +
-                "1.Smith Jane - Cardiologie - peste 10 zile.\r\n";
+                "1. Doe John - Oncologie - peste 5 zile.\r\n" +
+                "2. Smith Jane - Cardiologie - peste 10 zile.\r\n";
 
             //Act
             string result = await scanner.GetExpiredAppointmentsMessage();

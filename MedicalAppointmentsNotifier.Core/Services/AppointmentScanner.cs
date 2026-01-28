@@ -36,7 +36,6 @@ namespace MedicalAppointmentsNotifier.Core.Services
             {
                 return string.Empty;
             }
-            appointments = appointments.OrderBy(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval)).ToList();
 
             StringBuilder message = new StringBuilder();
 
