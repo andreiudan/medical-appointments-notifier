@@ -16,11 +16,16 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
 
         public async Task<List<Appointment>> GetAllExpiringAppointments()
         {
-            return await context.Set<Appointment>()
+            List<Appointment> query = await context.Set<Appointment>()
                 .Where(a => (int)a.Status == 0)
                 .Include(a => a.User)
                 .AsNoTracking()
                 .ToListAsync();
+
+            return query.Where(a => (a.IssuedOn.Value.AddMonths(a.MonthsInterval) >= DateTimeOffset.Now) && 
+                                    (a.IssuedOn.Value.AddMonths(a.MonthsInterval).Subtract(DateTimeOffset.Now)).TotalDays <= 30)
+                        .OrderBy(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval))
+                        .ToList();
         }
 
         public async Task<List<Appointment>> GetExpiringAppointments(Guid userId)
@@ -30,7 +35,7 @@ namespace MedicalAppointmentsNotifier.Data.Repositories
                 .AsNoTracking()
                 .AsEnumerable();
 
-            return appointments.OrderByDescending(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval))
+            return appointments.OrderBy(a => a.IssuedOn.Value.AddMonths(a.MonthsInterval))
                                .ToList();
         }
 

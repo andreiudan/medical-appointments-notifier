@@ -9,7 +9,7 @@
     <Title>Notificator expirare scrisori medicale</Title>
     <Description>Aplicatie care trimite o notificare atunci cand urmeaza sa expire o scrisoare medicala pentru un beneficiar adaugat in aplicatie.</Description>
     <PackageIcon>StoreLogo.scale-200.png</PackageIcon>
-    <AssemblyTitle>NotificatorExpirareScrisoriMedicale</AssemblyTitle>
+    <AssemblyTitle>Notificator Expirare Scrisori Medicale</AssemblyTitle>
     <AssemblyName>NotificatorExpirareScrisoriMedicale</AssemblyName>
 		<RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>

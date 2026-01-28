@@ -4,13 +4,15 @@
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>MedicalAppointmentsNotifier</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
+		
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="Assets\BadgeLogo.scale-100.png" />
@@ -111,11 +113,13 @@
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <ApplicationIcon>Assets\SmallTile.scale-400.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\Square44x44Logo.altform-unplated_targetsize-256.ico</ApplicationIcon>
     <StartupObject></StartupObject>
     <PublishAot>False</PublishAot>
     <Title>Medical Appointments Notifier</Title>
-    <PackageIcon>SmallTile.scale-150.png</PackageIcon>
+    <PackageIcon>SmallTile.scale-400.png</PackageIcon>
     <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
+    <AssemblyName>GestionareScrisoriMedicale</AssemblyName>
+    <AssemblyTitle>Gestionare Scrisori Medicale</AssemblyTitle>
   </PropertyGroup>
 </Project>
